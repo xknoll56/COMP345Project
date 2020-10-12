@@ -16,17 +16,20 @@
 
 int main() {
   // Create a new map loader
-  MapLoader* ml = new MapLoader();
-  std::cout << (*ml);
+  MapLoader ml;
+  std::cout << (ml);
   std::string input;
   do {
     std::cout
         << "Please Enter the name of the map file that is to be created. \n";
     // Generate the map
     std::cin >> input;
-    Map* map = ml->GenerateMap("MapFiles/" + input);
-    // If the map is valid, it will be displayed, otherwise if exit is entered quit.
-    if (map != nullptr && map->Validate()) {
+    Map* map = ml.GenerateMap("MapFiles/" + input);
+    // If the map is valid, it will be displayed, it will be a nullptr if not,
+    // otherwise if exit is entered quit.
+    if (map != nullptr) {
+      // The map is a valid map, now all the territories will be displayed by
+      // continent
       for (int i = 0; i < map->GetContinents().size(); ++i) {
         Continent* continent = map->GetContinents()[i];
         std::cout << continent->GetName() << std::endl;
@@ -47,7 +50,7 @@ int main() {
     }
 
     delete map;
-  } while (input.compare("exit")!=0);
+  } while (input.compare("exit") != 0);
 
   return 0;
 }
