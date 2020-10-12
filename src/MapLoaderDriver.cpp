@@ -15,7 +15,7 @@ int main() {
     std::cin >> input;
     Map* map = ml->GenerateMap("MapFiles/" + input);
     // If the map is valid, it will be displayed, otherwise if exit is entered quit.
-    if (map->Validate()) {
+    if (map != nullptr && map->Validate()) {
       for (int i = 0; i < map->GetContinents().size(); ++i) {
         Continent* continent = map->GetContinents()[i];
         std::cout << continent->GetName() << std::endl;
