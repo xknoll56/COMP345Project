@@ -9,7 +9,7 @@
 //
 // Based on the 'https://www.warzone.com/' game.
 
-#define MAP_DRIVER
+//#define MAP_DRIVER
 #ifdef MAP_DRIVER
 
 #include <iostream>

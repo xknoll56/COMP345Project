@@ -1,3 +1,14 @@
+// COMP 345 - Project
+// Part 1
+//
+// Sophie Renaud       -  40132563
+// Joey Abou-Chaker    -  40055551
+// Jordan Goulet       -  40075688
+// Xavier Knoll        -  40132134
+// Sébastien Champoux  -  40133449
+//
+// Based on the 'https://www.warzone.com/' game.
+
 #include "MapLoader.h"
 
 std::vector<std::string> MapLoader::Split(const std::string line) const {
