@@ -263,16 +263,30 @@ void MapLoader::ReadFile(const std::string path) {
 }
 
 Map* MapLoader::GenerateMap(const std::string filePath) {
+  //Reset the data if a new file is being generated
+  validityData = new ValidityData();
+  index = 0;
+  continentsCount = 0;
+  territoriesCount = 0;
   // Call the read file utility function to gather all the data
   ReadFile(filePath);
   // If the data is valid, then we can return the map, otherwise a nullptr is
   // returned.
-  if (validityData->IsValid())
+  if (validityData->IsValid()) {
+     //Clear the data for another use.
+    delete validityData;
+    delete[] continentsSizes;
+    delete[] neighborsSizes;
     return generatedMap;
+  }
   else {
     std::cout << "Warning, data in map file was not valid, a null pointer is "
                  "being returned!!!"
               << std::endl;
+    // Clear the data for another use.
+    delete validityData;
+    delete[] continentsSizes;
+    delete[] neighborsSizes;
     return nullptr;
   }
 }
@@ -280,6 +294,8 @@ Map* MapLoader::GenerateMap(const std::string filePath) {
 MapLoader::MapLoader() {
   validityData = new ValidityData();
   index = 0;
+  continentsCount = 0;
+  territoriesCount = 0;
 }
 
 MapLoader::~MapLoader() {
@@ -293,12 +309,16 @@ MapLoader::~MapLoader() {
 MapLoader::MapLoader(const MapLoader& toCopy) {
   validityData = new ValidityData();
   index = 0;
+  continentsCount = 0;
+  territoriesCount = 0;
 }
 // The assignment overload just creates a new object because it needs to
 // generate a new map if needed
 MapLoader& MapLoader::operator=(const MapLoader& rightSide) {
   validityData = new ValidityData();
   index = 0;
+  continentsCount = 0;
+  territoriesCount = 0;
   return *this;
 }
 std::ostream& operator<<(std::ostream& out, const MapLoader& toOutput) {
