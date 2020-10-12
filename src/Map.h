@@ -1,14 +1,22 @@
 // COMP 345 - Project
 // Part 1
-// Jordan Goulet - 40075688
-// FirstName LastName - 00000000
-// FirstName LastName - 00000000
-// FirstName LastName - 00000000
-// FirstName LastName - 00000000
-// 
+//
+// Sophie Renaud       -  40132563
+// Joey Abou-Chaker    -  40055551
+// Jordan Goulet       -  40075688
+// Xavier Knoll        -  40132134
+// Sébastien Champoux  -  40133449
+//
 // Based on the 'https://www.warzone.com/' game.
 
 #pragma once
+
+//#define DEBUG
+#ifdef DEBUG
+#define LOG(s) std::cout << s << std::endl;
+#else
+#define LOG(s)
+#endif
 
 #include <string>
 #include <vector>
@@ -24,7 +32,11 @@ class Continent{
   std::vector<Territory> territories;
   int bonus;
  public:
+  Continent();
   Continent(std::string name, int bonus);
+  Continent(Continent* continent);
+  Continent& operator=(const Continent &continent);
+  //std::ostream& operator<<(std::ostream& out, const Continent &continent);
   std::string GetName();
   std::vector<Territory>* GetTerritories();
   Territory* CreateTerritory(int id, std::string name);
@@ -34,10 +46,14 @@ class Continent{
 
 class Map {
  private:
+  Map();
   std::vector<std::vector<int>> borders;
   std::vector<Continent*> continents;
  public:
   Map(int vertices, int continents);
+  Map(Map* map);
+  Map& operator=(const Map& map);
+  //std::ostream& operator<<(std::ostream& out, const Map& map);
   void AddContinent(Continent* continent);
   std::vector<Continent*> GetContinents();
   void AddBorder(std::vector<int> data);
@@ -68,6 +84,9 @@ class Territory {
  public:
   Territory();
   Territory(int id, std::string name);
+  Territory(Territory* territory);
+  Territory& operator=(const Territory& territory);
+ // std::ostream& operator<<(std::ostream& out, Territory &territory);
   std::string* GetName();
   void SetPlayer(Player* player);
   Player* GetPlayer();
