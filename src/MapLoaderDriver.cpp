@@ -11,35 +11,34 @@
 
 #include "MapLoader.h"
 
-//#define MAP_LOADER_DRIVER
+#define MAP_LOADER_DRIVER
 #ifdef MAP_LOADER_DRIVER
 
 int main() {
   // Create a new map loader
-  MapLoader ml;
-  std::cout << (ml);
+  MapLoader* ml = new MapLoader();
+  std::cout << (*ml);
   std::string input;
   do {
     std::cout
         << "Please Enter the name of the map file that is to be created. \n";
     // Generate the map
     std::cin >> input;
-    Map* map = ml.GenerateMap("MapFiles/" + input);
-    // If the map is valid, it will be displayed, it will be a nullptr if not,
-    // otherwise if exit is entered quit.
-    if (map != nullptr) {
-      // The map is a valid map, now all the territories will be displayed by
-      // continent
-      for (int i = 0; i < map->GetContinents().size(); ++i) {
-        Continent* continent = map->GetContinents()[i];
-        std::cout << continent->GetName() << std::endl;
-        for (int j = 0; j < continent->GetTerritories()->size(); ++j) {
-          Territory* territory = &(continent->GetTerritories())->at(j);
-          std::cout << *territory->GetName() << " Neighbors: ";
-          std::vector<Territory*> neighbors = map->GetNeighbors(territory);
-          for (int k = 0; k < neighbors.size(); ++k) {
-            Territory* neb = neighbors[k];
-            std::cout << "  " << *neb->GetName();
+    Map* map = ml->GenerateMap("MapFiles/" + input);
+    if(map->Validate()) {
+      std::cout << "Map validated\n" << std::endl;
+    }
+    // If the map is valid, it will be displayed, otherwise if exit is entered quit.
+    if (map != nullptr ) {
+      for (int i = 0; i < map->getContinents()->size(); ++i) {
+        Continent* continent = (*map->getContinents())[i];
+        std::cout << *continent->getName() << std::endl;
+        for (int j = 0; j < continent->getTerritories()->size(); ++j) {
+         
+          Territory* territory = (continent->getTerritories())->at(j);
+          std::cout << *territory->getName() << " Neighbors: ";
+          for (auto neb : *territory->getNeighbors()) {
+            std::cout << "  " << *neb->getName() << "  ";
           }
           std::cout << std::endl;
         }
@@ -50,7 +49,7 @@ int main() {
     }
 
     delete map;
-  } while (input.compare("exit") != 0);
+  } while (input.compare("exit")!=0);
 
   return 0;
 }

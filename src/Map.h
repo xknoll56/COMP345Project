@@ -1,100 +1,136 @@
 // COMP 345 - Project
 // Part 1
-//
-// Sophie Renaud       -  40132563
-// Joey Abou-Chaker    -  40055551
-// Jordan Goulet       -  40075688
-// Xavier Knoll        -  40132134
-// Sébastien Champoux  -  40133449
+// Jordan Goulet - 40075688
+// FirstName LastName - 00000000
+// FirstName LastName - 00000000
+// FirstName LastName - 00000000
+// FirstName LastName - 00000000
 //
 // Based on the 'https://www.warzone.com/' game.
 
 #pragma once
-
-//#define DEBUG
-#ifdef DEBUG
-#define LOG(s) std::cout << s << std::endl;
-#else
-#define LOG(s)
-#endif
 
 #include <string>
 #include <vector>
 
 #include "Player.h"
 
-class Territory;
-class Player;
-
-class Continent{
- private:
-  std::string name;
-  std::vector<Territory> territories;
-  int bonus;
- public:
-  Continent();
-  Continent(std::string name, int bonus);
-  Continent(Continent* continent);
-  Continent& operator=(const Continent &continent);
-  //std::ostream& operator<<(std::ostream& out, const Continent &continent);
-  std::string GetName();
-  std::vector<Territory>* GetTerritories();
-  Territory* CreateTerritory(int id, std::string name);
-  int GetBonus();
-  bool AreAllVisited();
-};
-
-class Map {
- private:
-  Map();
-  std::vector<std::vector<int>> borders;
-  std::vector<Continent*> continents;
- public:
-  Map(int vertices, int continents);
-  Map(Map* map);
-  Map& operator=(const Map& map);
-  //std::ostream& operator<<(std::ostream& out, const Map& map);
-  void AddContinent(Continent* continent);
-  std::vector<Continent*> GetContinents();
-  void AddBorder(std::vector<int> data);
-  bool AreAdjacent(Territory* source, Territory* target);
-  std::vector<Territory*> GetTerritories();
-  std::vector<Territory*> GetNeighbors(Territory* territory);
-  Territory* GetTerriotryByID(int id);
-  std::vector<std::vector<int>>* GetBorders();
-  std::vector<int>* GetBordersById(int id,
-                                   std::vector<std::vector<int>>* borders);
-  void Visit(int id, std::vector<std::vector<int>>* borders);
-  bool Validate();
-  std::vector<std::vector<int>> GetInvertedBorders();
-  std::vector<std::vector<int>> GetContinentBorders(
-      Continent* continent, std::vector<std::vector<int>>* borders);
-  void AllSetVisited(bool b);
-  bool AreAllVisited();
-};
-
 class Territory {
  private:
   std::string name;
-  int id;
-  Player* player;
-  int troops;
-  bool visited = false;
+  bool discovered;
+  std::vector<Territory*> neighbors;
 
  public:
-  Territory();
-  Territory(int id, std::string name);
-  Territory(Territory* territory);
-  Territory& operator=(const Territory& territory);
- // std::ostream& operator<<(std::ostream& out, Territory &territory);
-  std::string* GetName();
-  void SetPlayer(Player* player);
-  Player* GetPlayer();
-  void SetId(int id);
-  int GetId();
-  void IncreaseTroops(int increase);
-  void DecraseTroops(int decrease);
-  int GetTroops();
-  void SetVisited(bool b);
-  bool GetVisited();
+  Territory(std::string name) : name(name), discovered(false) {}
+  void AddNeigbor(Territory* neighbor) { neighbors.push_back(neighbor); }
+  const std::vector<Territory*>* const getNeighbors() const {
+    return &neighbors;
+  }
+
+  void setDiscovered(bool discovered) { this->discovered = discovered; }
+
+  bool getDiscovered() { return discovered; }
+  const std::string* const getName() { return &name; }
+};
+class Graph {
+ private:
+  std::vector<Territory*> territories;
+  int numTerritories;
+  bool travelledAll() {
+    bool travelled = true;
+    for (Territory* territory : territories) {
+      if (!territory->getDiscovered()) {
+        travelled = false;
+        break;
+      }
+    }
+
+    return travelled;
+  }
+
+  void DepthFirstSearch(Territory* position) {
+    std::cout << "entering territory " << *position->getName() << std::endl;
+    position->setDiscovered(true);
+    for (Territory* neighbor : *position->getNeighbors()) {
+      if (!neighbor->getDiscovered() && contains(neighbor)) {
+        std::cout << "not discovered" << std::endl;
+        DepthFirstSearch(neighbor);
+      }
+    }
+  }
+
+ public:
+  bool contains(Territory* territory) {
+    std::vector<Territory*>::iterator it =
+        std::find(territories.begin(), territories.end(), territory);
+    if (it != territories.end())
+      return true;
+    else
+      return false;
+  }
+
+  const std::vector<Territory*>* const getTerritories() { return &territories; }
+
+ protected:
+  void addTerritory(Territory* territory) { territories.push_back(territory); }
+  bool validate(Territory* start) {
+    start->setDiscovered(true);
+    DepthFirstSearch(start);
+    bool valid = travelledAll();
+    for (Territory* terr : territories) terr->setDiscovered(false);
+    return valid;
+  }
+};
+
+class Continent : public Graph {
+ private:
+  std::string name;
+
+ public:
+  Continent(std::string name) : name(name){};
+  const std::string* getName() { return &name; }
+  friend class Map;
+};
+
+class Map : public Graph {
+ private:
+  std::vector<Continent> continents;
+  std::vector<Territory> territories;
+  std::vector<Continent*> continentLocations;
+
+ public:
+  friend class Continent;
+  Map(int numContinents, int numTerritories) {
+    continents.reserve(numContinents);
+    territories.reserve(numTerritories);
+  }
+
+  const std::vector<Continent*>* const getContinents() {
+    return &continentLocations;
+  }
+  void AddTerritory(std::string name, Continent* continent) {
+    Territory territory(name);
+    territories.push_back(territory);
+
+    Territory* terr = &territories[territories.size() - 1];
+    addTerritory(terr);
+    continent->addTerritory(terr);
+  }
+
+  void AddContinent(std::string name) {
+    Continent continent(name);
+    continents.push_back(continent);
+    continentLocations.push_back(&continents[continents.size() - 1]);
+  }
+
+  bool Validate() {
+    bool valid = true;
+    if (!Graph::validate(&territories[0])) valid = false;
+    for (Continent* continent : *getContinents()) {
+      if (!continent->validate(continent->getTerritories()->at(0)))
+        valid = false;
+    }
+    return valid;
+  }
 };

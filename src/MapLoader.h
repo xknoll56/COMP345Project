@@ -58,9 +58,7 @@ class MapLoader {
 
   // A pointer to the map that is being generated.
   Map* generatedMap;
-  // A vector of pointers to continents which will be later used to set into the
-  // Maps data directly
-  std::vector<Continent*> continents;
+
   // Counts the number of continents to generated the continents array.
   int continentsCount;
   // An index used to access the continents sizes
