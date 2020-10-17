@@ -9,13 +9,14 @@ class Territory {
   std::string name;
   bool discovered;
   std::vector<Territory*> neighbors;
+  void setDiscovered(bool discovered);
+  bool getDiscovered();
+  friend class Graph;
 
  public:
   Territory(std::string name) : name(name), discovered(false) {}
   void AddNeigbor(Territory* neighbor);
   const std::vector<Territory*>* const getNeighbors() const;
-  void setDiscovered(bool discovered);
-  bool getDiscovered();
   const std::string* const getName();
 };
 class Graph {
