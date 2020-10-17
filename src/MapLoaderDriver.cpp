@@ -9,10 +9,15 @@
 //
 // Based on the 'https://www.warzone.com/' game.
 
-#include "MapLoader.h"
+#include "MapLoader.h" 
+#include <filesystem>
+
+
 
 #define MAP_LOADER_DRIVER
 #ifdef MAP_LOADER_DRIVER
+
+
 
 int main() {
   // Create a new map loader
@@ -20,16 +25,20 @@ int main() {
   std::cout << (*ml);
   std::string input;
   do {
-    std::cout
-        << "Please Enter the name of the map file that is to be created. \n";
+    std::string path = "MapFiles/";
+
+    std::cout << "Please Enter the name of the map file that is to be created. \n";
     // Generate the map
     std::cin >> input;
     Map* map = ml->GenerateMap("MapFiles/" + input);
     if(map->Validate()) {
-      std::cout << "Map validated\n" << std::endl;
+      std::cout << "Map validated\n";
+    } else {
+      std::cout << "Map invalid!\n";
     }
     // If the map is valid, it will be displayed, otherwise if exit is entered quit.
     if (map != nullptr ) {
+
       for (int i = 0; i < map->getContinents()->size(); ++i) {
         Continent* continent = (*map->getContinents())[i];
         std::cout << *continent->getName() << std::endl;
@@ -47,7 +56,6 @@ int main() {
         std::cout << std::endl;
       }
     }
-
     delete map;
   } while (input.compare("exit")!=0);
 

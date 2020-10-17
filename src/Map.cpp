@@ -14,7 +14,7 @@ void Territory::setDiscovered(bool discovered) {
 bool Territory::getDiscovered() { return discovered; }
 const std::string* const Territory::getName() { return &name; }
 
-  bool Graph::travelledAll() {
+bool Graph::travelledAll() {
   bool travelled = true;
   for (Territory* territory : territories) {
     if (!territory->getDiscovered()) {
@@ -25,7 +25,7 @@ const std::string* const Territory::getName() { return &name; }
 
   return travelled;
 }
-
+Graph::Graph() {}
 void Graph::DepthFirstSearch(Territory* position) {
   std::cout << "entering territory " << *position->getName() << std::endl;
   position->setDiscovered(true);
@@ -53,47 +53,44 @@ void Graph::addTerritory(Territory* territory) {
   territories.push_back(territory);
 }
 bool Graph::validate() {
-  bool valid = false;
   for (Territory* start : territories) {
     DepthFirstSearch(start);
     bool valid = travelledAll();
     for (Territory* terr : territories) terr->setDiscovered(false);
-    if (valid) return true;
+    if (!valid) return false;
   }
-  return valid;
+  return true;
 }
 
 const std::string* Continent::getName() { return &name; }
 
-  Map::Map(int numContinents, int numTerritories) {
-    continents.reserve(numContinents);
-    territories.reserve(numTerritories);
-  }
+Map::Map(int numContinents, int numTerritories) {
+  continents.reserve(numContinents);
+  territories.reserve(numTerritories);
+}
 
-  const std::vector<Continent*>* const Map::getContinents() {
-    return &continentLocations;
-  }
-  void Map::AddTerritory(std::string name, Continent* continent) {
-    Territory territory(name);
-    territories.push_back(territory);
+const std::vector<Continent*>* const Map::getContinents() {
+  return &continentLocations;
+}
+void Map::AddTerritory(std::string name, Continent* continent) {
+  // Territory territory(name);
+  territories.push_back(Territory(name));
 
-    Territory* terr = &territories[territories.size() - 1];
-    addTerritory(terr);
-    continent->addTerritory(terr);
-  }
+  Territory* terr = &territories[territories.size() - 1];
+  addTerritory(terr);
+  continent->addTerritory(terr);
+}
 
-  void Map::AddContinent(std::string name) {
-    Continent continent(name);
-    continents.push_back(continent);
-    continentLocations.push_back(&continents[continents.size() - 1]);
-  }
+void Map::AddContinent(std::string name) {
+  continents.push_back(Continent(name));
+  continentLocations.push_back(&continents[continents.size() - 1]);
+}
 
-  bool Map::Validate() {
-    bool valid = true;
-    if (!Graph::validate()) valid = false;
-    for (Continent* continent : *getContinents()) {
-      if (!continent->validate())
-        valid = false;
-    }
-    return valid;
+bool Map::Validate() {
+  bool valid = true;
+  if (!Graph::validate()) valid = false;
+  for (Continent* continent : *getContinents()) {
+    if (!continent->validate()) valid = false;
   }
+  return valid;
+}

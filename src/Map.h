@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-
+class MapLoader;
 class Territory {
  private:
   std::string name;
@@ -28,6 +28,7 @@ class Graph {
  public:
   bool contains(Territory* territory);
   const std::vector<Territory*>* const getTerritories();
+  Graph();
 
  protected:
   void addTerritory(Territory* territory);
@@ -50,11 +51,11 @@ class Map : public Graph {
   std::vector<Territory> territories;
   std::vector<Continent*> continentLocations;
 
+
  public:
-  friend class Continent;
   Map(int numContinents, int numTerritories);
   const std::vector<Continent*>* const getContinents();
+  bool Validate();
   void AddTerritory(std::string name, Continent* continent);
   void AddContinent(std::string name);
-  bool Validate();
 };
