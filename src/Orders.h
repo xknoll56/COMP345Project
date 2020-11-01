@@ -58,7 +58,7 @@ class Deploy : public Order {
   virtual void execute();
 
  private:
-  int requestedNumberOfArmies;
+  int numberOfArmies;
   Territory* territoryToDeploy;
   virtual std::ostream& doPrint(std::ostream& out) const;
 };
