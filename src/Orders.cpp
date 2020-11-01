@@ -94,15 +94,17 @@ std::ostream& operator<<(std::ostream& out, const Order& toOutput) {
   return toOutput.doPrint(out);
 }
 
-Deploy::Deploy() : Order(), territoryToDeploy() {}
+Deploy::Deploy() : Order(), territoryToDeploy(), numberOfArmies(0) {}
 
-Deploy::Deploy(Player* player, Territory* territory) : Order(player) {
-  this->player = player;
-  this->territoryToDeploy = territory;
-}
+Deploy::Deploy(Player* player, Territory* territory,
+               int requestedNumberOfArmies)
+    : Order(player),
+      territoryToDeploy(territory),
+      numberOfArmies(requestedNumberOfArmies) {}
 
 Deploy::Deploy(const Deploy& toCopy) : Order(toCopy) {
   this->territoryToDeploy = toCopy.territoryToDeploy;
+  this->numberOfArmies = toCopy.numberOfArmies;
 }
 
 Deploy& Deploy::operator=(const Deploy& rightSide) {
@@ -113,20 +115,31 @@ Deploy& Deploy::operator=(const Deploy& rightSide) {
 
 Deploy::~Deploy() {}
 
-bool Deploy::validate() { return (territoryToDeploy->GetPlayer() == player); }
+bool Deploy::validate() {
+  bool playerOwnsTerritory = (territoryToDeploy->GetPlayer() == player);
+  bool numberOfArmiesValid = (numberOfArmies > 0);
+  return (playerOwnsTerritory && numberOfArmiesValid);
+}
 
 void Deploy::execute() {
   if (!validate()) {
     return;
   }
   wasExecuted = true;
-  std::cout << "Deploying armies into some territory.\n";
+  int armiesFromPool =
+      player->TakeArmiesFromReinforcementPool(numberOfArmies);
+  if (armiesFromPool != numberOfArmies) {
+    numberOfArmies = armiesFromPool;
+  }
+  int newNumberOfArmies =
+      territoryToDeploy->GetNumberOfArmies() + armiesFromPool;
+  territoryToDeploy->SetNumberOfArmies(newNumberOfArmies);
 }
 
 std::ostream& Deploy::doPrint(std::ostream& out) const {
   out << "Deploy order.";
   if (wasExecuted) {
-    out << " This order was executed, its effect was {effect}.";
+    out << " This order was executed. " << numberOfArmies << " armies were deployed to " << territoryToDeploy;
   }
   return out;
 }
@@ -156,10 +169,7 @@ Advance& Advance::operator=(const Advance& rightSide) {
   return *this;
 }
 
-bool Advance::validate() {
-  // Check if source and target territories are neighbors
-  return map->AreAdjacent(sourceTerritory, targetTerritory);
-}
+bool Advance::validate() { return true; }
 
 void Advance::execute() {
   if (!validate()) {
@@ -211,13 +221,7 @@ std::ostream& operator<<(std::ostream& out, const Bomb& toOutput) {
   return toOutput.doPrint(out);
 }
 
-bool Bomb::validate() {
-  // Check that territories are adjacent and that target
-  // does not belong to player
-  bool areAdjacent = map->AreAdjacent(sourceTerritory, targetTerritory);
-  bool targetDoesntBelongToPlayer = (targetTerritory->GetPlayer() != player);
-  return (areAdjacent && targetDoesntBelongToPlayer);
-}
+bool Bomb::validate() { return true; }
 
 void Bomb::execute() {
   if (!validate()) {
@@ -258,10 +262,7 @@ std::ostream& operator<<(std::ostream& out, const Blockade& toOutput) {
   return toOutput.doPrint(out);
 }
 
-bool Blockade::validate() {
-  // Check that the territory belongs to player
-  return (territoryToBlockade->GetPlayer() == player);
-}
+bool Blockade::validate() { return true; }
 
 void Blockade::execute() {
   if (!validate()) {
@@ -297,10 +298,7 @@ Negotiate& Negotiate::operator=(const Negotiate& rightSide) {
   return *this;
 }
 
-bool Negotiate::validate() {
-  // Check that the players negotiating aren't the same
-  return player != opponent;
-}
+bool Negotiate::validate() { return true; }
 
 void Negotiate::execute() {
   if (!validate()) {
@@ -345,11 +343,7 @@ Airlift& Airlift::operator=(const Airlift& rightSide) {
   return *this;
 }
 
-bool Airlift::validate() {
-  // Not really sure how to validate this order
-  // Checks if the territories are defined for now
-  return (sourceTerritory->GetPlayer() == player && targetTerritory != NULL);
-}
+bool Airlift::validate() { return true; }
 
 void Airlift::execute() {
   if (!validate()) {

@@ -48,7 +48,7 @@ class Order {
 class Deploy : public Order {
  public:
   Deploy();
-  Deploy(Player* player, Territory* territory);
+  Deploy(Player* player, Territory* territory, int requestedNumberOfArmies);
   Deploy(const Deploy& toCopy);
   ~Deploy();
   Deploy& operator=(const Deploy& rightSide);
@@ -58,6 +58,7 @@ class Deploy : public Order {
   virtual void execute();
 
  private:
+  int requestedNumberOfArmies;
   Territory* territoryToDeploy;
   virtual std::ostream& doPrint(std::ostream& out) const;
 };
