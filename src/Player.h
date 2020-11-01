@@ -28,12 +28,14 @@ private:
  std::vector<Card*> handOfCards;
  // Pointer to a list of orders
  OrdersList* listOfOrders;
+ // Player's reinforcement pool
+ int reinforcementPool;
  
 public:
  // Default constructor
  Player();
  // Parametric constructor
- Player(std::vector<Territory*> terr); 
+ Player(std::vector<Territory*> terr, int numberOfArmies);
  // Copy constructor
  Player(const Player& pCopy);
  // Destructor
@@ -54,4 +56,12 @@ public:
  void AddTerritoryToPlayer(Territory* territoryToAdd);
  void AddCardToPlayer(Card* cardToAdd);
  void AddOrderToPlayer(Order* orderToAdd);
+
+ // Reinforcement pool
+ void AddArmiesToReinforcementPool(int numberOfArmies);
+ int GetReinforcementPoolCount();
+ // Removes a certain number of armies from the pool
+ // Returns the number of armies removed, which may be different
+ // (i.e. if less armies left than was asked for)
+ int TakeArmiesFromReinforcementPool(int requestedNumberOfArmies);
 };

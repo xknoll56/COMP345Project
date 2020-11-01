@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "Map.h"
 
 void Territory::AddNeigbor(Territory* neighbor) {
@@ -8,12 +9,22 @@ const std::vector<Territory*>* const Territory::GetNeighbors() const {
   return &neighbors;
 }
 
-void Territory::GetDiscovered(bool discovered) {
+void Territory::SetDiscovered(bool discovered) {
   this->discovered = discovered;
 }
 
 bool Territory::GetDiscovered() { return discovered; }
 const std::string* const Territory::GetName() { return &name; }
+
+Player* Territory::GetPlayer() { return player; }
+
+void Territory::SetPlayer(Player* player) { this->player = player; }
+
+int Territory::GetNumberOfArmies() { return numberOfArmies; }
+
+void Territory::SetNumberOfArmies(int numberOfArmies) {
+  this->numberOfArmies = std::max(0, numberOfArmies);
+}
 
 bool Graph::TravelledAll() {
   bool travelled = true;
@@ -31,7 +42,11 @@ void Graph::DepthFirstSearch(Territory* position) {
   std::cout << "entering territory " << *position->GetName() << std::endl;
   position->SetDiscovered(true);
   for (Territory* neighbor : *position->GetNeighbors()) {
-    if (!neighbor->GetDiscovered() && Contains(neighbor)) { // TODO lets see if we can do this without searching the entire graph for neighbor. Also, skip this test for DFS on a map since it contains all territories by default.
+    if (!neighbor->GetDiscovered() &&
+        Contains(neighbor)) {  // TODO lets see if we can do this without
+                               // searching the entire graph for neighbor. Also,
+                               // skip this test for DFS on a map since it
+                               // contains all territories by default.
       DepthFirstSearch(neighbor);
     }
   }
@@ -87,7 +102,7 @@ Territory* Map::CreateTerritory(std::string name, Continent* continent) {
 Continent* Map::CreateContinent(std::string name) {
   continents.push_back(Continent(name));
 
-  Continent* cont = &continents[continents.size() - 1]
+  Continent* cont = &continents[continents.size() - 1];
 
   continentLocations.push_back(cont);
   return cont;

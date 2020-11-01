@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 
+#include "Player.h"
+
 
 class Territory {
  private:
@@ -11,13 +13,19 @@ class Territory {
   std::vector<Territory*> neighbors;
   void SetDiscovered(bool discovered);
   bool GetDiscovered();
+  Player *player;
+  int numberOfArmies;
   friend class Graph;
 
  public:
-  Territory(std::string name) : name(name), discovered(false) {}
+  Territory(std::string name) : name(name), discovered(false), player(nullptr), numberOfArmies(0) {}
   void AddNeigbor(Territory* neighbor);
   const std::vector<Territory*>* const GetNeighbors() const;
   const std::string* const GetName();
+  Player* GetPlayer();
+  void SetPlayer(Player* player);
+  int GetNumberOfArmies();
+  void SetNumberOfArmies(int numberOfArmies);
 };
 
 class Graph {
