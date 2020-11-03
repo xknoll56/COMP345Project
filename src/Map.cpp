@@ -20,10 +20,10 @@ Player* Territory::GetPlayer() { return player; }
 
 void Territory::SetPlayer(Player* player) { this->player = player; }
 
-int Territory::GetNumberOfArmies() { return numberOfArmies; }
+int Territory::GetTroops() { return troops; }
 
-void Territory::SetNumberOfArmies(int numberOfArmies) {
-  this->numberOfArmies = std::max(0, numberOfArmies);
+void Territory::SetTroops(int troops) {
+  this->troops = std::max(0, troops);
 }
 
 bool Graph::TravelledAll() {

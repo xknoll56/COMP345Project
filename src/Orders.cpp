@@ -132,8 +132,8 @@ void Deploy::execute() {
     numberOfArmies = armiesFromPool;
   }
   int newNumberOfArmies =
-      territoryToDeploy->GetNumberOfArmies() + armiesFromPool;
-  territoryToDeploy->SetNumberOfArmies(newNumberOfArmies);
+      territoryToDeploy->GetTroops() + armiesFromPool;
+  territoryToDeploy->SetTroops(newNumberOfArmies);
 }
 
 std::ostream& Deploy::doPrint(std::ostream& out) const {

@@ -14,18 +14,18 @@ class Territory {
   void SetDiscovered(bool discovered);
   bool GetDiscovered();
   Player *player;
-  int numberOfArmies;
+  int troops;
   friend class Graph;
 
  public:
-  Territory(std::string name) : name(name), discovered(false), player(nullptr), numberOfArmies(0) {}
+  Territory(std::string name) : name(name), discovered(false), player(nullptr), troops(0) {}
   void AddNeigbor(Territory* neighbor);
   const std::vector<Territory*>* const GetNeighbors() const;
   const std::string* const GetName();
   Player* GetPlayer();
   void SetPlayer(Player* player);
-  int GetNumberOfArmies();
-  void SetNumberOfArmies(int numberOfArmies);
+  int GetTroops();
+  void SetTroops(int troops);
 };
 
 class Graph {
