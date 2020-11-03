@@ -106,7 +106,7 @@ ReinforcementCard& ReinforcementCard::operator=(const ReinforcementCard& reinfor
 
 std::ostream& ReinforcementCard::print(std::ostream& out) const
 {
-    out << "\Reinforcement Card =  ";
+    out << "\nReinforcement Card =  ";
     return out;
 }
 
@@ -168,7 +168,7 @@ AirliftCard& AirliftCard::operator=(const AirliftCard& airliftCard)
 
 std::ostream& AirliftCard::print(std::ostream& out) const
 {
-    out << "\Airlift Card =  ";
+    out << "\nAirlift Card =  ";
     return out;
 }
 
@@ -199,7 +199,7 @@ DiplomacyCard& DiplomacyCard::operator=(const DiplomacyCard& diplomacyCard)
 
 std::ostream& DiplomacyCard::print(std::ostream& out) const
 {
-    out << "\Diplocamy Card =  ";
+    out << "\nDiplocamy Card =  ";
     return out;
 }
 

@@ -5,20 +5,23 @@
 
 #include "Player.h"
 
+class Continent;
+class Player;
 
 class Territory {
  private:
+  Player* player;
   std::string name;
   bool discovered;
   std::vector<Territory*> neighbors;
   void SetDiscovered(bool discovered);
   bool GetDiscovered();
-  Player *player;
   int troops;
+  Continent* continent;
   friend class Graph;
 
  public:
-  Territory(std::string name) : name(name), discovered(false), player(nullptr), troops(0) {}
+  Territory(std::string name, Continent* continent) : name(name), continent(continent), discovered(false), player(nullptr), troops(0) {}
   void AddNeigbor(Territory* neighbor);
   const std::vector<Territory*>* const GetNeighbors() const;
   const std::string* const GetName();
@@ -38,6 +41,7 @@ class Graph {
   bool Contains(Territory* territory);
   const std::vector<Territory*>* const GetTerritories();
   Graph();
+  Player* GetLeader();
 
  protected:
   void AddTerritory(Territory* territory);
@@ -47,10 +51,11 @@ class Graph {
 class Continent : public Graph {
  private:
   std::string name;
-
+  int bonus;
  public:
-  Continent(std::string name) : name(name){};
+  Continent(std::string name, int bonus);
   const std::string* GetName();
+  int GetBonus();
   friend class Map;
 };
 
@@ -63,8 +68,8 @@ class Map : public Graph {
 
  public:
   Map(int numContinents, int numTerritories);
-  const std::vector<Continent*>* const GetContinents();
+  const std::vector<Continent*>& const GetContinents();
   bool ValidateMap();
   Territory* CreateTerritory(std::string name, Continent* continent);
-  Continent* CreateContinent(std::string name);
+  Continent* CreateContinent(std::string name, int bonus);
 };

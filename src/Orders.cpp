@@ -364,3 +364,5 @@ std::ostream& Airlift::doPrint(std::ostream& out) const {
 std::ostream& operator<<(std::ostream& out, const Airlift& toOutput) {
   return toOutput.doPrint(out);
 }
+
+std::vector<Order*>* OrdersList::GetList() { return ordersList; }

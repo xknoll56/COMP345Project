@@ -117,10 +117,10 @@ void MapLoader::ProcessBorders(const std::string line,
     // JG
     try{
       Territory* territory =
-          generatedMap->getTerritories()->at(std::stoi(words[0]) - 1);
+          generatedMap->GetTerritories()->at(std::stoi(words[0]) - 1);
       for (int i = 1; i < words.size();i++) {
         Territory* neb =
-            generatedMap->getTerritories()->at(std::stoi(words[i]) - 1);
+            generatedMap->GetTerritories()->at(std::stoi(words[i]) - 1);
         territory->AddNeigbor(neb);
       }
      
@@ -141,7 +141,7 @@ void MapLoader::ProcessContinents(const std::string line,
     // Continents MUST have 2 data points(name and army value).
     if (words.size() < 2) validityData->validData = false;
     // A new continent is generated with the sizes found in the preprocess.
-    generatedMap->AddContinent(words[0]);
+    generatedMap->CreateContinent(words[0], std::stoi(words[1]));
     // Add the continent to the local container to be later used in the Maps
 
     // Incriment the indicy
@@ -173,7 +173,7 @@ void MapLoader::ProcessTerritories(const std::string line,
     // JG
     try {
       // A new territoy is created and is added to the continent
-      generatedMap->AddTerritory(words[1],generatedMap->getContinents()->at(std::stoi(words[2])-1));
+      generatedMap->CreateTerritory(words[1],generatedMap->GetContinents().at(std::stoi(words[2])-1));
     } catch (std::invalid_argument) {
       std::cout << "failure reading integer" << std::endl;
       validityData->validData = false;

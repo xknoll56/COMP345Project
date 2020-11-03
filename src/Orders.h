@@ -187,7 +187,7 @@ class OrdersList {
 
   friend std::ostream& operator<<(std::ostream& outs,
                                   const OrdersList& toOutput);
-
+  std::vector<Order*>* GetList();
  private:
   std::vector<Order*>* ordersList;
 };

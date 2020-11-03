@@ -50,7 +50,7 @@ public:
  // Will return a vector of pointers of territories to attack
  std::vector<Territory*> toAttack(Map& map);   
  // Will create an Order object and add it to the vector of pointers of orders
- void issueOrder();
+ bool IssueOrder();
 
  // Additional methods
  void AddTerritoryToPlayer(Territory* territoryToAdd);
@@ -64,4 +64,6 @@ public:
  // Returns the number of armies removed, which may be different
  // (i.e. if less armies left than was asked for)
  int TakeArmiesFromReinforcementPool(int requestedNumberOfArmies);
+ const  std::vector<Territory*>* GetOwnedTerritories();
+ void SetReinforcementPool(int amount);
 };

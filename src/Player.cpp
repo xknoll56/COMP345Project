@@ -74,23 +74,27 @@ std::vector<Territory*> Player::toDefend() { return ownedTerritories; }
 
 // Returns a vector of pointers of territories to attack
 std::vector<Territory*> Player::toAttack(Map& map) {
-  std::vector<Territory*> vectorAllTerritories = map.GetTerritories();
+  const std::vector<Territory*>* const vectorAllTerritories = map.GetTerritories();
   std::vector<Territory*> territoriesToAttack;
 
-  for (int i = 0; i < vectorAllTerritories.size(); i++) {
+  for (int i = 0; i < vectorAllTerritories->size(); i++) {
     for (int j = 0; j < ownedTerritories.size(); j++) {
       if (*(ownedTerritories[j]->GetName()) !=
-          *(vectorAllTerritories[i]->GetName()))
-        territoriesToAttack.push_back(vectorAllTerritories[i]);
+          *(vectorAllTerritories->at(i)->GetName()))
+        territoriesToAttack.push_back(vectorAllTerritories->at(i));
     }
   }
   return territoriesToAttack;
 }
 
 // Creates an Order object and adds it to the vector of pointers of orders
-void Player::issueOrder() {
+bool Player::IssueOrder() {
   // Creating a Deploy order
-  AddOrderToPlayer(new Deploy(this, this->ownedTerritories[0]));
+  AddOrderToPlayer(new Deploy(this, this->ownedTerritories[0], 0));
+  if (listOfOrders->GetList()->size() > 12) {
+    return false;
+  }
+  return true;
 }
 
 // Adds the given territory pointer to the vector of owned territories
@@ -125,3 +129,9 @@ int Player::TakeArmiesFromReinforcementPool(int requestedNumberOfArmies) {
   reinforcementPool -= requestedNumberOfArmies;
   return requestedNumberOfArmies;
 }
+
+const std::vector<Territory*>* Player::GetOwnedTerritories() {
+  return &ownedTerritories;
+}
+
+void Player::SetReinforcementPool(int amount) { reinforcementPool = amount; }
