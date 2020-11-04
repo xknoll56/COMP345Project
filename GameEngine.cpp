@@ -84,9 +84,10 @@ void GameEngine::RoundRobin(bool(Player::*func)()) {
 }
 
 void GameEngine::IssueOrdersPhase() {
-  RoundRobin(Player::IssueOrder);
+  RoundRobin(&Player::IssueOrder);
 }
 
 bool GameEngine::ExecuteOrdersPhase() { 
-  RoundRobin(Player::ExecuteNextOrder); 
+  RoundRobin(&Player::ExecuteNextOrder);
+  return true;
 }
