@@ -66,4 +66,5 @@ public:
  int TakeArmiesFromReinforcementPool(int requestedNumberOfArmies);
  const  std::vector<Territory*>* GetOwnedTerritories();
  void SetReinforcementPool(int amount);
+ bool ExecuteNextOrder();
 };

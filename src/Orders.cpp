@@ -12,7 +12,6 @@
 #include "Orders.h"
 
 #include <algorithm>
-#include <cmath>
 
 // Orders List
 OrdersList::OrdersList() { ordersList = new std::vector<Order*>(); }
@@ -73,6 +72,8 @@ void OrdersList::remove(int position) {
   ordersList->erase(ordersList->begin() + position - 1);
 }
 
+int OrdersList::getListSize() { return ordersList->size(); }
+
 // Orders
 Order::Order() : player(), isEnabled(true) {}
 
@@ -103,9 +104,9 @@ Deploy::Deploy() : Order(), territoryToDeploy(), numberOfArmies(0) {}
 
 Deploy::Deploy(Player* player, Territory* territory,
                int requestedNumberOfArmies)
-    : Order(player), territoryToDeploy(territory) {
-  this->numberOfArmies = std::max(0, requestedNumberOfArmies);
-}
+    : Order(player),
+      territoryToDeploy(territory),
+      numberOfArmies(requestedNumberOfArmies) {}
 
 Deploy::Deploy(const Deploy& toCopy) : Order(toCopy) {
   this->territoryToDeploy = toCopy.territoryToDeploy;
@@ -120,19 +121,23 @@ Deploy& Deploy::operator=(const Deploy& rightSide) {
 
 Deploy::~Deploy() {}
 
-bool Deploy::validate() { return (territoryToDeploy->GetPlayer() == player); }
+bool Deploy::validate() {
+  bool playerOwnsTerritory = (territoryToDeploy->GetPlayer() == player);
+  bool numberOfArmiesValid = (numberOfArmies > 0);
+  return (playerOwnsTerritory && numberOfArmiesValid);
+}
 
 void Deploy::execute() {
   if (!validate()) {
     return;
   }
   wasExecuted = true;
-
   int armiesFromPool = player->TakeArmiesFromReinforcementPool(numberOfArmies);
   if (armiesFromPool != numberOfArmies) {
     numberOfArmies = armiesFromPool;
   }
-  territoryToDeploy->AddTroops(numberOfArmies);
+  int newNumberOfArmies = territoryToDeploy->GetTroops() + armiesFromPool;
+  territoryToDeploy->SetTroops(newNumberOfArmies);
 }
 
 void Deploy::acceptVisitor(OrdersVisitor* visitor) {
@@ -148,20 +153,19 @@ std::ostream& Deploy::doPrint(std::ostream& out) const {
   return out;
 }
 
-Advance::Advance()
-    : Order(), sourceTerritory(), targetTerritory(), numberOfArmies(0) {}
+Advance::Advance() : Order(), sourceTerritory(), targetTerritory(), map() {}
 
 Advance::Advance(Player* player, Territory* sourceTerritory,
-                 Territory* targetTerritory, int numberOfArmies)
-    : Order(player),
-      sourceTerritory(sourceTerritory),
-      targetTerritory(targetTerritory) {
-  this->numberOfArmies = std::max(0, numberOfArmies);
+                 Territory* targetTerritory, Map* map)
+    : Order(player) {
+  this->sourceTerritory = sourceTerritory;
+  this->targetTerritory = targetTerritory;
+  this->map = map;
 }
 Advance::Advance(const Advance& toCopy) : Order(toCopy) {
   this->sourceTerritory = toCopy.sourceTerritory;
   this->targetTerritory = toCopy.targetTerritory;
-  this->numberOfArmies = toCopy.numberOfArmies;
+  this->map = toCopy.map;
 }
 
 Advance::~Advance() {}
@@ -170,28 +174,18 @@ Advance& Advance::operator=(const Advance& rightSide) {
   Order::operator=(rightSide);
   sourceTerritory = rightSide.sourceTerritory;
   targetTerritory = rightSide.targetTerritory;
-  numberOfArmies = rightSide.numberOfArmies;
+  map = rightSide.map;
   return *this;
 }
 
-bool Advance::validate() {
-  bool playerOwnsSource = (sourceTerritory->GetPlayer() == player);
-  bool territoriesAreAdjacent =
-      sourceTerritory->TestAdjacencyTo(targetTerritory);
-  return (playerOwnsSource && territoriesAreAdjacent);
-}
+bool Advance::validate() { return true; }
 
 void Advance::execute() {
   if (!validate()) {
     return;
   }
   wasExecuted = true;
-
-  MoveTroops* moveTroops =
-      new MoveTroops(player, sourceTerritory, targetTerritory, numberOfArmies);
-  moveTroops->ExecuteTheMove();
-  delete moveTroops;
-  moveTroops = nullptr;
+  std::cout << "Advancing into another territory.\n";
 }
 
 void Advance::acceptVisitor(OrdersVisitor* visitor) {
@@ -210,23 +204,20 @@ std::ostream& operator<<(std::ostream& out, const Advance& toOutput) {
   return toOutput.doPrint(out);
 }
 
-Bomb::Bomb()
-    : Order(),
-      sourceTerritory(),
-      targetTerritory(),
-      numberOfDestroyedArmies(0) {}
+Bomb::Bomb() : Order(), sourceTerritory(), targetTerritory(), map() {}
 
 Bomb::Bomb(Player* player, Territory* sourceTerritory,
-           Territory* targetTerritory)
-    : Order(player),
-      sourceTerritory(sourceTerritory),
-      targetTerritory(targetTerritory),
-      numberOfDestroyedArmies(0) {}
+           Territory* targetTerritory, Map* map)
+    : Order(player) {
+  this->sourceTerritory = sourceTerritory;
+  this->targetTerritory = targetTerritory;
+  this->map = map;
+}
 
 Bomb::Bomb(const Bomb& toCopy) : Order(toCopy) {
   this->sourceTerritory = toCopy.sourceTerritory;
   this->targetTerritory = toCopy.targetTerritory;
-  this->numberOfDestroyedArmies = toCopy.numberOfDestroyedArmies;
+  this->map = toCopy.map;
 }
 
 Bomb::~Bomb() {}
@@ -235,7 +226,7 @@ Bomb& Bomb::operator=(const Bomb& rightSide) {
   Order::operator=(rightSide);
   sourceTerritory = rightSide.sourceTerritory;
   targetTerritory = rightSide.targetTerritory;
-  numberOfDestroyedArmies = rightSide.numberOfDestroyedArmies;
+  map = rightSide.map;
   return *this;
 }
 
@@ -243,22 +234,14 @@ std::ostream& operator<<(std::ostream& out, const Bomb& toOutput) {
   return toOutput.doPrint(out);
 }
 
-bool Bomb::validate() {
-  bool playerOwnsSource = (sourceTerritory->GetPlayer() == player);
-  bool playerDoesntOwnTarget = (targetTerritory->GetPlayer() != player);
-  bool territoriesAreAdjacent =
-      sourceTerritory->TestAdjacencyTo(targetTerritory);
-  return (playerOwnsSource && playerDoesntOwnTarget && territoriesAreAdjacent);
-}
+bool Bomb::validate() { return true; }
 
 void Bomb::execute() {
   if (!validate()) {
     return;
   }
   wasExecuted = true;
-  numberOfDestroyedArmies =
-      std::floor((float)targetTerritory->GetTroops() / 2.0f);
-  targetTerritory->RemoveTroops(numberOfDestroyedArmies);
+  std::cout << "Bombing an adjacent territory.\n";
 }
 
 void Bomb::acceptVisitor(OrdersVisitor* visitor) { visitor->VisitBomb(this); }
@@ -266,8 +249,7 @@ void Bomb::acceptVisitor(OrdersVisitor* visitor) { visitor->VisitBomb(this); }
 std::ostream& Bomb::doPrint(std::ostream& out) const {
   out << "Bomb order.";
   if (wasExecuted) {
-    out << " " << sourceTerritory << " was bombed, removing "
-        << numberOfDestroyedArmies << "armies.";
+    out << " This order was executed, its effect was {effect}.";
   }
   return out;
 }
@@ -361,22 +343,18 @@ std::ostream& operator<<(std::ostream& out, const Negotiate& toOutput) {
   return toOutput.doPrint(out);
 }
 
-Airlift::Airlift()
-    : Order(), sourceTerritory(), targetTerritory(), numberOfArmies(0) {}
+Airlift::Airlift() : Order(), sourceTerritory(), targetTerritory() {}
 
 Airlift::Airlift(Player* player, Territory* sourceTerritory,
-                 Territory* targetTerritory, int numberOfArmies)
-    : Order(player),
-      sourceTerritory(sourceTerritory),
-      targetTerritory(targetTerritory) {
-  this->numberOfArmies =
-      std::max(0, std::min(numberOfArmies, sourceTerritory->GetTroops()));
+                 Territory* targetTerritory)
+    : Order(player) {
+  this->sourceTerritory = sourceTerritory;
+  this->targetTerritory = targetTerritory;
 }
 
 Airlift::Airlift(const Airlift& toCopy) : Order(toCopy) {
   this->sourceTerritory = toCopy.sourceTerritory;
   this->targetTerritory = toCopy.targetTerritory;
-  this->numberOfArmies = toCopy.numberOfArmies;
 }
 
 Airlift::~Airlift() {}
@@ -385,26 +363,17 @@ Airlift& Airlift::operator=(const Airlift& rightSide) {
   Order::operator=(rightSide);
   sourceTerritory = rightSide.sourceTerritory;
   targetTerritory = rightSide.targetTerritory;
-  numberOfArmies = rightSide.numberOfArmies;
   return *this;
 }
 
-bool Airlift::validate() {
-  bool playerOwnsSource = (sourceTerritory->GetPlayer() == player);
-  return playerOwnsSource;
-}
+bool Airlift::validate() { return true; }
 
 void Airlift::execute() {
   if (!validate()) {
     return;
   }
   wasExecuted = true;
-
-  MoveTroops* moveTroops =
-      new MoveTroops(player, sourceTerritory, targetTerritory, numberOfArmies);
-  moveTroops->ExecuteTheMove();
-  delete moveTroops;
-  moveTroops = nullptr;
+  std::cout << "Airlifting into another territory!\n";
 }
 
 void Airlift::acceptVisitor(OrdersVisitor* visitor) {
@@ -422,8 +391,6 @@ std::ostream& Airlift::doPrint(std::ostream& out) const {
 std::ostream& operator<<(std::ostream& out, const Airlift& toOutput) {
   return toOutput.doPrint(out);
 }
-
-std::vector<Order*>* OrdersList::GetList() { return ordersList; }
 
 // Class that moves troops and attacks if necessary
 MoveTroops::MoveTroops()
