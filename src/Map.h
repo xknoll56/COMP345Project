@@ -29,6 +29,13 @@ class Territory {
   void SetPlayer(Player* player);
   int GetTroops();
   void SetTroops(int troops);
+  void AddTroops(int troops);
+  // Attempts to remove provided amount of troops
+  // If there are fewer troops left than requested, goes down to 0
+  // Returns the amount of troops removed which may be less than the requested
+  // amount
+  int RemoveTroops(int troops);
+  bool TestAdjacencyTo(Territory* toTest);
 };
 
 class Graph {

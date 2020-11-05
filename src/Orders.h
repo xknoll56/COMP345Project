@@ -73,7 +73,7 @@ class Advance : public Order {
  public:
   Advance();
   Advance(Player* player, Territory* sourceTerritory,
-          Territory* targetTerritory, Map* map);
+          Territory* targetTerritory, int numberOfArmies);
   Advance(const Advance& toCopy);
   ~Advance();
   Advance& operator=(const Advance& rightSide);
@@ -87,7 +87,7 @@ class Advance : public Order {
  private:
   Territory* sourceTerritory;
   Territory* targetTerritory;
-  Map* map;
+  int numberOfArmies;
   virtual std::ostream& doPrint(std::ostream& out) const;
 };
 
@@ -95,8 +95,7 @@ class Advance : public Order {
 class Bomb : public Order {
  public:
   Bomb();
-  Bomb(Player* player, Territory* sourceTerritory, Territory* targetTerritory,
-       Map* map);
+  Bomb(Player* player, Territory* sourceTerritory, Territory* targetTerritory);
   Bomb(const Bomb& toCopy);
   ~Bomb();
   Bomb& operator=(const Bomb& rightSide);
@@ -110,7 +109,7 @@ class Bomb : public Order {
  private:
   Territory* sourceTerritory;
   Territory* targetTerritory;
-  Map* map;
+  int numberOfDestroyedArmies;
   virtual std::ostream& doPrint(std::ostream& out) const;
 };
 
@@ -159,7 +158,7 @@ class Airlift : public Order {
  public:
   Airlift();
   Airlift(Player* player, Territory* sourceTerritory,
-          Territory* targetTerritory);
+          Territory* targetTerritory, int numberOfArmies);
   Airlift(const Airlift& toCopy);
   ~Airlift();
   Airlift& operator=(const Airlift& rightSide);
@@ -173,6 +172,7 @@ class Airlift : public Order {
  private:
   Territory* sourceTerritory;
   Territory* targetTerritory;
+  int numberOfArmies;
   virtual std::ostream& doPrint(std::ostream& out) const;
 };
 
@@ -195,13 +195,41 @@ class OrdersList {
   // Method is called remove instead of delete b/c delete is a
   // reserved keyword, which drove Visual Studio nuts
   void remove(int position);
-  int getListSize();
 
   friend std::ostream& operator<<(std::ostream& outs,
                                   const OrdersList& toOutput);
+  int getListSize();
 
  private:
   std::vector<Order*>* ordersList;
+};
+
+// Class that contains the algorithm to displace troops
+// and attacks if the target is an opponent
+class MoveTroops {
+ public:
+  MoveTroops();
+  MoveTroops(const MoveTroops& toCopy);
+  MoveTroops(Player* player, Territory* source, Territory* target,
+             int numberOfArmies);
+  MoveTroops& operator=(const MoveTroops& rightSide);
+
+  friend std::ostream& operator<<(std::ostream& out,
+                                  const MoveTroops& toOutput);
+
+  // Method to call to execute the troops displacement
+  void ExecuteTheMove();
+
+ private:
+  Player* player;
+  Territory* source;
+  Territory* target;
+  int numberOfArmies;
+  bool wasExecuted;
+
+  bool PlayerOwnsTarget();
+  void MoveArmies();
+  void AttackTarget();
 };
 
 // Class that contains the algorithm to displace troops
