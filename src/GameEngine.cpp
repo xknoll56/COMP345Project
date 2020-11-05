@@ -69,16 +69,25 @@ void GameEngine::ReinforcementPhase() {
   }
 }
 
-void GameEngine::IssueOrdersPhase() {
-  std::vector<Player*> issuingPlayers = players;
-  while (issuingPlayers.size() > 0) {
-    for (int i = 0; i < issuingPlayers.size(); i++) {
-      if (!issuingPlayers.at(i)->IssueOrder()) {
-        issuingPlayers.erase(issuingPlayers.begin() + i);
+void GameEngine::RoundRobin(bool(Player::*func)()) {
+  std::vector<Player*> remainingPlayers = players;
+  while (remainingPlayers.size() > 0) {
+    for (int i = 0; i < remainingPlayers.size(); i++) {
+      Player* player = remainingPlayers.at(i);
+      bool b = (player->*func)();
+      if (!b) {
+        remainingPlayers.erase(remainingPlayers.begin() + i);
         i--;
       }
     }
   }
 }
 
-bool GameEngine::ExecuteOrdersPhase() { return true; }
+void GameEngine::IssueOrdersPhase() {
+  RoundRobin(&Player::IssueOrder);
+}
+
+bool GameEngine::ExecuteOrdersPhase() { 
+  RoundRobin(&Player::ExecuteNextOrder);
+  return true;
+}

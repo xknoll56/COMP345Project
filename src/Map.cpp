@@ -24,24 +24,8 @@ void Territory::SetPlayer(Player* player) {
 
 int Territory::GetTroops() { return troops; }
 
-bool Territory::TestAdjacencyTo(Territory* toTest) {
-  return (std::find(neighbors.begin(), neighbors.end(), toTest) != neighbors.end());
-}
-
-void Territory::SetTroops(int troopsToAdd) {
-  troops = std::max(0, troopsToAdd); }
-
-void Territory::AddTroops(int troops) { this->troops += std::max(0, troops); }
-
-int Territory::RemoveTroops(int troopsToRemove) {
-  troopsToRemove = std::max(0, troopsToRemove);
-  if (troopsToRemove > troops) {
-    int toReturn{troops};
-    troops = 0;
-    return toReturn;
-  }
-  troops -= troopsToRemove;
-  return troopsToRemove;
+void Territory::SetTroops(int troops) {
+  this->troops = std::max(0, troops);
 }
 
 bool Graph::TravelledAll() {

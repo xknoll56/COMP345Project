@@ -21,6 +21,6 @@ class GameEngine {
   void ReinforcementPhase();
   void IssueOrdersPhase();
   bool ExecuteOrdersPhase();
-  bool IssueOrder(Player* player);
+  void RoundRobin(bool(Player::*func)());
 
 };

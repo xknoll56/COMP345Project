@@ -21,12 +21,7 @@ class Territory {
   friend class Graph;
 
  public:
-  Territory(std::string name, Continent* continent)
-      : name(name),
-        continent(continent),
-        discovered(false),
-        player(nullptr),
-        troops(0) {}
+  Territory(std::string name, Continent* continent) : name(name), continent(continent), discovered(false), player(nullptr), troops(0) {}
   void AddNeigbor(Territory* neighbor);
   const std::vector<Territory*>* const GetNeighbors() const;
   const std::string* const GetName();
@@ -34,13 +29,6 @@ class Territory {
   void SetPlayer(Player* player);
   int GetTroops();
   void SetTroops(int troops);
-  void AddTroops(int troops);
-  // Attempts to remove provided amount of troops
-  // If there are fewer troops left than requested, goes down to 0
-  // Returns the amount of troops removed which may be less than the requested
-  // amount
-  int RemoveTroops(int troops);
-  bool TestAdjacencyTo(Territory* toTest);
 };
 
 class Graph {
@@ -64,7 +52,6 @@ class Continent : public Graph {
  private:
   std::string name;
   int bonus;
-
  public:
   Continent(std::string name, int bonus);
   const std::string* GetName();
@@ -77,6 +64,7 @@ class Map : public Graph {
   std::vector<Continent> continents;
   std::vector<Territory> territories;
   std::vector<Continent*> continentLocations;
+
 
  public:
   Map(int numContinents, int numTerritories);

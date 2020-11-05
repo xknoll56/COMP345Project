@@ -68,7 +68,7 @@ class Advance : public Order {
  public:
   Advance();
   Advance(Player* player, Territory* sourceTerritory,
-          Territory* targetTerritory, int numberOfArmies);
+          Territory* targetTerritory, Map* map);
   Advance(const Advance& toCopy);
   ~Advance();
   Advance& operator=(const Advance& rightSide);
@@ -81,7 +81,7 @@ class Advance : public Order {
  private:
   Territory* sourceTerritory;
   Territory* targetTerritory;
-  int numberOfArmies;
+  Map* map;
   virtual std::ostream& doPrint(std::ostream& out) const;
 };
 
@@ -89,7 +89,7 @@ class Advance : public Order {
 class Bomb : public Order {
  public:
   Bomb();
-  Bomb(Player* player, Territory* sourceTerritory, Territory* targetTerritory);
+  Bomb(Player* player, Territory* sourceTerritory, Territory* targetTerritory, Map* map);
   Bomb(const Bomb& toCopy);
   ~Bomb();
   Bomb& operator=(const Bomb& rightSide);
@@ -102,7 +102,7 @@ class Bomb : public Order {
  private:
   Territory* sourceTerritory;
   Territory* targetTerritory;
-  int numberOfDestroyedArmies;
+  Map* map;
   virtual std::ostream& doPrint(std::ostream& out) const;
 };
 
@@ -149,7 +149,7 @@ class Airlift : public Order {
  public:
   Airlift();
   Airlift(Player* player, Territory* sourceTerritory,
-          Territory* targetTerritory, int numberOfArmies);
+          Territory* targetTerritory);
   Airlift(const Airlift& toCopy);
   ~Airlift();
   Airlift& operator=(const Airlift& rightSide);
@@ -162,7 +162,6 @@ class Airlift : public Order {
  private:
   Territory* sourceTerritory;
   Territory* targetTerritory;
-  int numberOfArmies;
   virtual std::ostream& doPrint(std::ostream& out) const;
 };
 
@@ -189,35 +188,6 @@ class OrdersList {
   friend std::ostream& operator<<(std::ostream& outs,
                                   const OrdersList& toOutput);
   std::vector<Order*>* GetList();
-
  private:
   std::vector<Order*>* ordersList;
-};
-
-// Class that contains the algorithm to displace troops
-// and attacks if the target is an opponent
-class MoveTroops {
- public:
-  MoveTroops();
-  MoveTroops(const MoveTroops& toCopy);
-  MoveTroops(Player* player, Territory* source, Territory* target,
-             int numberOfArmies);
-  MoveTroops& operator=(const MoveTroops& rightSide);
-
-  friend std::ostream& operator<<(std::ostream& out,
-                                  const MoveTroops& toOutput);
-
-  // Method to call to execute the troops displacement
-  void ExecuteTheMove();
-
- private:
-  Player* player;
-  Territory* source;
-  Territory* target;
-  int numberOfArmies;
-  bool wasExecuted;
-
-  bool PlayerOwnsTarget();
-  void MoveArmies();
-  void AttackTarget();
 };
