@@ -74,7 +74,8 @@ std::vector<Territory*> Player::toDefend() { return ownedTerritories; }
 
 // Returns a vector of pointers of territories to attack
 std::vector<Territory*> Player::toAttack(Map& map) {
-  const std::vector<Territory*>* const vectorAllTerritories = map.GetTerritories();
+  const std::vector<Territory*>* const vectorAllTerritories =
+      map.GetTerritories();
   std::vector<Territory*> territoriesToAttack;
 
   for (int i = 0; i < vectorAllTerritories->size(); i++) {
@@ -121,6 +122,7 @@ int Player::GetReinforcementPoolCount() { return reinforcementPool; }
 // Returns the number of armies removed, which may be different
 // (i.e. if less armies left than was asked for)
 int Player::TakeArmiesFromReinforcementPool(int requestedNumberOfArmies) {
+  requestedNumberOfArmies = std::max(0, requestedNumberOfArmies);
   if (requestedNumberOfArmies > reinforcementPool) {
     int toReturn{reinforcementPool};
     reinforcementPool = 0;
