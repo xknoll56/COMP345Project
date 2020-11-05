@@ -9,9 +9,10 @@
 //
 // Based on the 'https://www.warzone.com/' game.
 
-#include "Orders.h"
-
 #include <algorithm>
+#include <cmath>
+
+#include "Orders.h"
 
 // Orders List
 OrdersList::OrdersList() { ordersList = new std::vector<Order*>(); }
