@@ -91,7 +91,7 @@ std::vector<Territory*> Player::toAttack(Map& map) {
 bool Player::IssueOrder() {
   // Creating a Deploy order
   AddOrderToPlayer(new Deploy(this, this->ownedTerritories[0], 0));
-  if (listOfOrders->GetList()->size() > 12) {
+  if (listOfOrders->getListSize() > 12) {
     return false;
   }
   return true;
