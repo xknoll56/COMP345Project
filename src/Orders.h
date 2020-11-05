@@ -22,6 +22,7 @@ class Player;
 class Territory;
 class Graph;
 class Map;
+class OrdersVisitor;
 
 class Order {
  public:
@@ -33,12 +34,15 @@ class Order {
 
   virtual bool validate() = 0;
   virtual void execute() = 0;
+  virtual void acceptVisitor(OrdersVisitor* visitor) = 0;
+  void disableOrder();
 
   friend std::ostream& operator<<(std::ostream& out, const Order& toOutput);
 
  protected:
   Player* player;
   bool wasExecuted{false};
+  bool isEnabled;
 
  private:
   virtual std::ostream& doPrint(std::ostream& out) const = 0;
@@ -56,6 +60,7 @@ class Deploy : public Order {
   // friend std::ostream& operator<<(std::ostream& out, const Deploy& toOutput);
   virtual bool validate();
   virtual void execute();
+  virtual void acceptVisitor(OrdersVisitor* visitor);
 
  private:
   int numberOfArmies;
@@ -77,6 +82,7 @@ class Advance : public Order {
 
   virtual bool validate();
   virtual void execute();
+  virtual void acceptVisitor(OrdersVisitor* visitor);
 
  private:
   Territory* sourceTerritory;
@@ -98,6 +104,7 @@ class Bomb : public Order {
 
   virtual bool validate();
   virtual void execute();
+  virtual void acceptVisitor(OrdersVisitor* visitor);
 
  private:
   Territory* sourceTerritory;
@@ -119,6 +126,7 @@ class Blockade : public Order {
 
   virtual bool validate();
   virtual void execute();
+  virtual void acceptVisitor(OrdersVisitor* visitor);
 
  private:
   Territory* territoryToBlockade;
@@ -138,6 +146,7 @@ class Negotiate : public Order {
 
   virtual bool validate();
   virtual void execute();
+  virtual void acceptVisitor(OrdersVisitor* visitor);
 
  private:
   Player* opponent;
@@ -158,6 +167,7 @@ class Airlift : public Order {
 
   virtual bool validate();
   virtual void execute();
+  virtual void acceptVisitor(OrdersVisitor* visitor);
 
  private:
   Territory* sourceTerritory;
@@ -220,4 +230,33 @@ class MoveTroops {
   bool PlayerOwnsTarget();
   void MoveArmies();
   void AttackTarget();
+};
+
+// Orders visitors
+// To perform operations on lists of visitors whilst acknowledging their type
+class OrdersVisitor {
+ public:
+  virtual ~OrdersVisitor();
+
+  // All of these do nothing by default, and will only perform an operation if
+  // redefined in subtypes
+  virtual void VisitDeploy(Deploy* order);
+  virtual void VisitAdvance(Advance* order);
+  virtual void VisitAirlift(Airlift* order);
+  virtual void VisitBomb(Bomb* order);
+  virtual void VisitBlockade(Blockade* order);
+  virtual void VisitNegotiate(Negotiate* order);
+};
+
+class NegotiateVisitor : OrdersVisitor {
+ public:
+  NegotiateVisitor();
+  NegotiateVisitor(Player* player, Player* opponent);
+  NegotiateVisitor(NegotiateVisitor& tocopy);
+  NegotiateVisitor& operator=(const NegotiateVisitor& rightSide);
+  virtual ~NegotiateVisitor();
+
+ private:
+  Player* player;
+  Player* opponent;
 };

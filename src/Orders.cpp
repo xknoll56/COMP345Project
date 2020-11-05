@@ -74,13 +74,14 @@ void OrdersList::remove(int position) {
 }
 
 // Orders
-Order::Order() : player() {}
+Order::Order() : player(), isEnabled(true) {}
 
-Order::Order(Player* player) { this->player = player; }
+Order::Order(Player* player) : player(player), isEnabled(true) {}
 
 Order::Order(const Order& toCopy) {
   player = toCopy.player;
   wasExecuted = toCopy.wasExecuted;
+  isEnabled = toCopy.isEnabled;
 }
 
 Order::~Order() {}
@@ -88,12 +89,15 @@ Order::~Order() {}
 Order& Order::operator=(const Order& rightSide) {
   player = rightSide.player;
   wasExecuted = rightSide.wasExecuted;
+  isEnabled = rightSide.isEnabled;
   return *this;
 }
 
 std::ostream& operator<<(std::ostream& out, const Order& toOutput) {
   return toOutput.doPrint(out);
 }
+
+void Order::disableOrder() { isEnabled = false; }
 
 Deploy::Deploy() : Order(), territoryToDeploy(), numberOfArmies(0) {}
 
@@ -129,6 +133,10 @@ void Deploy::execute() {
     numberOfArmies = armiesFromPool;
   }
   territoryToDeploy->AddTroops(numberOfArmies);
+}
+
+void Deploy::acceptVisitor(OrdersVisitor* visitor) {
+  visitor->VisitDeploy(this);
 }
 
 std::ostream& Deploy::doPrint(std::ostream& out) const {
@@ -184,6 +192,10 @@ void Advance::execute() {
   moveTroops->ExecuteTheMove();
   delete moveTroops;
   moveTroops = nullptr;
+}
+
+void Advance::acceptVisitor(OrdersVisitor* visitor) {
+  visitor->VisitAdvance(this);
 }
 
 std::ostream& Advance::doPrint(std::ostream& out) const {
@@ -249,6 +261,8 @@ void Bomb::execute() {
   targetTerritory->RemoveTroops(numberOfDestroyedArmies);
 }
 
+void Bomb::acceptVisitor(OrdersVisitor* visitor) { visitor->VisitBomb(this); }
+
 std::ostream& Bomb::doPrint(std::ostream& out) const {
   out << "Bomb order.";
   if (wasExecuted) {
@@ -291,6 +305,10 @@ void Blockade::execute() {
   std::cout << "Blockading a territory.\n";
 }
 
+void Blockade::acceptVisitor(OrdersVisitor* visitor) {
+  visitor->VisitBlockade(this);
+}
+
 std::ostream& Blockade::doPrint(std::ostream& out) const {
   out << "Blockade order.";
   if (wasExecuted) {
@@ -325,6 +343,10 @@ void Negotiate::execute() {
   }
   wasExecuted = true;
   std::cout << "A peace deal was striken.\n";
+}
+
+void Negotiate::acceptVisitor(OrdersVisitor* visitor) {
+  visitor->VisitNegotiate(this);
 }
 
 std::ostream& Negotiate::doPrint(std::ostream& out) const {
@@ -385,6 +407,10 @@ void Airlift::execute() {
   moveTroops = nullptr;
 }
 
+void Airlift::acceptVisitor(OrdersVisitor* visitor) {
+  visitor->VisitAirlift(this);
+}
+
 std::ostream& Airlift::doPrint(std::ostream& out) const {
   out << "Airlift order.";
   if (wasExecuted) {
@@ -417,6 +443,7 @@ MoveTroops& MoveTroops::operator=(const MoveTroops& rightSide) {
   target = rightSide.target;
   numberOfArmies = rightSide.numberOfArmies;
   wasExecuted = rightSide.wasExecuted;
+  return *this;
 }
 
 MoveTroops::MoveTroops(Player* player, Territory* source, Territory* target,
@@ -468,3 +495,32 @@ void MoveTroops::AttackTarget() {
 std::ostream& operator<<(std::ostream& out, const MoveTroops& toOutput) {
   // TODO: insert return statement here
 }
+
+// Visitors
+// The default visitor does nothing, any operation must be defined in subtypes
+OrdersVisitor::~OrdersVisitor() {}
+void OrdersVisitor::VisitDeploy(Deploy* order) {}
+void OrdersVisitor::VisitAdvance(Advance* order) {}
+void OrdersVisitor::VisitAirlift(Airlift* order) {}
+void OrdersVisitor::VisitBomb(Bomb* order) {}
+void OrdersVisitor::VisitBlockade(Blockade* order) {}
+void OrdersVisitor::VisitNegotiate(Negotiate* order) {}
+
+NegotiateVisitor::NegotiateVisitor() : player(), opponent() {}
+
+NegotiateVisitor::NegotiateVisitor(Player* player, Player* opponent)
+    : player(player), opponent(opponent) {}
+
+NegotiateVisitor::NegotiateVisitor(NegotiateVisitor& tocopy) {
+  this->player = tocopy.player;
+  this->opponent = tocopy.opponent;
+}
+
+NegotiateVisitor& NegotiateVisitor::operator=(
+    const NegotiateVisitor& rightSide) {
+  player = rightSide.player;
+  opponent = rightSide.opponent;
+  return *this;
+}
+
+NegotiateVisitor::~NegotiateVisitor() {}
