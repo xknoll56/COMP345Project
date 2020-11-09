@@ -71,7 +71,7 @@ class MapLoader {
   // An array to the number of neighbors for each of the territories
   int* neighborsSizes;
   // A pointer to the validity data
-  ValidityData* validityData;
+  ValidityData validityData;
   // A untility function that splits a line of data by spaces into a vector of
   // strings
   std::vector<std::string> Split(const std::string line) const;

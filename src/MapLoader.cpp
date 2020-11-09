@@ -59,7 +59,7 @@ void MapLoader::PreprocessTerritories(const std::string line,
   if (words.size() > 0) {
     // Territoies must have at least 3 data points (index, continent, and name)
     // for the file to be valid.
-    if (words.size() < 3) validityData->validData = false;
+    if (words.size() < 3) validityData.validData = false;
     // incriment the territories count
     territoriesCount++;
     try {
@@ -70,7 +70,7 @@ void MapLoader::PreprocessTerritories(const std::string line,
     } catch (std::invalid_argument) {
       // Error, failure to read an integer.
       std::cout << "failure reading integer" << std::endl;
-      validityData->validData = false;
+      validityData.validData = false;
     }
   } else {
     // End preprocess of territories, the neighbors sizes may now be allocated.
@@ -88,7 +88,7 @@ void MapLoader::PreprocessBorders(const std::string line,
     // The line must contain at least 2 data points (otherwise its a floating
     // territory with no edges).
     if (words.size() < 2) {
-      validityData->validData = false;
+      validityData.validData = false;
       std::cout << "Error, territory has no edges... invalid map file"
                 << std::endl;
     }
@@ -97,7 +97,7 @@ void MapLoader::PreprocessBorders(const std::string line,
       neighborsSizes[std::stoi(words[0]) - 1] = words.size() - 1;
     } catch (std::invalid_argument) {
       std::cout << "failure reading integer" << std::endl;
-      validityData->validData = false;
+      validityData.validData = false;
     }
   } else
     *dataType = DataType::None;
@@ -110,7 +110,7 @@ void MapLoader::ProcessBorders(const std::string line,
   if (words.size() > 0) {
     // Each territory MUST have at least 1 border
     if (words.size() < 2) {
-      validityData->validData = false;
+      validityData.validData = false;
       std::cout << "Error, territory has no edges... invalid map file"
                 << std::endl;
     }
@@ -126,7 +126,7 @@ void MapLoader::ProcessBorders(const std::string line,
      
     } catch (std::invalid_argument) {
       std::cout << "failure reading integer" << std::endl;
-      validityData->validData = false;
+      validityData.validData = false;
     }
   } else
     *dataType = DataType::None;
@@ -139,7 +139,7 @@ void MapLoader::ProcessContinents(const std::string line,
 
   if (words.size() > 0) {
     // Continents MUST have 2 data points(name and army value).
-    if (words.size() < 2) validityData->validData = false;
+    if (words.size() < 2) validityData.validData = false;
     // A new continent is generated with the sizes found in the preprocess.
     generatedMap->CreateContinent(words[0], std::stoi(words[1]));
     // Add the continent to the local container to be later used in the Maps
@@ -149,7 +149,7 @@ void MapLoader::ProcessContinents(const std::string line,
     try {
     } catch (std::invalid_argument) {
       std::cout << "failure reading integer" << std::endl;
-      validityData->validData = false;
+      validityData.validData = false;
     }
 
   } else {
@@ -169,14 +169,14 @@ void MapLoader::ProcessTerritories(const std::string line,
   if (words.size() > 0) {
     // The line must contain at least 3 data points (indicy, name and
     // continent).
-    if (words.size() < 3) validityData->validData = false;
+    if (words.size() < 3) validityData.validData = false;
     // JG
     try {
       // A new territoy is created and is added to the continent
       generatedMap->CreateTerritory(words[1],generatedMap->GetContinents().at(std::stoi(words[2])-1));
     } catch (std::invalid_argument) {
       std::cout << "failure reading integer" << std::endl;
-      validityData->validData = false;
+      validityData.validData = false;
     }
   } else
     *dataType = DataType::None;
@@ -197,16 +197,16 @@ void MapLoader::ReadFile(const std::string path) {
         // If the regular expression is found, it should be one of the
         // following, and the corresponding validity data is set
         if (m.str().compare("[files]") == 0) {
-          validityData->filesFound = true;
+          validityData.filesFound = true;
         } else if (m.str().compare("[continents]") == 0) {
           dataType = DataType::Continents;
-          validityData->continentsFound = true;
+          validityData.continentsFound = true;
         } else if (m.str().compare("[countries]") == 0) {
           dataType = DataType::Territories;
-          validityData->territoriesFound = true;
+          validityData.territoriesFound = true;
         } else if (m.str().compare("[borders]") == 0) {
           dataType = DataType::Borders;
-          validityData->bordersFound = true;
+          validityData.bordersFound = true;
         }
       } else {
         // if a regular expression is not found, then preprocesses should be
@@ -270,7 +270,7 @@ void MapLoader::ReadFile(const std::string path) {
 
 Map* MapLoader::GenerateMap(const std::string filePath) {
   //Reset the data if a new file is being generated
-  validityData = new ValidityData();
+  validityData = ValidityData();
   index = 0;
   continentsCount = 0;
   territoriesCount = 0;
@@ -278,11 +278,10 @@ Map* MapLoader::GenerateMap(const std::string filePath) {
   ReadFile(filePath);
   // If the data is valid, then we can return the map, otherwise a nullptr is
   // returned.
-  if (validityData->IsValid()) {
+  if (validityData.IsValid()) {
      //Clear the data for another use.
-    delete validityData;
+      validityData = ValidityData();
     delete[] continentsSizes;
-    delete[] neighborsSizes;
     return generatedMap;
   }
   else {
@@ -290,30 +289,29 @@ Map* MapLoader::GenerateMap(const std::string filePath) {
                  "being returned!!!"
               << std::endl;
     // Clear the data for another use.
-    delete validityData;
+    validityData = ValidityData();
     delete[] continentsSizes;
-    delete[] neighborsSizes;
     return nullptr;
   }
 }
 
 MapLoader::MapLoader() {
-  validityData = new ValidityData();
+ // validityData = new ValidityData();
   index = 0;
   continentsCount = 0;
   territoriesCount = 0;
 }
 
+//All of the data is already deleted after the map is made, the rest is freed automatically apon object deletion.
 MapLoader::~MapLoader() {
-  delete validityData;
-  delete[] continentsSizes;
-  delete[] neighborsSizes;
+  //delete validityData;
+  //delete[] continentsSizes;
 }
 
 // The copy constructor just creates a new object because it needs to generate a
 // new map if needed
 MapLoader::MapLoader(const MapLoader& toCopy) {
-  validityData = new ValidityData();
+  validityData = ValidityData();
   index = 0;
   continentsCount = 0;
   territoriesCount = 0;
@@ -321,7 +319,7 @@ MapLoader::MapLoader(const MapLoader& toCopy) {
 // The assignment overload just creates a new object because it needs to
 // generate a new map if needed
 MapLoader& MapLoader::operator=(const MapLoader& rightSide) {
-  validityData = new ValidityData();
+  validityData = ValidityData();
   index = 0;
   continentsCount = 0;
   territoriesCount = 0;
