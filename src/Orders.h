@@ -36,6 +36,7 @@ class Order {
   virtual void execute() = 0;
   virtual void acceptVisitor(OrdersVisitor* visitor) = 0;
   void disableOrder();
+  Player* getPlayer();
 
   friend std::ostream& operator<<(std::ostream& out, const Order& toOutput);
 
@@ -84,6 +85,8 @@ class Advance : public Order {
   virtual void execute();
   virtual void acceptVisitor(OrdersVisitor* visitor);
 
+  Player* getOpponent();
+
  private:
   Territory* sourceTerritory;
   Territory* targetTerritory;
@@ -105,6 +108,8 @@ class Bomb : public Order {
   virtual bool validate();
   virtual void execute();
   virtual void acceptVisitor(OrdersVisitor* visitor);
+
+  Player* getOpponent();
 
  private:
   Territory* sourceTerritory;
@@ -169,6 +174,8 @@ class Airlift : public Order {
   virtual void execute();
   virtual void acceptVisitor(OrdersVisitor* visitor);
 
+  Player* getOpponent();
+
  private:
   Territory* sourceTerritory;
   Territory* targetTerritory;
@@ -199,6 +206,9 @@ class OrdersList {
   friend std::ostream& operator<<(std::ostream& outs,
                                   const OrdersList& toOutput);
   int getListSize();
+
+  // Run a visitor over every order in the list
+  void visitOrders(OrdersVisitor* visitor);
 
  private:
   std::vector<Order*>* ordersList;
@@ -258,6 +268,8 @@ class MoveTroops {
   bool PlayerOwnsTarget();
   void MoveArmies();
   void AttackTarget();
+  bool AttackerKilledDefenderArmy();
+  bool DefenderKilledAttackerArmy();
 };
 
 // Orders visitors
@@ -276,7 +288,7 @@ class OrdersVisitor {
   virtual void VisitNegotiate(Negotiate* order);
 };
 
-class NegotiateVisitor : OrdersVisitor {
+class NegotiateVisitor : public OrdersVisitor {
  public:
   NegotiateVisitor();
   NegotiateVisitor(Player* player, Player* opponent);
@@ -284,7 +296,13 @@ class NegotiateVisitor : OrdersVisitor {
   NegotiateVisitor& operator=(const NegotiateVisitor& rightSide);
   virtual ~NegotiateVisitor();
 
+  virtual void VisitAdvance(Advance* order);
+  virtual void VisitAirlift(Airlift* order);
+  virtual void VisitBomb(Bomb* order);
+
  private:
   Player* player;
   Player* opponent;
+
+  void DisableIfPlayerAndOpponent(Order* order, Player* opponent);
 };

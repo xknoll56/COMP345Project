@@ -9,10 +9,13 @@
 //
 // Based on the 'https://www.warzone.com/' game.
 
+#include "Orders.h"
+
+#include <stdlib.h>
+#include <time.h>
+
 #include <algorithm>
 #include <cmath>
-
-#include "Orders.h"
 
 // Orders List
 OrdersList::OrdersList() { ordersList = new std::vector<Order*>(); }
@@ -75,6 +78,13 @@ void OrdersList::remove(int position) {
 
 int OrdersList::getListSize() { return ordersList->size(); }
 
+void OrdersList::visitOrders(OrdersVisitor* visitor) {
+  for (std::vector<Order*>::iterator it = ordersList->begin();
+       it != ordersList->end(); ++it) {
+    (*it)->acceptVisitor(visitor);
+  }
+}
+
 // Orders
 Order::Order() : player(), isEnabled(true) {}
 
@@ -100,6 +110,8 @@ std::ostream& operator<<(std::ostream& out, const Order& toOutput) {
 }
 
 void Order::disableOrder() { isEnabled = false; }
+
+Player* Order::getPlayer() { return player; }
 
 Deploy::Deploy() : Order(), territoryToDeploy(), numberOfArmies(0) {}
 
@@ -200,6 +212,8 @@ void Advance::acceptVisitor(OrdersVisitor* visitor) {
   visitor->VisitAdvance(this);
 }
 
+Player* Advance::getOpponent() { return targetTerritory->GetPlayer(); }
+
 std::ostream& Advance::doPrint(std::ostream& out) const {
   out << "Advance order.";
   if (wasExecuted) {
@@ -264,6 +278,8 @@ void Bomb::execute() {
 }
 
 void Bomb::acceptVisitor(OrdersVisitor* visitor) { visitor->VisitBomb(this); }
+
+Player* Bomb::getOpponent() { return targetTerritory->GetPlayer(); }
 
 std::ostream& Bomb::doPrint(std::ostream& out) const {
   out << "Bomb order.";
@@ -344,7 +360,13 @@ void Negotiate::execute() {
     return;
   }
   wasExecuted = true;
-  std::cout << "A peace deal was striken.\n";
+
+  // Run the negotiate visitor over the order's list of player and opponent
+  NegotiateVisitor negotiateVisitor = NegotiateVisitor(player, opponent);
+  player->GetOrdersList()->visitOrders(&negotiateVisitor);
+
+  negotiateVisitor = NegotiateVisitor(opponent, player);
+  opponent->GetOrdersList()->visitOrders(&negotiateVisitor);
 }
 
 void Negotiate::acceptVisitor(OrdersVisitor* visitor) {
@@ -354,7 +376,8 @@ void Negotiate::acceptVisitor(OrdersVisitor* visitor) {
 std::ostream& Negotiate::doPrint(std::ostream& out) const {
   out << "Negotiate order.";
   if (wasExecuted) {
-    out << " This order was executed, its effect was {effect}.";
+    out << " This order was executed, every attack between " << player
+        << " and " << opponent << " was disabled";
   }
   return out;
 }
@@ -412,6 +435,8 @@ void Airlift::execute() {
 void Airlift::acceptVisitor(OrdersVisitor* visitor) {
   visitor->VisitAirlift(this);
 }
+
+Player* Airlift::getOpponent() { return targetTerritory->GetPlayer(); }
 
 std::ostream& Airlift::doPrint(std::ostream& out) const {
   out << "Airlift order.";
@@ -471,26 +496,40 @@ void MoveTroops::MoveArmies() {
   if (troopsToMove != numberOfArmies) {
     numberOfArmies = troopsToMove;
   }
-  source->RemoveTroops(troopsToMove);
-  target->AddTroops(troopsToMove);
+  source->RemoveTroops(numberOfArmies);
+  target->AddTroops(numberOfArmies);
 }
 
 void MoveTroops::AttackTarget() {
-  int attackingArmies = numberOfArmies;
-  int defendingArmies = target->GetTroops();
-  int numberOfAttacks = attackingArmies + defendingArmies;
-  for (int i = 0; i < numberOfAttacks; i++) {
+  // Initialize random seed
+  srand(time(NULL));
+
+  for (int i = 0; i < (numberOfArmies + target->GetTroops()); i++) {
     if (i % 2 == 0) {
-      // Attacking army
-      // 60% chance of killing a defending army
+      if (AttackerKilledDefenderArmy()) {
+        target->RemoveTroops(1);
+      }
     } else {
-      // Defending army
-      // 70% chance of killing an attacking army
+      if (DefenderKilledAttackerArmy()) {
+        source->RemoveTroops(1);
+        numberOfArmies--;
+      }
     }
   }
-  // Change number of armies in territories
-  // If necessary, change ownership of the territory
+
+  // If no troops left in target, player takes ownership
+  // and we assign the number of surviving armies to the territory
+  if (target->GetTroops() == 0) {
+    target->SetPlayer(player);
+    target->SetTroops(numberOfArmies);
+  }
 }
+
+// Returns true if rand() is in [0, 6[ over the range [0, 10[
+bool MoveTroops::AttackerKilledDefenderArmy() { return (rand() % 10 < 6); }
+
+// Returns true if rand() is in [0, 7[ over the range [0, 10[
+bool MoveTroops::DefenderKilledAttackerArmy() { return (rand() % 10 < 7); }
 
 std::ostream& operator<<(std::ostream& out, const MoveTroops& toOutput) {
   // TODO: insert return statement here
@@ -524,3 +563,25 @@ NegotiateVisitor& NegotiateVisitor::operator=(
 }
 
 NegotiateVisitor::~NegotiateVisitor() {}
+
+// These methods are written like this b/c getOpponent() is not part
+// of Order's interface.  This would benefit from some refactoring
+// obviously, I might take care of it eventually but this will do for the moment
+void NegotiateVisitor::VisitAdvance(Advance* order) {
+  DisableIfPlayerAndOpponent(order, order->getOpponent());
+}
+
+void NegotiateVisitor::VisitAirlift(Airlift* order) {
+  DisableIfPlayerAndOpponent(order, order->getOpponent());
+}
+
+void NegotiateVisitor::VisitBomb(Bomb* order) {
+  DisableIfPlayerAndOpponent(order, order->getOpponent());
+}
+
+void NegotiateVisitor::DisableIfPlayerAndOpponent(Order* order,
+                                                  Player* opponent) {
+  if (order->getPlayer() == player && opponent == this->opponent) {
+    order->disableOrder();
+  }
+}
