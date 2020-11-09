@@ -109,6 +109,8 @@ std::ostream& operator<<(std::ostream& out, const Order& toOutput) {
   return toOutput.doPrint(out);
 }
 
+bool Order::validate() { return (isEnabled && !wasExecuted); }
+
 void Order::disableOrder() { isEnabled = false; }
 
 Player* Order::getPlayer() { return player; }
@@ -134,7 +136,9 @@ Deploy& Deploy::operator=(const Deploy& rightSide) {
 
 Deploy::~Deploy() {}
 
-bool Deploy::validate() { return (territoryToDeploy->GetPlayer() == player); }
+bool Deploy::validate() {
+  return (Order::validate() && territoryToDeploy->GetPlayer() == player);
+}
 
 void Deploy::execute() {
   if (!validate()) {
@@ -192,7 +196,7 @@ bool Advance::validate() {
   bool playerOwnsSource = (sourceTerritory->GetPlayer() == player);
   bool territoriesAreAdjacent =
       sourceTerritory->TestAdjacencyTo(targetTerritory);
-  return (playerOwnsSource && territoriesAreAdjacent);
+  return (Order::validate() && playerOwnsSource && territoriesAreAdjacent);
 }
 
 void Advance::execute() {
@@ -264,7 +268,8 @@ bool Bomb::validate() {
   bool playerDoesntOwnTarget = (targetTerritory->GetPlayer() != player);
   bool territoriesAreAdjacent =
       sourceTerritory->TestAdjacencyTo(targetTerritory);
-  return (playerOwnsSource && playerDoesntOwnTarget && territoriesAreAdjacent);
+  return (Order::validate() && playerOwnsSource && playerDoesntOwnTarget &&
+          territoriesAreAdjacent);
 }
 
 void Bomb::execute() {
@@ -313,7 +318,7 @@ std::ostream& operator<<(std::ostream& out, const Blockade& toOutput) {
   return toOutput.doPrint(out);
 }
 
-bool Blockade::validate() { return true; }
+bool Blockade::validate() { return (Order::validate() && true); }
 
 void Blockade::execute() {
   if (!validate()) {
@@ -353,7 +358,7 @@ Negotiate& Negotiate::operator=(const Negotiate& rightSide) {
   return *this;
 }
 
-bool Negotiate::validate() { return true; }
+bool Negotiate::validate() { return (Order::validate() && true); }
 
 void Negotiate::execute() {
   if (!validate()) {
@@ -416,7 +421,7 @@ Airlift& Airlift::operator=(const Airlift& rightSide) {
 
 bool Airlift::validate() {
   bool playerOwnsSource = (sourceTerritory->GetPlayer() == player);
-  return playerOwnsSource;
+  return (Order::validate() && playerOwnsSource);
 }
 
 void Airlift::execute() {

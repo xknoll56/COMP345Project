@@ -32,7 +32,7 @@ class Order {
   virtual ~Order();
   Order& operator=(const Order& rightSide);
 
-  virtual bool validate() = 0;
+  virtual bool validate();
   virtual void execute() = 0;
   virtual void acceptVisitor(OrdersVisitor* visitor) = 0;
   void disableOrder();
