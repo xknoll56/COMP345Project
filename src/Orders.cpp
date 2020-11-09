@@ -72,8 +72,12 @@ void OrdersList::remove(int position) {
   if (position < 1 || position > ordersList->size()) {
     return;
   }
-  // Remove 1 to account for position being 1-indexed
-  ordersList->erase(ordersList->begin() + position - 1);
+  // Index = remove 1 to account for position being 1-indexed
+  // We will also delete the order to avoid memory leaks,
+  // the orders don't deserve to live outside the orders list
+  int index{position - 1};
+  delete (*ordersList)[index];
+  ordersList->erase(ordersList->begin() + index);
 }
 
 int OrdersList::getListSize() { return ordersList->size(); }
@@ -358,7 +362,7 @@ Negotiate& Negotiate::operator=(const Negotiate& rightSide) {
   return *this;
 }
 
-bool Negotiate::validate() { return (Order::validate() && true); }
+bool Negotiate::validate() { return (Order::validate() && player != opponent); }
 
 void Negotiate::execute() {
   if (!validate()) {
