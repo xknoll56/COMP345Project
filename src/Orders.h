@@ -32,7 +32,7 @@ class Order {
   virtual ~Order();
   Order& operator=(const Order& rightSide);
 
-  virtual bool validate() = 0;
+  virtual bool validate();
   virtual void execute() = 0;
   virtual void acceptVisitor(OrdersVisitor* visitor) = 0;
   void disableOrder();
@@ -212,34 +212,6 @@ class OrdersList {
 
  private:
   std::vector<Order*>* ordersList;
-};
-
-// Class that contains the algorithm to displace troops
-// and attacks if the target is an opponent
-class MoveTroops {
- public:
-  MoveTroops();
-  MoveTroops(const MoveTroops& toCopy);
-  MoveTroops(Player* player, Territory* source, Territory* target,
-             int numberOfArmies);
-  MoveTroops& operator=(const MoveTroops& rightSide);
-
-  friend std::ostream& operator<<(std::ostream& out,
-                                  const MoveTroops& toOutput);
-
-  // Method to call to execute the troops displacement
-  void ExecuteTheMove();
-
- private:
-  Player* player;
-  Territory* source;
-  Territory* target;
-  int numberOfArmies;
-  bool wasExecuted;
-
-  bool PlayerOwnsTarget();
-  void MoveArmies();
-  void AttackTarget();
 };
 
 // Class that contains the algorithm to displace troops
