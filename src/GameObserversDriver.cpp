@@ -4,8 +4,8 @@
 #include "MapLoader.h"
 
 
-
-
+//#define OBSERVER_DRIVER
+#ifdef OBSERVER_DRIVER
 int main()
 {
 	MapLoader* ml = new MapLoader();
@@ -32,3 +32,4 @@ int main()
 	return 0;
 
 }
+#endif
