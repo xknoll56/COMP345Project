@@ -1,6 +1,10 @@
 #pragma once
 
 #include "GameEngine.h"
+#include <random>
+#include <algorithm>
+#include <chrono>
+
 
 // Part 1: Game Start.
 void GameEngine::Init() {
@@ -33,15 +37,33 @@ void GameEngine::Init() {
 void GameEngine::StartupPhase() {
 
   // 1. Randomize order of the players.
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::default_random_engine e(seed);
+    std::shuffle(players.begin(), players.end(), e);
+
   // 2. Distribute Territories randomly.
-  const std::vector<Territory*>* const territories = map->GetTerritories();
+  const std::vector<Territory*>* territories = map->GetTerritories();
+  std::shuffle(territories->begin(), territories->end(), e);
+
   for (int i = 0; i < territories->size(); i++) {
     players.at(i % players.size())->AddTerritoryToPlayer(territories->at(i));
   }
+
+
   // 3. Give starting troops to all players.
   for (Player* player: players) {
-    player->AddArmiesToReinforcementPool(35);
+      if (players.size() == 2)
+          player->AddArmiesToReinforcementPool(40);
+      else if (players.size() == 3)
+          player->AddArmiesToReinforcementPool(35);
+      else if (players.size() == 4)
+          player->AddArmiesToReinforcementPool(30);
+      else if (players.size() == 5)
+          player->AddArmiesToReinforcementPool(25);
+      else
+          std::cout << "Incorrect number of players. Players have no army.";
   }
+
 }
 
 int GameEngine::MainGameLoop() {
@@ -83,6 +105,11 @@ void GameEngine::RoundRobin(bool(Player::*func)()) {
   }
 }
 
+std::vector<Player*> GameEngine::getPlayers()
+{
+    return players;
+}
+
 void GameEngine::IssueOrdersPhase() {
   RoundRobin(&Player::IssueOrder);
 }
@@ -91,3 +118,5 @@ bool GameEngine::ExecuteOrdersPhase() {
   RoundRobin(&Player::ExecuteNextOrder);
   return true;
 }
+
+

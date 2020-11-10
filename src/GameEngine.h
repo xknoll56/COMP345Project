@@ -22,5 +22,6 @@ class GameEngine {
   void IssueOrdersPhase();
   bool ExecuteOrdersPhase();
   void RoundRobin(bool(Player::*func)());
+  std::vector<Player*> getPlayers();
 
 };
