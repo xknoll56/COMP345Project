@@ -1,164 +1,87 @@
+// COMP 345 - Project
+// Part 2
+//
+// Sophie Renaud       -  40132563
+// Joey Abou-Chaker    -  40055551
+// Jordan Goulet       -  40075688
+// Xavier Knoll        -  40132134
+// Sébastien Champoux  -  40133449
+//
+// Based on the 'https://www.warzone.com/' game.
 #pragma once
-#include "Player.h"
-#include "Orders.h"
+#include <algorithm>
+#include <iostream>
 #include <list>
 #include <string>
-#include <iostream>
+#include <vector>
 
-class Player;
-class Order;
-class Deploy;
-class Advance;
+
 
 class Subject;
 class Observer {
-public:
-	
-	~Observer()
-	{
+ public:
+  ~Observer() {}
+  virtual void Update() = 0;
+  virtual void UpdateOrderIssue() {}
+  virtual void UpdateOrderExecute() {}
+  virtual void UpdateReinforcements(int) {}
+  virtual void UpdateStats(int, std::string, bool) {}
+  void UpdateSubject(Subject* subject);
 
-	}
-	virtual void Update() = 0;
-	virtual void UpdateOrderIssue() = 0;
-	virtual void UpdateOrderExecute() = 0;
-	virtual void UpdateReinforcements(int) = 0;
-	virtual void UpdateStats() = 0;
-	void UpdateSubject(Subject* subject)
-	{
-		this->currentSubject = subject;
-	}
+ protected:
+  Subject* currentSubject = nullptr;
+  Observer() {}
 
-protected:
-	Subject* currentSubject = nullptr;
-	Observer()
-	{
-
-	}
-private:
-	
+ private:
 };
-
 
 class Subject {
-public:
-	
+ public:
+  Subject::Subject();
+  Subject::~Subject();
+  virtual void Subject::Attach(Observer* obs);
+  void Subject::Detach(Observer* obs);
+  void Subject::Notify();
+  virtual void Subject::NotifyOrderIssue();
+  virtual void Subject::NotifyOrderExecute();
+  virtual void Subject::NotifyReinforcements(int troops);
+  virtual void Subject::NotifyStats(int numTerritories, std::string name,
+                                    bool added);
 
-	Subject::Subject() {
-		static int i = 0;
-		name = std::to_string(i);
-		observers = new std::list<Observer*>();
-		i++;
-	}
+  int getId();
 
-	Subject::~Subject()
-	{
-		delete observers;
-	}
+  std::string GetName();
 
-	virtual void Subject::Attach(Observer* obs)
-	{
-		observers->push_back(obs);
-	}
-
-	void Subject::DetachPhaseObserver(Observer* obs)
-	{
-		observers->remove(obs);
-	}
-
-	void Subject::Notify()
-	{
-		std::list<Observer*>::iterator it = observers->begin();
-		for (; it != observers->end(); ++it)
-		{
-			(*it)->UpdateSubject(this);
-			(*it)->Update();
-		}
-	}
-
-	virtual void Subject::NotifyOrderIssue()
-	{
-		std::list<Observer*>::iterator it = observers->begin();
-		for (; it != observers->end(); ++it)
-		{
-			(*it)->UpdateSubject(this);
-			(*it)->UpdateOrderIssue();
-		}
-	}
-
-	virtual void Subject::NotifyOrderExecute()
-	{
-		std::list<Observer*>::iterator it = observers->begin();
-		for (; it != observers->end(); ++it)
-		{
-			(*it)->UpdateSubject(this);
-			(*it)->UpdateOrderExecute();
-		}
-	}
-
-	virtual void Subject::NotifyReinforcements(int troops)
-	{
-		std::list<Observer*>::iterator it = observers->begin();
-		for (; it != observers->end(); ++it)
-		{
-			(*it)->UpdateSubject(this);
-			(*it)->UpdateReinforcements(troops);
-		}
-	}
-
-
-	std::string GetName()
-	{
-		return name;
-	}
-private:
-	std::string name;
-	std::list<Observer*>* observers;
+ private:
+  std::string name;
+  int id = 0;
+  std::list<Observer*>* observers;
 };
 
+class GameStatisticsObserver : public Observer {
+ public:
+  GameStatisticsObserver(int numPlayers, int numTerritories);
+  void UpdateStats(int numTerritories, std::string name, bool added);
+  void Update();
+
+ private:
+  // std::list<int> playerIndexes;
+  std::vector<Subject*> players;
+  std::vector<std::string> statsInformation;
+  float* ownedPercentages;
+  int totalTerritories;
+  int numPlayers;
+};
 
 class PhaseObserver : public Observer {
-public:
+ public:
+  void Update();
+  void UpdateReinforcements(int troops);
+  void UpdateOrderIssue();
+  void UpdateOrderExecute();
 
-	void Update()
-	{
-
-	}
-
-	void UpdateReinforcements(int troops)
-	{
-		std::cout << "Player " << currentSubject->GetName() << ": Reinforcement phase" << std::endl;
-		std::cout << "\tAdding " << troops << " units to reinforcement pool" << std::endl;
-		//std::cout << "Player " << player->GetName() << ": Reinforcement phase" << std::endl;
-	}
-
-	void UpdateOrderIssue()
-	{
-
-		std::cout << "Player " << currentSubject->GetName() << ": Issue orders phase" << std::endl;
-	}
-
-	void UpdateOrderExecute()
-	{
-		std::cout << "Player " << currentSubject->GetName() << ": Executing orders phase" << std::endl;
-
-	}
-	void UpdateStats()
-	{
-
-	}
-
-private:
-
-
-};
-
-class GameStatisticsObserver: public Observer
-{
-public:
-	GameStatisticsObserver(int numPlayers)
-	{
-
-	}
-private:
-
+ private:
+  enum Phase { Reinforcement = 0, IssueOrder, ExecuteOrder, None };
+  std::vector<std::string> phaseInformation;
+  Phase currentPhase = Phase::None;
 };

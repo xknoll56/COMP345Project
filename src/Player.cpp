@@ -48,7 +48,8 @@ Player& Player::operator=(const Player& rightP) {
 // Destructor
 Player::~Player() {
   for (auto terr : ownedTerritories) {
-    delete terr;
+    // delete terr;
+    // The territories should not be deleted here, only the pointers to them.
     terr = NULL;
   }
   ownedTerritories.clear();
@@ -74,7 +75,8 @@ std::vector<Territory*> Player::toDefend() { return ownedTerritories; }
 
 // Returns a vector of pointers of territories to attack
 std::vector<Territory*> Player::toAttack(Map& map) {
-  const std::vector<Territory*>* const vectorAllTerritories = map.GetTerritories();
+  const std::vector<Territory*>* const vectorAllTerritories =
+      map.GetTerritories();
   std::vector<Territory*> territoriesToAttack;
 
   for (int i = 0; i < vectorAllTerritories->size(); i++) {
@@ -90,6 +92,7 @@ std::vector<Territory*> Player::toAttack(Map& map) {
 // Creates an Order object and adds it to the vector of pointers of orders
 bool Player::IssueOrder() {
   // Creating a Deploy order
+  this->NotifyOrderIssue();
   AddOrderToPlayer(new Deploy(this, this->ownedTerritories[0], 0));
   if (listOfOrders->getListSize() > 12) {
     return false;
@@ -99,8 +102,25 @@ bool Player::IssueOrder() {
 
 // Adds the given territory pointer to the vector of owned territories
 void Player::AddTerritoryToPlayer(Territory* territoryToAdd) {
-  ownedTerritories.push_back(territoryToAdd);
-  territoryToAdd->SetPlayer(this);
+  std::vector<Territory*>::iterator it = std::find(
+      ownedTerritories.begin(), ownedTerritories.end(), territoryToAdd);
+  if (it == ownedTerritories.end()) {
+    ownedTerritories.push_back(territoryToAdd);
+    territoryToAdd->SetPlayer(this);
+    this->NotifyStats(ownedTerritories.size(), *territoryToAdd->GetName(),
+                      true);
+  }
+}
+
+void Player::RemoveTerritoryFromPlayer(Territory* territoryToRemove) {
+  std::vector<Territory*>::iterator it = std::find(
+      ownedTerritories.begin(), ownedTerritories.end(), territoryToRemove);
+  if (it != ownedTerritories.end()) {
+    ownedTerritories.erase(it);
+    territoryToRemove->SetPlayer(nullptr);
+    this->NotifyStats(ownedTerritories.size(), *territoryToRemove->GetName(),
+                      false);
+  }
 }
 // Adds the given card pointer to the vector of cards
 void Player::AddCardToPlayer(Card* cardToAdd) {
@@ -112,6 +132,7 @@ void Player::AddOrderToPlayer(Order* orderToAdd) {
 }
 
 void Player::AddArmiesToReinforcementPool(int numberOfArmies) {
+  this->NotifyReinforcements(numberOfArmies);
   reinforcementPool += std::max(0, numberOfArmies);
 }
 
@@ -137,10 +158,11 @@ const std::vector<Territory*>* Player::GetOwnedTerritories() {
 void Player::SetReinforcementPool(int amount) { reinforcementPool = amount; }
 
 bool Player::ExecuteNextOrder() {
-    // Find the order with the highest priority.
-    // Execute it.
-    // Erase it from the list of orders.
-    // return true if there are still orders to be executed.
+  this->NotifyOrderExecute();
+  // Find the order with the highest priority.
+  // Execute it.
+  // Erase it from the list of orders.
+  // return true if there are still orders to be executed.
   return false;
 }
 

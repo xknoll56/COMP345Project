@@ -13,6 +13,7 @@
 #include "Map.h"
 #include "Cards.h"
 #include "Orders.h"
+#include "GameObservers.h"
 
 class Order;
 class Territory;
@@ -20,7 +21,7 @@ class Graph;
 class Map;
 class OrdersList;
 
-class Player {
+class Player: public Subject {
 private:
  // Vector of pointers of territories
  std::vector<Territory*> ownedTerritories;
@@ -54,6 +55,7 @@ public:
 
  // Additional methods
  void AddTerritoryToPlayer(Territory* territoryToAdd);
+ void RemoveTerritoryFromPlayer(Territory* territoryToRemove);
  void AddCardToPlayer(Card* cardToAdd);
  void AddOrderToPlayer(Order* orderToAdd);
 
