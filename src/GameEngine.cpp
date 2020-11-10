@@ -4,23 +4,66 @@
 #include <random>
 #include <algorithm>
 #include <chrono>
+#include <cctype>
 
 
 // Part 1: Game Start.
 void GameEngine::Init() {
-  // 1. Select a map.
+  // 1. Select a map and load it.
+	std::string map_name;
+	std::string file_name;
+	MapLoader* ml = new MapLoader();
+	std::cout << "Here are the available maps:\n---------------------------\n"
+		<< "artic.map\nbigeurope.map\ncanada.map\neurope.map\nfrance.map\nsolar.map\nswiss.map\n";
+	
+	do {
+		std::cout << "\nEnter your choice of map: ";
+		std::cin >> map_name;
+		file_name = "src/MapFiles/" + map_name;
+		map = ml->GenerateMap(file_name);
+
+		if (map == nullptr)
+			std::cout << "Please try again." << std::endl;
+	} while (map == nullptr);
+	
+	delete ml; // doesn't make the app crash for me
+	
   // 2. Select num of Players.
-  players.reserve(3);
+	int num_players;
+	do {
+		std::cout << "\nEnter the number of players (2-5) : ";
+		std::cin >> num_players;
+
+		if (num_players < 2 || num_players > 5)
+			std::cout << "Incorrect number of players, try again." << std::endl;
+	} while (num_players < 2 || num_players > 5);
+    players.reserve(num_players);
+
   // 3. Set Observers (Part 5).
-  // 4. Load Map.
-  MapLoader* ml = new MapLoader();
-  map = ml->GenerateMap("MapFiles/France.map");
-  // delete ml; // TODO - WHY IS THIS DELETE CRASHING THE APPLICATION???
-  // 5. Create Players.
-  players.push_back(new Player());
-  players.push_back(new Player());
-  players.push_back(new Player());
-  // 6. Create a deck of cards;
+	// doesnt actually turn them on or off yet, it just gathers whether the player wants them on or off.
+	bool setObs = false;
+	char answer;
+	char answerCap;
+	do {
+		std::cout << "\nDo you want to enable observers for the game? (Y/N) ";
+		std::cin >> answer;
+		answerCap = toupper(answer);
+		if (answerCap != 'Y' && answerCap != 'N')
+			std::cout << "Incorrect response, try again." << std::endl;
+	} while (answerCap != 'Y' && answerCap != 'N');
+	
+	if (answerCap == 'Y')
+		setObs = true;
+
+	std::cout << "\nObservers are now set to " << setObs << std::endl;
+
+  // 4. Create Players.
+	for (int i = 0; i < num_players; i++) {
+		players.push_back(new Player());
+		std::cout << "Player " << i + 1 << " has been created." <<std::endl;
+	}
+		
+  // 5. Create a deck of cards; 
   deck.addCard(new BombCard{10});
   deck.addCard(new ReinforcementCard{20});
   deck.addCard(new BlockadeCard{30});
@@ -31,6 +74,8 @@ void GameEngine::Init() {
   deck.addCard(new BlockadeCard{80});
   deck.addCard(new AirliftCard{90});
   deck.addCard(new DiplomacyCard{100});
+
+  // show that the deck has been created with the right number of cards 
 }
 
 // Part 2: Game Startup
@@ -75,7 +120,6 @@ int GameEngine::MainGameLoop() {
     }
   }
 }
-
 void GameEngine::ReinforcementPhase() {
   for (Continent* continent: map->GetContinents()) {
     Player* player = continent->GetLeader();
@@ -118,5 +162,3 @@ bool GameEngine::ExecuteOrdersPhase() {
   RoundRobin(&Player::ExecuteNextOrder);
   return true;
 }
-
-
