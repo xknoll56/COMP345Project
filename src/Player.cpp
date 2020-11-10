@@ -143,3 +143,5 @@ bool Player::ExecuteNextOrder() {
     // return true if there are still orders to be executed.
   return false;
 }
+
+OrdersList* Player::GetOrdersList() { return listOfOrders; }

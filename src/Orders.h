@@ -32,10 +32,11 @@ class Order {
   virtual ~Order();
   Order& operator=(const Order& rightSide);
 
-  virtual bool validate() = 0;
+  virtual bool validate();
   virtual void execute() = 0;
   virtual void acceptVisitor(OrdersVisitor* visitor) = 0;
   void disableOrder();
+  Player* getPlayer();
 
   friend std::ostream& operator<<(std::ostream& out, const Order& toOutput);
 
@@ -84,6 +85,8 @@ class Advance : public Order {
   virtual void execute();
   virtual void acceptVisitor(OrdersVisitor* visitor);
 
+  Player* getOpponent();
+
  private:
   Territory* sourceTerritory;
   Territory* targetTerritory;
@@ -105,6 +108,8 @@ class Bomb : public Order {
   virtual bool validate();
   virtual void execute();
   virtual void acceptVisitor(OrdersVisitor* visitor);
+
+  Player* getOpponent();
 
  private:
   Territory* sourceTerritory;
@@ -169,6 +174,8 @@ class Airlift : public Order {
   virtual void execute();
   virtual void acceptVisitor(OrdersVisitor* visitor);
 
+  Player* getOpponent();
+
  private:
   Territory* sourceTerritory;
   Territory* targetTerritory;
@@ -200,6 +207,9 @@ class OrdersList {
                                   const OrdersList& toOutput);
   int getListSize();
 
+  // Run a visitor over every order in the list
+  void visitOrders(OrdersVisitor* visitor);
+
  private:
   std::vector<Order*>* ordersList;
 };
@@ -230,34 +240,8 @@ class MoveTroops {
   bool PlayerOwnsTarget();
   void MoveArmies();
   void AttackTarget();
-};
-
-// Class that contains the algorithm to displace troops
-// and attacks if the target is an opponent
-class MoveTroops {
- public:
-  MoveTroops();
-  MoveTroops(const MoveTroops& toCopy);
-  MoveTroops(Player* player, Territory* source, Territory* target,
-             int numberOfArmies);
-  MoveTroops& operator=(const MoveTroops& rightSide);
-
-  friend std::ostream& operator<<(std::ostream& out,
-                                  const MoveTroops& toOutput);
-
-  // Method to call to execute the troops displacement
-  void ExecuteTheMove();
-
- private:
-  Player* player;
-  Territory* source;
-  Territory* target;
-  int numberOfArmies;
-  bool wasExecuted;
-
-  bool PlayerOwnsTarget();
-  void MoveArmies();
-  void AttackTarget();
+  bool AttackerKilledDefenderArmy();
+  bool DefenderKilledAttackerArmy();
 };
 
 // Orders visitors
@@ -276,7 +260,7 @@ class OrdersVisitor {
   virtual void VisitNegotiate(Negotiate* order);
 };
 
-class NegotiateVisitor : OrdersVisitor {
+class NegotiateVisitor : public OrdersVisitor {
  public:
   NegotiateVisitor();
   NegotiateVisitor(Player* player, Player* opponent);
@@ -284,7 +268,13 @@ class NegotiateVisitor : OrdersVisitor {
   NegotiateVisitor& operator=(const NegotiateVisitor& rightSide);
   virtual ~NegotiateVisitor();
 
+  virtual void VisitAdvance(Advance* order);
+  virtual void VisitAirlift(Airlift* order);
+  virtual void VisitBomb(Bomb* order);
+
  private:
   Player* player;
   Player* opponent;
+
+  void DisableIfPlayerAndOpponent(Order* order, Player* opponent);
 };

@@ -67,4 +67,6 @@ public:
  const  std::vector<Territory*>* GetOwnedTerritories();
  void SetReinforcementPool(int amount);
  bool ExecuteNextOrder();
+
+ OrdersList* GetOrdersList();
 };
