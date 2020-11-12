@@ -9,8 +9,8 @@
 //
 // Based on the 'https://www.warzone.com/' game.
 #pragma once
-#include "Player.h"
 #include "MapLoader.h"
+#include "Player.h"
 
 //#define OBSERVER_DRIVER
 #ifdef OBSERVER_DRIVER
@@ -21,9 +21,11 @@ int main() {
   Player p;
   Player p2;
 
+  p.AddTerritoryToPlayer(map->GetTerritories()->at(0));
+  p2.AddTerritoryToPlayer(map->GetTerritories()->at(1));
   // p.name = "the name";
   GameStatisticsObserver gso =
-     GameStatisticsObserver(2, map->GetTerritories()->size());
+      GameStatisticsObserver(map->GetTerritories()->size());
   PhaseObserver ph = PhaseObserver();
 
   p.Attach(&gso);
@@ -31,31 +33,27 @@ int main() {
   p.Attach(&ph);
   p2.Attach(&ph);
 
-    
-  p.AddTerritoryToPlayer(map->GetTerritories()->at(0));
-  system("pause");
-  p2.AddTerritoryToPlayer(map->GetTerritories()->at(1));
-  system("pause");
-  p.IssueOrder();
-  system("pause");
-  p2.IssueOrder();
-  system("pause");
+  gso.AddPlayer(&p);
+  gso.AddPlayer(&p2);
+  ph.AddPlayer(&p);
+  ph.AddPlayer(&p2);
+
+  gso.Start();
+  system("Pause");
   p.AddArmiesToReinforcementPool(100);
-  system("pause");
+  system("Pause");
   p2.AddArmiesToReinforcementPool(200);
-  system("pause");
-  p.ExecuteNextOrder();
-  system("pause");
-  p2.ExecuteNextOrder();
-  system("pause");
-  p.RemoveTerritoryFromPlayer(map->GetTerritories()->at(0));
-  system("pause");
-  for (Territory* terr: *map->GetTerritories()) {
-    p2.AddTerritoryToPlayer(terr);
-    //system("pause");
-  }
+  system("Pause");
+  p.IssueOrder();
+  system("Pause");
+  p2.IssueOrder();
+  system("Pause");
 
+  p.RemoveTerritoryFromPlayer(p.GetOwnedTerritories()->at(0));
+  system("Pause");
 
+  for (Territory* territory : *map->GetTerritories())
+    p2.AddTerritoryToPlayer(territory);
   return 0;
 }
 #endif

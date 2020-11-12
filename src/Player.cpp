@@ -18,12 +18,14 @@ Player::Player()
     : ownedTerritories(std::vector<Territory*>(0)),
       handOfCards(std::vector<Card*>(0)),
       listOfOrders(new OrdersList()),
-      reinforcementPool(0) {}
+      reinforcementPool(0),
+      phase(Phase::None) {}
 // Parametric constructor
 Player::Player(std::vector<Territory*> terr, int numberOfArmies)
     : handOfCards(std::vector<Card*>(0)),
       reinforcementPool(numberOfArmies),
-      listOfOrders(new OrdersList()) {
+      listOfOrders(new OrdersList()),
+      phase(Phase::None) {
   for (Territory* t : terr) this->AddTerritoryToPlayer(t);
 }
 
@@ -92,8 +94,10 @@ std::vector<Territory*> Player::toAttack(Map& map) {
 // Creates an Order object and adds it to the vector of pointers of orders
 bool Player::IssueOrder() {
   // Creating a Deploy order
-  this->NotifyOrderIssue();
+  phase = Phase::IssueOrders;
   AddOrderToPlayer(new Deploy(this, this->ownedTerritories[0], 0));
+  this->Notify();
+  phase = Phase::None;
   if (listOfOrders->getListSize() > 12) {
     return false;
   }
@@ -107,8 +111,7 @@ void Player::AddTerritoryToPlayer(Territory* territoryToAdd) {
   if (it == ownedTerritories.end()) {
     ownedTerritories.push_back(territoryToAdd);
     territoryToAdd->SetPlayer(this);
-    this->NotifyStats(ownedTerritories.size(), *territoryToAdd->GetName(),
-                      true);
+    Notify();
   }
 }
 
@@ -118,8 +121,7 @@ void Player::RemoveTerritoryFromPlayer(Territory* territoryToRemove) {
   if (it != ownedTerritories.end()) {
     ownedTerritories.erase(it);
     territoryToRemove->SetPlayer(nullptr);
-    this->NotifyStats(ownedTerritories.size(), *territoryToRemove->GetName(),
-                      false);
+    Notify();
   }
 }
 // Adds the given card pointer to the vector of cards
@@ -132,8 +134,11 @@ void Player::AddOrderToPlayer(Order* orderToAdd) {
 }
 
 void Player::AddArmiesToReinforcementPool(int numberOfArmies) {
-  this->NotifyReinforcements(numberOfArmies);
+  // this->NotifyReinforcements(numberOfArmies);
+  phase = Phase::Reinforcement;
   reinforcementPool += std::max(0, numberOfArmies);
+  this->Notify();
+  phase = Phase::None;
 }
 
 int Player::GetReinforcementPoolCount() { return reinforcementPool; }
@@ -158,12 +163,16 @@ const std::vector<Territory*>* Player::GetOwnedTerritories() {
 void Player::SetReinforcementPool(int amount) { reinforcementPool = amount; }
 
 bool Player::ExecuteNextOrder() {
-  this->NotifyOrderExecute();
+  phase = Phase::ExecuteOrders;
+  this->Notify();
   // Find the order with the highest priority.
   // Execute it.
   // Erase it from the list of orders.
   // return true if there are still orders to be executed.
+  phase = Phase::None;
   return false;
 }
+
+Phase Player::GetPhase() { return phase; }
 
 OrdersList* Player::GetOrdersList() { return listOfOrders; }

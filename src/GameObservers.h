@@ -9,27 +9,23 @@
 //
 // Based on the 'https://www.warzone.com/' game.
 #pragma once
+
 #include <algorithm>
 #include <iostream>
 #include <list>
 #include <string>
 #include <vector>
 
-
-
+class Player;
 class Subject;
+class Order;
+class Card;
 class Observer {
  public:
   ~Observer() {}
   virtual void Update() = 0;
-  virtual void UpdateOrderIssue() {}
-  virtual void UpdateOrderExecute() {}
-  virtual void UpdateReinforcements(int) {}
-  virtual void UpdateStats(int, std::string, bool) {}
-  void UpdateSubject(Subject* subject);
 
  protected:
-  Subject* currentSubject = nullptr;
   Observer() {}
 
  private:
@@ -42,14 +38,7 @@ class Subject {
   virtual void Subject::Attach(Observer* obs);
   void Subject::Detach(Observer* obs);
   void Subject::Notify();
-  virtual void Subject::NotifyOrderIssue();
-  virtual void Subject::NotifyOrderExecute();
-  virtual void Subject::NotifyReinforcements(int troops);
-  virtual void Subject::NotifyStats(int numTerritories, std::string name,
-                                    bool added);
-
   int getId();
-
   std::string GetName();
 
  private:
@@ -58,30 +47,36 @@ class Subject {
   std::list<Observer*>* observers;
 };
 
+enum Phase { Reinforcement = 0, IssueOrders = 1, ExecuteOrders = 2, None };
+
 class GameStatisticsObserver : public Observer {
  public:
-  GameStatisticsObserver(int numPlayers, int numTerritories);
-  void UpdateStats(int numTerritories, std::string name, bool added);
   void Update();
+  void AddPlayer(Player* player);
+  GameStatisticsObserver(int numTerritories);
+  void Start();
 
  private:
-  // std::list<int> playerIndexes;
-  std::vector<Subject*> players;
-  std::vector<std::string> statsInformation;
-  float* ownedPercentages;
-  int totalTerritories;
-  int numPlayers;
+  std::vector<Player*> players;
+  int numTerritories;
+  bool gameStarted = false;
 };
-
 class PhaseObserver : public Observer {
  public:
   void Update();
-  void UpdateReinforcements(int troops);
-  void UpdateOrderIssue();
-  void UpdateOrderExecute();
+  void AddPlayer(Player* player);
 
  private:
-  enum Phase { Reinforcement = 0, IssueOrder, ExecuteOrder, None };
-  std::vector<std::string> phaseInformation;
+  void UpdateReinforcements(Player* player);
+  void UpdateIssueOrders(Player* player);
+  void UpdateExecuteOrders(Player* player);
+  std::vector<Player*> players;
   Phase currentPhase = Phase::None;
+  struct StreamInsertions {
+    std::string message;
+    Player* player = nullptr;
+    Order* order = nullptr;
+    Card* card = nullptr;
+  };
+  std::list<StreamInsertions> streamInsertions;
 };
