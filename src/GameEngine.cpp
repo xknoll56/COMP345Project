@@ -26,7 +26,7 @@ void GameEngine::Init() {
 			std::cout << "Please try again." << std::endl;
 	} while (map == nullptr);
 	
-	delete ml; // doesn't make the app crash for me
+	delete ml;
 	
   // 2. Select num of Players.
 	int num_players;
@@ -59,7 +59,7 @@ void GameEngine::Init() {
 
   // 4. Create Players.
 	for (int i = 0; i < num_players; i++) {
-		players.push_back(new Player());
+		players.push_back(new Player(map));
 		std::cout << "Player " << i + 1 << " has been created." <<std::endl;
 	}
 		
@@ -88,7 +88,7 @@ void GameEngine::StartupPhase() {
 
   // 2. Distribute Territories randomly.
   const std::vector<Territory*>* territories = map->GetTerritories();
-  std::shuffle(territories->begin(), territories->end(), e);
+  // std::shuffle(territories->begin(), territories->end(), e);
 
   for (int i = 0; i < territories->size(); i++) {
     players.at(i % players.size())->AddTerritoryToPlayer(territories->at(i));

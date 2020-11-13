@@ -33,11 +33,11 @@ class Observer {
 
 class Subject {
  public:
-  Subject::Subject();
-  Subject::~Subject();
-  virtual void Subject::Attach(Observer* obs);
-  void Subject::Detach(Observer* obs);
-  void Subject::Notify();
+  Subject();
+  ~Subject();
+  virtual void Attach(Observer* obs);
+  void Detach(Observer* obs);
+  void Notify();
   int getId();
   std::string GetName();
 

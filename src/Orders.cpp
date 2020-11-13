@@ -371,7 +371,7 @@ void Negotiate::execute() {
   wasExecuted = true;
 
   // Run the negotiate visitor over the order's list of player and opponent
-  NegotiateVisitor negotiateVisitor = NegotiateVisitor(player, opponent);
+  NegotiateVisitor negotiateVisitor(player, opponent);
   player->GetOrdersList()->visitOrders(&negotiateVisitor);
 
   negotiateVisitor = NegotiateVisitor(opponent, player);
@@ -541,7 +541,8 @@ bool MoveTroops::AttackerKilledDefenderArmy() { return (rand() % 10 < 6); }
 bool MoveTroops::DefenderKilledAttackerArmy() { return (rand() % 10 < 7); }
 
 std::ostream& operator<<(std::ostream& out, const MoveTroops& toOutput) {
-  // TODO: insert return statement here
+  // TODO - return
+  return out;
 }
 
 // Visitors

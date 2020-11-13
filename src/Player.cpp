@@ -13,16 +13,17 @@
 
 #include <algorithm>
 
-// Default constructor
-Player::Player()
-    : ownedTerritories(std::vector<Territory*>(0)),
+Player::Player(Map* map) : 
+      map(map),
+      ownedTerritories(std::vector<Territory*>(0)),
       handOfCards(std::vector<Card*>(0)),
       listOfOrders(new OrdersList()),
       reinforcementPool(0),
       phase(Phase::None) {}
 // Parametric constructor
-Player::Player(std::vector<Territory*> terr, int numberOfArmies)
-    : handOfCards(std::vector<Card*>(0)),
+Player::Player(Map* map, std::vector<Territory*> terr, int numberOfArmies)
+    : map(map),
+      handOfCards(std::vector<Card*>(0)),
       reinforcementPool(numberOfArmies),
       listOfOrders(new OrdersList()),
       phase(Phase::None) {
@@ -31,6 +32,7 @@ Player::Player(std::vector<Territory*> terr, int numberOfArmies)
 
 // Copy constructor
 Player::Player(const Player& pCopy) {
+  map = pCopy.map;
   for (Territory* t : pCopy.ownedTerritories) this->AddTerritoryToPlayer(t);
   handOfCards = pCopy.handOfCards;
   listOfOrders = pCopy.listOfOrders;
@@ -73,19 +75,19 @@ std::ostream& operator<<(std::ostream& out, const Player& toOutput) {
 }
 
 // Returns a vector of pointers of territories to defend
-std::vector<Territory*> Player::toDefend() { return ownedTerritories; }
+std::vector<Territory*> Player::ToDefend() { return ownedTerritories; }
 
 // Returns a vector of pointers of territories to attack
-std::vector<Territory*> Player::toAttack(Map& map) {
+std::vector<Territory*> Player::ToAttack() {
   const std::vector<Territory*>* const vectorAllTerritories =
-      map.GetTerritories();
+      map->GetTerritories();
   std::vector<Territory*> territoriesToAttack;
+  Territory* territory;
 
   for (int i = 0; i < vectorAllTerritories->size(); i++) {
-    for (int j = 0; j < ownedTerritories.size(); j++) {
-      if (*(ownedTerritories[j]->GetName()) !=
-          *(vectorAllTerritories->at(i)->GetName()))
-        territoriesToAttack.push_back(vectorAllTerritories->at(i));
+    territory = vectorAllTerritories->at(i);
+    if (territory->GetPlayer() != this) {
+      territoriesToAttack.push_back(territory);
     }
   }
   return territoriesToAttack;
@@ -93,8 +95,55 @@ std::vector<Territory*> Player::toAttack(Map& map) {
 
 // Creates an Order object and adds it to the vector of pointers of orders
 bool Player::IssueOrder() {
-  // Creating a Deploy order
+  // TODO - Why are they making us call toAttack() every time??
   phase = Phase::IssueOrders;
+
+  std::vector<Territory*> toAttack(ToAttack());
+  std::vector<Territory*> toDefend(ToDefend());
+  std::string input;
+  int x = -1;
+  Territory* territory = nullptr;
+
+  if (reinforcementPool > 0) {
+    std::cout << GetName() << ", it's your turn. You have " << reinforcementPool << " troops left to deploy." << std::endl;
+    std::cout << "choose a territory to deploy troops to:" << std::endl;
+    for (int i = 0; i < toDefend.size(); i++) {
+      territory = toDefend.at(i);
+      std::cout << "[" << i << "] " << *territory->GetName() << ": "
+                << territory->GetTroops() << " troops."
+                << std::endl;
+    }
+    while ((x < 0) || (x >= toDefend.size())) {
+      std::cout << "> ";
+      std::cin >> input;
+      try {
+        x = std::stoi(input);
+      } catch (...) {
+        continue;
+      }
+    }
+    territory = toDefend.at(x);
+    x = -1;
+    std::cout << "How many troops to deploy on " << territory->GetName() << "? (maximum " << reinforcementPool << ")" << std::endl;
+    while ((x < 1) || (x > reinforcementPool)) {
+      std::cout << "> ";
+      std::cin >> input;
+      try {
+        x = std::stoi(input);
+      } catch (...) {
+        continue;
+      }
+    }
+    std::cout << territory->GetName() << " troops: " << territory->GetTroops()
+              << "->" << territory->GetTroops() + x << std::endl;
+    std::cout << GetName() << " Reinforcement pool: " << reinforcementPool
+              << "->" << reinforcementPool - x << std::endl;
+    reinforcementPool -= x;
+    territory->AddTroops(x);
+  }
+
+  // Continue
+
   AddOrderToPlayer(new Deploy(this, this->ownedTerritories[0], 0));
   this->Notify();
   phase = Phase::None;

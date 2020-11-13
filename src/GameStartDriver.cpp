@@ -1,6 +1,6 @@
 #include "GameEngine.h"
 
-#define GAME_START_DRIVER
+// #define GAME_START_DRIVER
 #ifdef GAME_START_DRIVER
 
 int main() {

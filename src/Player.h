@@ -32,14 +32,16 @@ class Player : public Subject {
   // Player's reinforcement pool
   int reinforcementPool;
 
+
   // The Phase observer needs to know the current phase
   Phase phase;
 
  public:
-  // Default constructor
-  Player();
+  Map* map;
+
+  Player(Map* map);
   // Parametric constructor
-  Player(std::vector<Territory*> terr, int numberOfArmies);
+  Player(Map* map, std::vector<Territory*> terr, int numberOfArmies);
   // Copy constructor
   Player(const Player& pCopy);
   // Destructor
@@ -50,9 +52,9 @@ class Player : public Subject {
   friend std::ostream& operator<<(std::ostream& out, const Player& toOutput);
 
   // Will return a vector of pointers of territories to defend
-  std::vector<Territory*> toDefend();
+  std::vector<Territory*> ToDefend();
   // Will return a vector of pointers of territories to attack
-  std::vector<Territory*> toAttack(Map& map);
+  std::vector<Territory*> ToAttack();
   // Will create an Order object and add it to the vector of pointers of orders
   bool IssueOrder();
 
