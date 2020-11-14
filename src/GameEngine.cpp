@@ -97,6 +97,8 @@ void GameEngine::StartupPhase() {
 
   // 3. Give starting troops to all players.
   for (Player* player: players) {
+	// TODO - REMOVE THIS TEMP LINE
+    // player->AddCardToPlayer(deck.draw());
       if (players.size() == 2)
           player->AddArmiesToReinforcementPool(40);
       else if (players.size() == 3)

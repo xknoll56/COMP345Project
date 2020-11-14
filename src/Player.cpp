@@ -78,6 +78,7 @@ std::ostream& operator<<(std::ostream& out, const Player& toOutput) {
 std::vector<Territory*> Player::ToDefend() { return ownedTerritories; }
 
 // Returns a vector of pointers of territories to attack
+// TODO - IMPORTANT TODO BEFORE A2 SUBMISSION!!! this should only return neighbors!
 std::vector<Territory*> Player::ToAttack() {
   const std::vector<Territory*>* const vectorAllTerritories =
       map->GetTerritories();
@@ -103,9 +104,9 @@ bool Player::IssueOrder() {
   std::string input;
   int x = -1;
   Territory* territory = nullptr;
-
-  if (reinforcementPool > 0) {
-    std::cout << GetName() << ", it's your turn. You have " << reinforcementPool << " troops left to deploy." << std::endl;
+  std::cout << GetName() << ", it's your turn." << std::endl;
+  if (reinforcementPool > 0) { // TODO - This entire part needs to change to use the Deploy Order
+    std::cout << "You have " << reinforcementPool << " troops left to deploy." << std::endl;
     std::cout << "choose a territory to deploy troops to:" << std::endl;
     for (int i = 0; i < toDefend.size(); i++) {
       territory = toDefend.at(i);
@@ -124,7 +125,7 @@ bool Player::IssueOrder() {
     }
     territory = toDefend.at(x);
     x = -1;
-    std::cout << "How many troops to deploy on " << territory->GetName() << "? (maximum " << reinforcementPool << ")" << std::endl;
+    std::cout << "How many troops to deploy on " << *territory->GetName() << "? (maximum " << reinforcementPool << ")" << std::endl;
     while ((x < 1) || (x > reinforcementPool)) {
       std::cout << "> ";
       std::cin >> input;
@@ -134,22 +135,67 @@ bool Player::IssueOrder() {
         continue;
       }
     }
-    std::cout << territory->GetName() << " troops: " << territory->GetTroops()
+    std::cout << *territory->GetName() << " troops: " << territory->GetTroops()
               << "->" << territory->GetTroops() + x << std::endl;
     std::cout << GetName() << " Reinforcement pool: " << reinforcementPool
               << "->" << reinforcementPool - x << std::endl;
     reinforcementPool -= x;
     territory->AddTroops(x);
-  }
+  } 
+  else {
+    while (true) {
+      std::cout << "Make a selection:\n[1] Play a card.\n[2] Advance troops.\n[3] Commit orders." << std::endl;
+      while ((x < 1) || (x > 3)) {
+        std::cout << "> ";
+        std::cin >> input;
+        try {
+          x = std::stoi(input);
+        } catch (...) {
+          continue;
+        }
+      }
+      switch (x) { 
+      case 1: // Play Card
+        x = -1;
+        if (handOfCards.size() > 0) {
+          std::cout << "Choose a card to play:" << std::endl;
+          for (int i = 0; i < handOfCards.size(); i++) {
+            std::cout << "[" << i << "] " << handOfCards.at(i) << std::endl; // TODO - Give names to cards ?
+            while ((x < 0) || (x >= handOfCards.size())) {
+              std::cout << "> ";
+              std::cin >> input;
+              try {
+                x = std::stoi(input);
+              } catch (...) {
+                continue;
+              }
+            }
 
-  // Continue
+            // TODO - add card order to orders list
+            handOfCards.erase(handOfCards.begin() + i); // TODO - should i return this card to the deck?
+          }
+        } else {
+          std::cerr << "You don't have any cards!" << std::endl;
+        }
+        break;
+      case 2: // Advance Troops
+        // TODO
+        x = -1;
+        break;
+      case 3: // Commit Orders.
+        x = -1;
+        return false;
+      default: // Error
+        std::cerr << "Error: the input was invalid" << std::endl;
+        std::cin;
+        exit(-1);
+      }
+    }
+  }
 
   AddOrderToPlayer(new Deploy(this, this->ownedTerritories[0], 0));
   this->Notify();
   phase = Phase::None;
-  if (listOfOrders->getListSize() > 12) {
-    return false;
-  }
   return true;
 }
 
