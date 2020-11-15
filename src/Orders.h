@@ -84,13 +84,14 @@ class Advance : public Order {
   virtual bool validate();
   virtual void execute();
   virtual void acceptVisitor(OrdersVisitor* visitor);
-
+  void disableDrawAfterConquer();
   Player* getOpponent();
 
  private:
   Territory* sourceTerritory;
   Territory* targetTerritory;
   int numberOfArmies;
+  bool drawAfterConquer;
   virtual std::ostream& doPrint(std::ostream& out) const;
 };
 
@@ -114,7 +115,6 @@ class Bomb : public Order {
  private:
   Territory* sourceTerritory;
   Territory* targetTerritory;
-  int numberOfDestroyedArmies;
   virtual std::ostream& doPrint(std::ostream& out) const;
 };
 
@@ -173,13 +173,14 @@ class Airlift : public Order {
   virtual bool validate();
   virtual void execute();
   virtual void acceptVisitor(OrdersVisitor* visitor);
-
+  void disableDrawAfterConquer();
   Player* getOpponent();
 
  private:
   Territory* sourceTerritory;
   Territory* targetTerritory;
   int numberOfArmies;
+  bool drawAfterConquer;
   virtual std::ostream& doPrint(std::ostream& out) const;
 };
 
@@ -229,6 +230,7 @@ class MoveTroops {
 
   // Method to call to execute the troops displacement
   void ExecuteTheMove();
+  bool AttackerConqueredTarget();
 
  private:
   Player* player;
@@ -236,6 +238,7 @@ class MoveTroops {
   Territory* target;
   int numberOfArmies;
   bool wasExecuted;
+  bool attackerConquered;
 
   bool PlayerOwnsTarget();
   void MoveArmies();
@@ -245,7 +248,7 @@ class MoveTroops {
 };
 
 // Orders visitors
-// To perform operations on lists of visitors whilst acknowledging their type
+// To perform operations on lists of visitors when their type matters
 class OrdersVisitor {
  public:
   virtual ~OrdersVisitor();
@@ -260,6 +263,7 @@ class OrdersVisitor {
   virtual void VisitNegotiate(Negotiate* order);
 };
 
+// Visitor that visits orders and disables attack orders between player and opponent
 class NegotiateVisitor : public OrdersVisitor {
  public:
   NegotiateVisitor();
@@ -277,4 +281,20 @@ class NegotiateVisitor : public OrdersVisitor {
   Player* opponent;
 
   void DisableIfPlayerAndOpponent(Order* order, Player* opponent);
+};
+
+// Visitor that visits orders and disables card draw when player conquers a territory
+class DisableCardDrawVisitor : public OrdersVisitor {
+ public:
+  DisableCardDrawVisitor();
+  DisableCardDrawVisitor(Player* player);
+  DisableCardDrawVisitor(DisableCardDrawVisitor& toCopy);
+  DisableCardDrawVisitor& operator=(const DisableCardDrawVisitor& rightSide);
+  virtual ~DisableCardDrawVisitor();
+
+  virtual void VisitAdvance(Advance* order);
+  virtual void VisitAirlift(Airlift* order);
+
+ private:
+  Player* player;
 };

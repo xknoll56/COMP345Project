@@ -242,20 +242,17 @@ int Player::GetReinforcementPoolCount() { return reinforcementPool; }
 // Returns the number of armies removed, which may be different
 // (i.e. if less armies left than was asked for)
 int Player::TakeArmiesFromReinforcementPool(int requestedNumberOfArmies) {
-  if (requestedNumberOfArmies > reinforcementPool) {
-    int toReturn{reinforcementPool};
-    reinforcementPool = 0;
-    return reinforcementPool;
-  }
-  reinforcementPool -= requestedNumberOfArmies;
-  return requestedNumberOfArmies;
+  int toReturn{std::min(requestedNumberOfArmies, reinforcementPool)};
+  reinforcementPool =
+      std::max(0, (reinforcementPool - requestedNumberOfArmies));
+  return toReturn;
 }
 
 const std::vector<Territory*>* Player::GetOwnedTerritories() {
   return &ownedTerritories;
 }
 
-void Player::SetReinforcementPool(int amount) { reinforcementPool = amount; }
+void Player::SetReinforcementPool(int amount) { reinforcementPool = std::max(0, amount); }
 
 bool Player::ExecuteNextOrder() {
   phase = Phase::ExecuteOrders;

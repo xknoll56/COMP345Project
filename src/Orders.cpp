@@ -146,6 +146,7 @@ bool Deploy::validate() {
 
 void Deploy::execute() {
   if (!validate()) {
+    std::cout << "DEPLOY ORDER: disabled or invalid." << std::endl;
     return;
   }
   wasExecuted = true;
@@ -155,6 +156,8 @@ void Deploy::execute() {
     numberOfArmies = armiesFromPool;
   }
   territoryToDeploy->AddTroops(numberOfArmies);
+  std::cout << "DEPLOY ORDER: Deployed " << numberOfArmies << " troops to "
+            << territoryToDeploy << std::endl;
 }
 
 void Deploy::acceptVisitor(OrdersVisitor* visitor) {
@@ -171,19 +174,25 @@ std::ostream& Deploy::doPrint(std::ostream& out) const {
 }
 
 Advance::Advance()
-    : Order(), sourceTerritory(), targetTerritory(), numberOfArmies(0) {}
+    : Order(),
+      sourceTerritory(),
+      targetTerritory(),
+      numberOfArmies(0),
+      drawAfterConquer(true) {}
 
 Advance::Advance(Player* player, Territory* sourceTerritory,
                  Territory* targetTerritory, int numberOfArmies)
     : Order(player),
       sourceTerritory(sourceTerritory),
-      targetTerritory(targetTerritory) {
+      targetTerritory(targetTerritory),
+      drawAfterConquer(true) {
   this->numberOfArmies = std::max(0, numberOfArmies);
 }
 Advance::Advance(const Advance& toCopy) : Order(toCopy) {
   this->sourceTerritory = toCopy.sourceTerritory;
   this->targetTerritory = toCopy.targetTerritory;
   this->numberOfArmies = toCopy.numberOfArmies;
+  this->drawAfterConquer = toCopy.drawAfterConquer;
 }
 
 Advance::~Advance() {}
@@ -193,6 +202,7 @@ Advance& Advance::operator=(const Advance& rightSide) {
   sourceTerritory = rightSide.sourceTerritory;
   targetTerritory = rightSide.targetTerritory;
   numberOfArmies = rightSide.numberOfArmies;
+  drawAfterConquer = rightSide.drawAfterConquer;
   return *this;
 }
 
@@ -205,20 +215,29 @@ bool Advance::validate() {
 
 void Advance::execute() {
   if (!validate()) {
+    std::cout << "ADVANCE ORDER: disabled or invalid" << std::endl;
     return;
   }
   wasExecuted = true;
 
-  MoveTroops* moveTroops =
-      new MoveTroops(player, sourceTerritory, targetTerritory, numberOfArmies);
-  moveTroops->ExecuteTheMove();
-  delete moveTroops;
-  moveTroops = nullptr;
+  std::cout << "ADVANCE ORDER: ";
+  MoveTroops moveTroops(player, sourceTerritory, targetTerritory,
+                        numberOfArmies);
+  moveTroops.ExecuteTheMove();
+  if (moveTroops.AttackerConqueredTarget() && drawAfterConquer) {
+    // TODO Player draws card
+    DisableCardDrawVisitor disableDrawVisitor(player);
+    player->GetOrdersList()->visitOrders(&disableDrawVisitor);
+    std::cout << "A card was drawn and added to " << player << "'s hand.";
+  }
+  std::cout << std::endl;
 }
 
 void Advance::acceptVisitor(OrdersVisitor* visitor) {
   visitor->VisitAdvance(this);
 }
+
+void Advance::disableDrawAfterConquer() { drawAfterConquer = false; }
 
 Player* Advance::getOpponent() { return targetTerritory->GetPlayer(); }
 
@@ -234,23 +253,17 @@ std::ostream& operator<<(std::ostream& out, const Advance& toOutput) {
   return toOutput.doPrint(out);
 }
 
-Bomb::Bomb()
-    : Order(),
-      sourceTerritory(),
-      targetTerritory(),
-      numberOfDestroyedArmies(0) {}
+Bomb::Bomb() : Order(), sourceTerritory(), targetTerritory() {}
 
 Bomb::Bomb(Player* player, Territory* sourceTerritory,
            Territory* targetTerritory)
     : Order(player),
       sourceTerritory(sourceTerritory),
-      targetTerritory(targetTerritory),
-      numberOfDestroyedArmies(0) {}
+      targetTerritory(targetTerritory) {}
 
 Bomb::Bomb(const Bomb& toCopy) : Order(toCopy) {
   this->sourceTerritory = toCopy.sourceTerritory;
   this->targetTerritory = toCopy.targetTerritory;
-  this->numberOfDestroyedArmies = toCopy.numberOfDestroyedArmies;
 }
 
 Bomb::~Bomb() {}
@@ -259,7 +272,6 @@ Bomb& Bomb::operator=(const Bomb& rightSide) {
   Order::operator=(rightSide);
   sourceTerritory = rightSide.sourceTerritory;
   targetTerritory = rightSide.targetTerritory;
-  numberOfDestroyedArmies = rightSide.numberOfDestroyedArmies;
   return *this;
 }
 
@@ -270,20 +282,20 @@ std::ostream& operator<<(std::ostream& out, const Bomb& toOutput) {
 bool Bomb::validate() {
   bool playerOwnsSource = (sourceTerritory->GetPlayer() == player);
   bool playerDoesntOwnTarget = (targetTerritory->GetPlayer() != player);
-  bool territoriesAreAdjacent =
-      sourceTerritory->TestAdjacencyTo(targetTerritory);
-  return (Order::validate() && playerOwnsSource && playerDoesntOwnTarget &&
-          territoriesAreAdjacent);
+  return (Order::validate() && playerOwnsSource && playerDoesntOwnTarget);
 }
 
 void Bomb::execute() {
   if (!validate()) {
+    std::cout << "BOMB ORDER: disabled or invalid." << std::endl;
     return;
   }
   wasExecuted = true;
-  numberOfDestroyedArmies =
+  int numberOfDestroyedArmies =
       std::floor((float)targetTerritory->GetTroops() / 2.0f);
   targetTerritory->RemoveTroops(numberOfDestroyedArmies);
+  std::cout << "BOMB ORDER: destroyed " << numberOfDestroyedArmies
+            << "troops in " << targetTerritory << std::endl;
 }
 
 void Bomb::acceptVisitor(OrdersVisitor* visitor) { visitor->VisitBomb(this); }
@@ -293,8 +305,8 @@ Player* Bomb::getOpponent() { return targetTerritory->GetPlayer(); }
 std::ostream& Bomb::doPrint(std::ostream& out) const {
   out << "Bomb order.";
   if (wasExecuted) {
-    out << " " << sourceTerritory << " was bombed, removing "
-        << numberOfDestroyedArmies << "armies.";
+    // out << " " << sourceTerritory << " was bombed, removing "
+    //    << numberOfDestroyedArmies << "armies.";
   }
   return out;
 }
@@ -322,14 +334,28 @@ std::ostream& operator<<(std::ostream& out, const Blockade& toOutput) {
   return toOutput.doPrint(out);
 }
 
-bool Blockade::validate() { return (Order::validate() && true); }
+bool Blockade::validate() {
+  bool playerOwnsTerritory = (territoryToBlockade->GetPlayer() == player);
+  return (Order::validate() && playerOwnsTerritory);
+}
 
 void Blockade::execute() {
   if (!validate()) {
+    std::cout << "BLOCKADE ORDER: disabled or invalid." << std::endl;
     return;
   }
   wasExecuted = true;
-  std::cout << "Blockading a territory.\n";
+  // Double number of troops
+  int numberOfTroops = territoryToBlockade->GetTroops();
+  territoryToBlockade->AddTroops(numberOfTroops);
+  // Transfer ownership to neutral player (who that?)
+  // NULL for now
+  territoryToBlockade->SetPlayer(nullptr);
+  std::cout
+      << "BLOCKADE ORDER: " << numberOfTroops << " troops were added to "
+      << territoryToBlockade
+      << ", and ownership of the territory was transferred to the null player."
+      << std::endl;
 }
 
 void Blockade::acceptVisitor(OrdersVisitor* visitor) {
@@ -366,16 +392,21 @@ bool Negotiate::validate() { return (Order::validate() && player != opponent); }
 
 void Negotiate::execute() {
   if (!validate()) {
+    std::cout << "NEGOTIATE ORDER: disabled or invalid." << std::endl;
     return;
   }
   wasExecuted = true;
 
   // Run the negotiate visitor over the order's list of player and opponent
-  NegotiateVisitor negotiateVisitor(player, opponent);
-  player->GetOrdersList()->visitOrders(&negotiateVisitor);
+  NegotiateVisitor playerNegotiateVisitor(player, opponent);
+  player->GetOrdersList()->visitOrders(&playerNegotiateVisitor);
 
-  negotiateVisitor = NegotiateVisitor(opponent, player);
-  opponent->GetOrdersList()->visitOrders(&negotiateVisitor);
+  NegotiateVisitor opponentNegotiateVisitor(opponent, player);
+  opponent->GetOrdersList()->visitOrders(&opponentNegotiateVisitor);
+
+  std::cout << "NEGOTIATE ORDER: all attacks between " << player << " and "
+            << opponent << " until the end of the turn were disabled."
+            << std::endl;
 }
 
 void Negotiate::acceptVisitor(OrdersVisitor* visitor) {
@@ -396,13 +427,18 @@ std::ostream& operator<<(std::ostream& out, const Negotiate& toOutput) {
 }
 
 Airlift::Airlift()
-    : Order(), sourceTerritory(), targetTerritory(), numberOfArmies(0) {}
+    : Order(),
+      sourceTerritory(),
+      targetTerritory(),
+      numberOfArmies(0),
+      drawAfterConquer(true) {}
 
 Airlift::Airlift(Player* player, Territory* sourceTerritory,
                  Territory* targetTerritory, int numberOfArmies)
     : Order(player),
       sourceTerritory(sourceTerritory),
-      targetTerritory(targetTerritory) {
+      targetTerritory(targetTerritory),
+      drawAfterConquer(true) {
   this->numberOfArmies =
       std::max(0, std::min(numberOfArmies, sourceTerritory->GetTroops()));
 }
@@ -411,6 +447,7 @@ Airlift::Airlift(const Airlift& toCopy) : Order(toCopy) {
   this->sourceTerritory = toCopy.sourceTerritory;
   this->targetTerritory = toCopy.targetTerritory;
   this->numberOfArmies = toCopy.numberOfArmies;
+  this->drawAfterConquer = toCopy.drawAfterConquer;
 }
 
 Airlift::~Airlift() {}
@@ -420,6 +457,7 @@ Airlift& Airlift::operator=(const Airlift& rightSide) {
   sourceTerritory = rightSide.sourceTerritory;
   targetTerritory = rightSide.targetTerritory;
   numberOfArmies = rightSide.numberOfArmies;
+  drawAfterConquer = rightSide.drawAfterConquer;
   return *this;
 }
 
@@ -430,20 +468,27 @@ bool Airlift::validate() {
 
 void Airlift::execute() {
   if (!validate()) {
+    std::cout << "AIRLIFT ORDER: disabled or invalid" << std::endl;
     return;
   }
   wasExecuted = true;
 
-  MoveTroops* moveTroops =
-      new MoveTroops(player, sourceTerritory, targetTerritory, numberOfArmies);
-  moveTroops->ExecuteTheMove();
-  delete moveTroops;
-  moveTroops = nullptr;
+  std::cout << "AIRLIFT ORDER:";
+  MoveTroops moveTroops(player, sourceTerritory, targetTerritory,
+                        numberOfArmies);
+  moveTroops.ExecuteTheMove();
+  if (moveTroops.AttackerConqueredTarget() && drawAfterConquer) {
+    // TODO Player draws card
+    DisableCardDrawVisitor disableDrawVisitor(player);
+    player->GetOrdersList()->visitOrders(&disableDrawVisitor);
+  }
 }
 
 void Airlift::acceptVisitor(OrdersVisitor* visitor) {
   visitor->VisitAirlift(this);
 }
+
+void Airlift::disableDrawAfterConquer() { drawAfterConquer = false; }
 
 Player* Airlift::getOpponent() { return targetTerritory->GetPlayer(); }
 
@@ -461,7 +506,12 @@ std::ostream& operator<<(std::ostream& out, const Airlift& toOutput) {
 
 // Class that moves troops and attacks if necessary
 MoveTroops::MoveTroops()
-    : source(), target(), player(), numberOfArmies(0), wasExecuted(false) {}
+    : source(),
+      target(),
+      player(),
+      numberOfArmies(0),
+      wasExecuted(false),
+      attackerConquered(false) {}
 
 MoveTroops::MoveTroops(const MoveTroops& toCopy) {
   this->player = toCopy.player;
@@ -469,6 +519,7 @@ MoveTroops::MoveTroops(const MoveTroops& toCopy) {
   this->target = toCopy.target;
   this->numberOfArmies = toCopy.numberOfArmies;
   this->wasExecuted = toCopy.wasExecuted;
+  this->attackerConquered = toCopy.attackerConquered;
 }
 
 MoveTroops& MoveTroops::operator=(const MoveTroops& rightSide) {
@@ -477,12 +528,17 @@ MoveTroops& MoveTroops::operator=(const MoveTroops& rightSide) {
   target = rightSide.target;
   numberOfArmies = rightSide.numberOfArmies;
   wasExecuted = rightSide.wasExecuted;
+  attackerConquered = rightSide.attackerConquered;
   return *this;
 }
 
 MoveTroops::MoveTroops(Player* player, Territory* source, Territory* target,
                        int numberOfArmies)
-    : player(player), source(source), target(target), wasExecuted(false) {
+    : player(player),
+      source(source),
+      target(target),
+      wasExecuted(false),
+      attackerConquered(false) {
   this->numberOfArmies = std::max(0, numberOfArmies);
 }
 
@@ -507,31 +563,43 @@ void MoveTroops::MoveArmies() {
   }
   source->RemoveTroops(numberOfArmies);
   target->AddTroops(numberOfArmies);
+  std::cout << "Moved " << numberOfArmies << " from " << source << " to "
+            << target << std::endl;
 }
 
 void MoveTroops::AttackTarget() {
   // Initialize random seed
   srand(time(NULL));
+  int ennemyKilledArmies{0};
+  int attackerKilledArmies{0};
 
   for (int i = 0; i < (numberOfArmies + target->GetTroops()); i++) {
     if (i % 2 == 0) {
       if (AttackerKilledDefenderArmy()) {
         target->RemoveTroops(1);
+        ennemyKilledArmies++;
       }
     } else {
       if (DefenderKilledAttackerArmy()) {
         source->RemoveTroops(1);
         numberOfArmies--;
+        attackerKilledArmies++;
       }
     }
   }
+  std::cout << "Killed " << ennemyKilledArmies << " ennemy armies on " << target
+            << ", " << attackerKilledArmies << " attacking armies from "
+            << source << " were killed.";
 
   // If no troops left in target, player takes ownership
   // and we assign the number of surviving armies to the territory
   if (target->GetTroops() == 0) {
     target->SetPlayer(player);
     target->SetTroops(numberOfArmies);
+    attackerConquered = true;
+    std::cout << " " << player << "conquered " << target << ".";
   }
+  std::cout << std::endl;
 }
 
 // Returns true if rand() is in [0, 6[ over the range [0, 10[
@@ -539,6 +607,8 @@ bool MoveTroops::AttackerKilledDefenderArmy() { return (rand() % 10 < 6); }
 
 // Returns true if rand() is in [0, 7[ over the range [0, 10[
 bool MoveTroops::DefenderKilledAttackerArmy() { return (rand() % 10 < 7); }
+
+bool MoveTroops::AttackerConqueredTarget() { return attackerConquered; }
 
 std::ostream& operator<<(std::ostream& out, const MoveTroops& toOutput) {
   // TODO - return
@@ -576,7 +646,7 @@ NegotiateVisitor::~NegotiateVisitor() {}
 
 // These methods are written like this b/c getOpponent() is not part
 // of Order's interface.  This would benefit from some refactoring
-// obviously, I might take care of it eventually but this will do for the moment
+// obviously, I might take care of it eventually
 void NegotiateVisitor::VisitAdvance(Advance* order) {
   DisableIfPlayerAndOpponent(order, order->getOpponent());
 }
@@ -593,5 +663,31 @@ void NegotiateVisitor::DisableIfPlayerAndOpponent(Order* order,
                                                   Player* opponent) {
   if (order->getPlayer() == player && opponent == this->opponent) {
     order->disableOrder();
+  }
+}
+
+// Visitor that disables card drawing after an attack
+DisableCardDrawVisitor::DisableCardDrawVisitor() : player() {}
+DisableCardDrawVisitor::DisableCardDrawVisitor(Player* player)
+    : player(player) {}
+DisableCardDrawVisitor::DisableCardDrawVisitor(DisableCardDrawVisitor& toCopy) {
+  this->player = toCopy.player;
+}
+DisableCardDrawVisitor& DisableCardDrawVisitor::operator=(
+    const DisableCardDrawVisitor& rightSide) {
+  player = rightSide.player;
+  return *this;
+}
+
+DisableCardDrawVisitor::~DisableCardDrawVisitor() {}
+
+void DisableCardDrawVisitor::VisitAdvance(Advance* order) {
+  if (order->getPlayer() == player) {
+    order->disableDrawAfterConquer();
+  }
+}
+void DisableCardDrawVisitor::VisitAirlift(Airlift* order) {
+  if (order->getPlayer() == player) {
+    order->disableDrawAfterConquer();
   }
 }
