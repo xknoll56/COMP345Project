@@ -35,7 +35,6 @@ GameStatisticsObserver::GameStatisticsObserver(int numTerritories) {
 void GameStatisticsObserver::Start() { gameStarted = true; }
 
 void GameStatisticsObserver::Update() {
-  system("cls");
 
   for (Player* player : players) {
     float ownedPercent = 100.0f * (float)player->GetOwnedTerritories()->size() /
@@ -73,10 +72,7 @@ void PhaseObserver::Update() {
 
   if (current != nullptr) {
     Phase phase = current->GetPhase();
-    if (phase != currentPhase) {
-      streamInsertions.clear();
-      currentPhase = phase;
-    }
+
     // Now knowing the phase and player stuff relative to those can be done
     switch (phase) {
       case Phase::ExecuteOrders:
@@ -90,39 +86,24 @@ void PhaseObserver::Update() {
         break;
     }
 
-    // system("CLS");
-    for (StreamInsertions s : streamInsertions) {
-      std::cout << s.message << std::endl;
-      if (s.player) std::cout << *s.player << std::endl;
-      if (s.card) std::cout << *s.card << std::endl;
-      if (s.order) std::cout << *s.order << std::endl;
-    }
   }
 }
 
 void PhaseObserver::UpdateExecuteOrders(Player* player) {
   std::string s("Player " + player->GetName() + ": Execute orders phase\n" +
                 "\tTODO relavent information on this phase is displayed.");
-  StreamInsertions si;
-  si.message = s;
-  si.player = player;
-  streamInsertions.push_back(si);
+  std::cout << s << std::endl;
 }
 
 void PhaseObserver::UpdateIssueOrders(Player* player) {
   std::string s("Player " + player->GetName() + ": Issue orders phase\n" +
                 "\tTODO relavent information on this phase is displayed.");
-  StreamInsertions si;
-  si.message = s;
-  si.player = player;
-  streamInsertions.push_back(si);
+  std::cout << s << std::endl;
 }
 
 void PhaseObserver::UpdateReinforcements(Player* player) {
   std::string s("Player " + player->GetName() + ": Reinforcements phase\n" +
                 "\t Player currently has reinforcements of: " +
                 std::to_string(player->GetReinforcementPoolCount()));
-  StreamInsertions si;
-  si.message = s;
-  streamInsertions.push_back(si);
+  std::cout << s << std::endl;
 }
