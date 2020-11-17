@@ -101,7 +101,7 @@ std::vector<Territory*> Player::ToAttack() {
 bool Player::IssueOrder() {
   // TODO - Why are they making us call toAttack() every time??
   phase = Phase::IssueOrders;
-
+  this->Notify();
   std::vector<Territory*> toAttack(ToAttack());
   std::vector<Territory*> toDefend(ToDefend());
   std::string input;
@@ -197,7 +197,7 @@ bool Player::IssueOrder() {
   }
 
   AddOrderToPlayer(new Deploy(this, this->ownedTerritories[0], 0));
-  this->Notify();
+  
   phase = Phase::None;
   return true;
 }
@@ -234,8 +234,9 @@ void Player::AddOrderToPlayer(Order* orderToAdd) {
 void Player::AddArmiesToReinforcementPool(int numberOfArmies) {
   // this->NotifyReinforcements(numberOfArmies);
   phase = Phase::Reinforcement;
-  reinforcementPool += std::max(0, numberOfArmies);
   this->Notify();
+
+  reinforcementPool += std::max(0, numberOfArmies);
   phase = Phase::None;
 }
 

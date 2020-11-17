@@ -20,58 +20,86 @@ class Player;
 class Subject;
 class Order;
 class Card;
+
+//Base observer abstract class.
 class Observer {
- public:
-  ~Observer() {}
-  virtual void Update() = 0;
+public:
+	~Observer() {}
+	virtual void Update() = 0;
 
- protected:
-  Observer() {}
+protected:
+	Observer() {}
 
- private:
+private:
 };
 
+//Subject class, to be inherited by player
 class Subject {
- public:
-  Subject();
-  ~Subject();
-  virtual void Attach(Observer* obs);
-  void Detach(Observer* obs);
-  void Notify();
-  int getId();
-  std::string GetName();
+public:
+	Subject();
+	~Subject();
+	//Attach the subject to an observer
+	virtual void Attach(Observer* obs);
+	//Detach the subject to an observer
+	void Detach(Observer* obs);
+	//Notify all observers
+	void Notify();
+	//Get the id of the subject
+	int getId();
+	//Get the name of the subject
+	std::string GetName();
 
- private:
-  std::string name;
-  int id = 0;
-  std::list<Observer*>* observers;
+private:
+	//TODO, these should go into player
+	std::string name;
+	int id = 0;
+	//A list of all the concrete observers
+	std::list<Observer*>* observers;
 };
 
+//Enum for determining the current phase each of the players is on.
 enum Phase { Reinforcement = 0, IssueOrders = 1, ExecuteOrders = 2, None };
 
+//Concrete observer class for outputing player percent ownage stats
 class GameStatisticsObserver : public Observer {
- public:
-  void Update();
-  void AddPlayer(Player* player);
-  GameStatisticsObserver(int numTerritories);
-  void Start();
+public:
 
- private:
-  std::vector<Player*> players;
-  int numTerritories;
-  bool gameStarted = false;
+	GameStatisticsObserver(int numTerritories);
+	~GameStatisticsObserver();
+	//The update method will calculate the percent of territories owned by each player and determine if a player is still  in the game or has won 
+	void Update();
+	//Adds a player
+	void AddPlayer(Player* player);
+	//Starts the observer, should be done after all players are attached and map is distributed.
+	void Start();
+
+private:
+	//An array of players
+	std::vector<Player*> players;
+	//Total number of territories on the map
+	int numTerritories;
+	bool gameStarted = false;
 };
 
 class PhaseObserver : public Observer {
- public:
-  void Update();
-  void AddPlayer(Player* player);
+public:
+	PhaseObserver();
+	~PhaseObserver();
+	//Update will display which player is currently playing on which phase
+	void Update();
+	//Adds a player to the array
+	void AddPlayer(Player* player);
 
- private:
-  void UpdateReinforcements(Player* player);
-  void UpdateIssueOrders(Player* player);
-  void UpdateExecuteOrders(Player* player);
-  std::vector<Player*> players;
-  Phase currentPhase = Phase::None;
+private:
+	//Displays information about reinforcements
+	void UpdateReinforcements(Player* player);
+	//Displays information about orders being issued
+	void UpdateIssueOrders(Player* player);
+	//Displays information about orders being executed
+	void UpdateExecuteOrders(Player* player);
+	//An array of all the players
+	std::vector<Player*> players;
+	//The current phase that a player is on
+	Phase currentPhase = Phase::None;
 
 };
