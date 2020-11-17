@@ -71,7 +71,8 @@ class Map : public Graph {
   std::vector<Continent> continents;
   std::vector<Territory> territories;
   std::vector<Continent*> continentLocations;
-
+  int territoriesCapacity;
+  int continentsCapacity;
 
  public:
   Map(int numContinents, int numTerritories);

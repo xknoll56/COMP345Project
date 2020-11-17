@@ -18,8 +18,8 @@ int main() {
   MapLoader* ml = new MapLoader();
   Map* map = ml->GenerateMap("MapFiles/France.map");
 
-  Player p;
-  Player p2;
+  Player p(map);
+  Player p2(map);
 
   p.AddTerritoryToPlayer(map->GetTerritories()->at(0));
   p2.AddTerritoryToPlayer(map->GetTerritories()->at(1));

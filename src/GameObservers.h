@@ -61,6 +61,7 @@ class GameStatisticsObserver : public Observer {
   int numTerritories;
   bool gameStarted = false;
 };
+
 class PhaseObserver : public Observer {
  public:
   void Update();
@@ -72,11 +73,5 @@ class PhaseObserver : public Observer {
   void UpdateExecuteOrders(Player* player);
   std::vector<Player*> players;
   Phase currentPhase = Phase::None;
-  struct StreamInsertions {
-    std::string message;
-    Player* player = nullptr;
-    Order* order = nullptr;
-    Card* card = nullptr;
-  };
-  std::list<StreamInsertions> streamInsertions;
+
 };
