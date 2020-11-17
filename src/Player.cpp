@@ -110,10 +110,6 @@ bool Player::IssueOrder() {
   this->Notify();
   std::vector<Territory*> toAttack(ToAttack());
   std::vector<Territory*> toDefend(ToDefend());
-  //
-  for (Territory* t: toDefend) {
-    t->SetToDeploy(0);
-  }
   // Generate deployments until theres no more reinforcments in the pool.
   while (reinforcementPool > 0) {
     // TODO - Deploy based on threat level

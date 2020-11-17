@@ -157,6 +157,9 @@ std::vector<Player*> GameEngine::getPlayers()
 }
 
 void GameEngine::IssueOrdersPhase() {
+  for (Territory* t: *map->GetTerritories()) {
+    t->SetToDeploy(0);
+  }
   RoundRobin(&Player::IssueOrder);
 }
 
