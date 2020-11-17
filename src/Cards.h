@@ -11,147 +11,146 @@
 
 #pragma once
 
-#include <vector>
 #include <ostream>
+#include <vector>
+
+class Player;
+class Deck;
 
 class Card {
-public:
-    Card(int value);
+ public:
+  Card();
+  Card(Deck* deck);
+  Card(const Card& card);
+  virtual ~Card();
 
-    Card(const Card &card);
+  virtual void play();
 
-    virtual ~Card(); //deconstructor
+  Card& operator=(const Card& card);
 
-    virtual void play();
+  friend std::ostream& operator<<(std::ostream& out, const Card& card);
 
-    int getValue() const;
-     
-    Card& operator= (const Card& card);
+  virtual std::ostream& print(std::ostream& out) const;
 
-    friend std::ostream& operator<<(std::ostream& out, const Card& card);
-
-    virtual std::ostream& print(std::ostream& out) const;
-
-protected:
-    int value; //only included for now to be able to let the user decide which card he wants to play
+ protected:
+  Deck* deck;
 };
 
 class BombCard : public Card {
-public:
-    BombCard(int value);
+ public:
+  BombCard();
+  BombCard(Deck* deck);
+  BombCard(const BombCard& BombCard);
 
-    BombCard(const BombCard &BombCard);
+  virtual ~BombCard();  // deconstructor
 
-    virtual ~BombCard();//deconstructor
+  BombCard& operator=(const BombCard& bombCard);
 
-    BombCard& operator= (const BombCard& bombCard);
+  virtual std::ostream& print(std::ostream& out) const override;
 
-    virtual std::ostream& print(std::ostream& out) const override;
-
-    void play() override;
+  void play() override;
 };
 
 class ReinforcementCard : public Card {
-public:
-    ReinforcementCard(int value);
+ public:
+  ReinforcementCard();
+  ReinforcementCard(Deck* deck);
+  ReinforcementCard(const ReinforcementCard& ReinforcementCard);
 
-    ReinforcementCard(const ReinforcementCard &ReinforcementCard);
+  virtual ~ReinforcementCard();  // deconstructor
 
-    virtual ~ReinforcementCard(); //deconstructor
+  ReinforcementCard& operator=(const ReinforcementCard& reinforcementCard);
 
-    ReinforcementCard& operator= (const ReinforcementCard& reinforcementCard);
+  virtual std::ostream& print(std::ostream& out) const override;
 
-    virtual std::ostream& print(std::ostream& out) const override;
-
-    void play() override;
+  void play() override;
 };
 
 class BlockadeCard : public Card {
-public:
-    BlockadeCard(int value);
+ public:
+  BlockadeCard();
+  BlockadeCard(Deck* deck);
+  BlockadeCard(const BlockadeCard& BlockadeCard);
 
-    BlockadeCard(const BlockadeCard& BlockadeCard);
+  virtual ~BlockadeCard();  // deconstructor
 
-    virtual ~BlockadeCard(); //deconstructor
+  BlockadeCard& operator=(const BlockadeCard& blockadeCard);
 
-    BlockadeCard& operator= (const BlockadeCard& blockadeCard);
+  virtual std::ostream& print(std::ostream& out) const override;
 
-    virtual std::ostream& print(std::ostream& out) const override;
-
-    void play() override;
+  void play() override;
 };
 
 class AirliftCard : public Card {
-public:
-    AirliftCard(int value);
+ public:
+  AirliftCard();
+  AirliftCard(Deck* deck);
+  AirliftCard(const AirliftCard& AirliftCard);
 
-    AirliftCard(const AirliftCard& AirliftCard);
+  virtual ~AirliftCard();  // deconstructor
 
-    virtual ~AirliftCard(); //deconstructor
+  AirliftCard& operator=(const AirliftCard& airliftCard);
 
-    AirliftCard& operator= (const AirliftCard& airliftCard);
+  virtual std::ostream& print(std::ostream& out) const override;
 
-    virtual std::ostream& print(std::ostream& out) const override;
-
-    void play() override;
+  void play() override;
 };
 
 class DiplomacyCard : public Card {
-public:
-    DiplomacyCard(int value);
+ public:
+  DiplomacyCard();
+  DiplomacyCard(Deck* deck);
+  DiplomacyCard(const DiplomacyCard& DiplomacyCard);
 
-    DiplomacyCard(const DiplomacyCard& DiplomacyCard);
+  virtual ~DiplomacyCard();  // deconstructor
 
-    virtual ~DiplomacyCard(); //deconstructor
+  DiplomacyCard& operator=(const DiplomacyCard& diplomacyCard);
 
-    DiplomacyCard& operator= (const DiplomacyCard& diplomacyCard);
+  virtual std::ostream& print(std::ostream& out) const override;
 
-    virtual std::ostream& print(std::ostream& out) const override;
-
-    void play() override;
+  void play() override;
 };
 
-
-
 class Deck {
-private:
-    std::vector<Card*> cards;
-public:
-    void addCard(Card* c);
+ private:
+  std::vector<Card*> cards;
 
-    Card* draw();
+ public:
+  void addCard(Card* c);
 
-    Deck();
+  Card* draw();
 
-    Deck(const Deck& Deck);
+  Deck();
 
-    Deck& operator= (const Deck& deck);
+  Deck(const Deck& Deck);
 
-    friend std::ostream& operator<<(std::ostream& out, const Deck& f1);
+  Deck& operator=(const Deck& deck);
 
-    virtual ~Deck();
+  friend std::ostream& operator<<(std::ostream& out, const Deck& f1);
 
+  virtual ~Deck();
 };
 
 class Hand {
-private:
-    std::vector<Card*> cards;
-public:
-    Hand();
+ private:
+  std::vector<Card*> cards;
 
-    Hand(const Hand& Hand);
+ public:
+  Hand();
 
-    Hand& operator= (const Hand& hand);
-    
-    virtual ~Hand();
+  Hand(const Hand& Hand);
 
-    void addCard(Card* c);
+  Hand& operator=(const Hand& hand);
 
-    Card* playFirstCard();
+  virtual ~Hand();
 
-    Card* useCard(int value);
+  void addCard(Card* c);
 
-    friend std::ostream& operator<<(std::ostream& out, const Hand& f1);
+  Card* playFirstCard();
+
+  friend std::ostream& operator<<(std::ostream& out, const Hand& f1);
 };
 
-int getRandomInt(int start, int end); // free function to get a random number between an interval
+int getRandomInt(
+    int start,
+    int end);  // free function to get a random number between an interval

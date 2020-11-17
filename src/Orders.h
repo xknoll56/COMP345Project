@@ -283,7 +283,6 @@ class NegotiateVisitor : public OrdersVisitor {
  private:
   Player* player;
   Player* opponent;
-  // void DisableIfPlayerAndOpponent(Order* order, Player* opponent);
 };
 
 // Visitor that visits orders and disables card draw when player conquers a

@@ -188,7 +188,8 @@ Advance::Advance()
       sourceTerritory(),
       targetTerritory(),
       numberOfArmies(0),
-      drawAfterConquer(true) {}
+      drawAfterConquer(true),
+      gameCardDeck() {}
 
 Advance::Advance(Player* player, Territory* sourceTerritory,
                  Territory* targetTerritory, int numberOfArmies,
@@ -364,6 +365,8 @@ void Blockade::execute() {
   int numberOfTroops = territoryToBlockade->GetTroops();
   territoryToBlockade->AddTroops(numberOfTroops);
   // Transfer ownership to neutral player
+  territoryToBlockade->GetPlayer()->RemoveTerritoryFromPlayer(
+      territoryToBlockade);
   territoryToBlockade->SetPlayer(GameEngine::GetNeutralPlayer());
   std::cout
       << "BLOCKADE ORDER: " << numberOfTroops << " troops were added to "
@@ -446,7 +449,8 @@ Airlift::Airlift()
       sourceTerritory(),
       targetTerritory(),
       numberOfArmies(0),
-      drawAfterConquer(true) {}
+      drawAfterConquer(true),
+      gameCardDeck() {}
 
 Airlift::Airlift(Player* player, Territory* sourceTerritory,
                  Territory* targetTerritory, int numberOfArmies,
@@ -618,9 +622,9 @@ void MoveTroops::AttackTarget() {
       break;
     }
   }
-  std::cout << "Killed " << ennemyKilledArmies << " ennemy armies on " << target
-            << ", " << attackerKilledArmies << " attacking armies from "
-            << source << " were killed.";
+  std::cout << "Attacker killed " << ennemyKilledArmies << " ennemy armies on "
+            << target << ", " << attackerKilledArmies
+            << " attacking armies from " << source << " were killed.";
 
   // If no troops left in target, player takes ownership
   // and we assign the number of surviving armies to the territory
@@ -632,7 +636,8 @@ void MoveTroops::AttackTarget() {
 
     target->SetTroops(numberOfArmies);
     attackerConquered = true;
-    std::cout << " " << player << " conquered " << target << ".";
+    std::cout << " " << player << " conquered " << target
+              << " which now contains " << numberOfArmies << " troops.";
   }
 }
 

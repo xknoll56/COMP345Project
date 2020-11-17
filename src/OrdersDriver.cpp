@@ -34,7 +34,7 @@ int main() {
   t3->AddNeigbor(t2);
   t3->AddNeigbor(t4);
   t4->AddNeigbor(t3);
-  t1->AddTroops(10);
+  t1->AddTroops(20);
   t2->AddTroops(3);
   t3->AddTroops(3);
   t4->AddTroops(10);
@@ -61,7 +61,7 @@ int main() {
 
   // Create orders and add them to player's orders list
   Order *deploy = new Deploy(player, t1, 10);
-  Order *advance = new Advance(player, t1, t2, 10, deckOfCards);
+  Order *advance = new Advance(player, t1, t2, 15, deckOfCards);
   Order *airlift = new Airlift(player, t1, t3, 10, deckOfCards);
   Order *bomb = new Bomb(player, t4);
   Order *negotiate = new Negotiate(player, opponent);
