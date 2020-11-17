@@ -58,7 +58,7 @@ class Deploy : public Order {
   ~Deploy();
   Deploy& operator=(const Deploy& rightSide);
 
-  // friend std::ostream& operator<<(std::ostream& out, const Deploy& toOutput);
+  friend std::ostream& operator<<(std::ostream& out, const Deploy& toOutput);
   virtual bool validate();
   virtual void execute();
   virtual void acceptVisitor(OrdersVisitor* visitor);
@@ -99,7 +99,7 @@ class Advance : public Order {
 class Bomb : public Order {
  public:
   Bomb();
-  Bomb(Player* player, Territory* sourceTerritory, Territory* targetTerritory);
+  Bomb(Player* player, Territory* targetTerritory);
   Bomb(const Bomb& toCopy);
   ~Bomb();
   Bomb& operator=(const Bomb& rightSide);
@@ -113,7 +113,6 @@ class Bomb : public Order {
   Player* getOpponent();
 
  private:
-  Territory* sourceTerritory;
   Territory* targetTerritory;
   virtual std::ostream& doPrint(std::ostream& out) const;
 };
@@ -263,7 +262,8 @@ class OrdersVisitor {
   virtual void VisitNegotiate(Negotiate* order);
 };
 
-// Visitor that visits orders and disables attack orders between player and opponent
+// Visitor that visits orders and disables attack orders between player and
+// opponent
 class NegotiateVisitor : public OrdersVisitor {
  public:
   NegotiateVisitor();
@@ -279,11 +279,11 @@ class NegotiateVisitor : public OrdersVisitor {
  private:
   Player* player;
   Player* opponent;
-
-  void DisableIfPlayerAndOpponent(Order* order, Player* opponent);
+  // void DisableIfPlayerAndOpponent(Order* order, Player* opponent);
 };
 
-// Visitor that visits orders and disables card draw when player conquers a territory
+// Visitor that visits orders and disables card draw when player conquers a
+// territory
 class DisableCardDrawVisitor : public OrdersVisitor {
  public:
   DisableCardDrawVisitor();
