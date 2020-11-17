@@ -45,6 +45,11 @@ bool Territory::TestAdjacencyTo(Territory* toTest) {
 		neighbors.end());
 }
 
+int Territory::GetTotalTroops() { return troops + toDeploy; }
+void Territory::IncreaseToDeploy(int amount) { toDeploy += amount; }
+void Territory::SetToDeploy(int toDeploy) { this->toDeploy = toDeploy; }
+int Territory::GetToDeploy() { return toDeploy; }
+
 bool Graph::TravelledAll() {
 	bool travelled = true;
 	for (Territory* territory : territories) {

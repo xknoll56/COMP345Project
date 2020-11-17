@@ -19,9 +19,10 @@ class Territory {
   int troops;
   Continent* continent;
   friend class Graph;
+  int toDeploy;
 
  public:
-  Territory(std::string name, Continent* continent) : name(name), continent(continent), discovered(false), player(nullptr), troops(0) {}
+  Territory(std::string name, Continent* continent) : name(name), continent(continent), discovered(false), player(nullptr), troops(0), toDeploy(0) {}
   void AddNeigbor(Territory* neighbor);
   const std::vector<Territory*>* const GetNeighbors() const;
   const std::string* const GetName();
@@ -36,6 +37,10 @@ class Territory {
   // amount
   int RemoveTroops(int troops);
   bool TestAdjacencyTo(Territory* toTest);
+  int GetTotalTroops();
+  void IncreaseToDeploy(int amount);
+  void SetToDeploy(int toDeploy);
+  int GetToDeploy();
 };
 
 class Graph {

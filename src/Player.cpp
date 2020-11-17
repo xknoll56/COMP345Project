@@ -78,7 +78,11 @@ std::ostream& operator<<(std::ostream& out, const Player& toOutput) {
 }
 
 // Returns a vector of pointers of territories to defend
-std::vector<Territory*> Player::ToDefend() { return ownedTerritories; }
+std::vector<Territory*> Player::ToDefend() {
+    // TODO - return this list as a priority list rather than randomizing.
+    std::random_shuffle(ownedTerritories.begin(), ownedTerritories.end());
+    return ownedTerritories;
+}
 
 // Returns a vector of pointers of territories to attack
 // TODO - IMPORTANT TODO BEFORE A2 SUBMISSION!!! this should only return neighbors!
@@ -94,6 +98,8 @@ std::vector<Territory*> Player::ToAttack() {
       territoriesToAttack.push_back(territory);
     }
   }
+  // TODO - return this list as a priority list rather than randomizing.
+  std::random_shuffle(territoriesToAttack.begin(), territoriesToAttack.end());
   return territoriesToAttack;
 }
 
@@ -104,100 +110,30 @@ bool Player::IssueOrder() {
   this->Notify();
   std::vector<Territory*> toAttack(ToAttack());
   std::vector<Territory*> toDefend(ToDefend());
-  std::string input;
-  int x = -1;
-  Territory* territory = nullptr;
-  std::cout << GetName() << ", it's your turn." << std::endl;
-  if (reinforcementPool > 0) { // TODO - This entire part needs to change to use the Deploy Order
-    std::cout << "You have " << reinforcementPool << " troops left to deploy." << std::endl;
-    std::cout << "choose a territory to deploy troops to:" << std::endl;
-    for (int i = 0; i < toDefend.size(); i++) {
-      territory = toDefend.at(i);
-      std::cout << "[" << i << "] " << *territory->GetName() << ": "
-                << territory->GetTroops() << " troops."
-                << std::endl;
-    }
-    while ((x < 0) || (x >= toDefend.size())) {
-      std::cout << "> ";
-      std::cin >> input;
-      try {
-        x = std::stoi(input);
-      } catch (...) {
-        continue;
-      }
-    }
-    territory = toDefend.at(x);
-    x = -1;
-    std::cout << "How many troops to deploy on " << *territory->GetName() << "? (maximum " << reinforcementPool << ")" << std::endl;
-    while ((x < 1) || (x > reinforcementPool)) {
-      std::cout << "> ";
-      std::cin >> input;
-      try {
-        x = std::stoi(input);
-      } catch (...) {
-        continue;
-      }
-    }
-    std::cout << *territory->GetName() << " troops: " << territory->GetTroops()
-              << "->" << territory->GetTroops() + x << std::endl;
-    std::cout << GetName() << " Reinforcement pool: " << reinforcementPool
-              << "->" << reinforcementPool - x << std::endl;
-    reinforcementPool -= x;
-    territory->AddTroops(x);
-  } 
-  else {
-    while (true) {
-      std::cout << "Make a selection:\n[1] Play a card.\n[2] Advance troops.\n[3] Commit orders." << std::endl;
-      while ((x < 1) || (x > 3)) {
-        std::cout << "> ";
-        std::cin >> input;
-        try {
-          x = std::stoi(input);
-        } catch (...) {
-          continue;
-        }
-      }
-      switch (x) { 
-      case 1: // Play Card
-        x = -1;
-        if (handOfCards.size() > 0) {
-          std::cout << "Choose a card to play:" << std::endl;
-          for (int i = 0; i < handOfCards.size(); i++) {
-            std::cout << "[" << i << "] " << handOfCards.at(i) << std::endl; // TODO - Give names to cards ?
-            while ((x < 0) || (x >= handOfCards.size())) {
-              std::cout << "> ";
-              std::cin >> input;
-              try {
-                x = std::stoi(input);
-              } catch (...) {
-                continue;
-              }
-            }
-
-            // TODO - add card order to orders list
-            handOfCards.erase(handOfCards.begin() + i); // TODO - should i return this card to the deck?
-          }
-        } else {
-          std::cerr << "You don't have any cards!" << std::endl;
-        }
-        break;
-      case 2: // Advance Troops
-        // TODO
-        x = -1;
-        break;
-      case 3: // Commit Orders.
-        x = -1;
-        return false;
-      default: // Error
-        std::cerr << "Error: the input was invalid" << std::endl;
-        std::cin;
-        exit(-1);
+  //
+  for (Territory* t: toDefend) {
+    t->SetToDeploy(0);
+  }
+  // Generate deployments until theres no more reinforcments in the pool.
+  while (reinforcementPool > 0) {
+    // TODO - Deploy based on threat level
+    toDefend.at(rand() % toDefend.size())->IncreaseToDeploy(1);
+  }
+  // Create the deployment orders.
+  for (Territory* t: toDefend) {
+    AddOrderToPlayer(new Deploy(this, t, t->GetToDeploy())); // TODO - make sure these are getting destroyed!
+  }
+  // Attack adjacent territories by priority
+  for (Territory* t: toAttack) {
+    for (Territory* s: *t->GetNeighbors()) {
+      if ((s->GetPlayer() == this) && (s->GetTotalTroops() < 0)) {
+        AddOrderToPlayer(new Advance(this, s, t, s->GetTotalTroops()));
       }
     }
   }
 
-  AddOrderToPlayer(new Deploy(this, this->ownedTerritories[0], 0));
-  
+
+
   phase = Phase::None;
   return true;
 }
