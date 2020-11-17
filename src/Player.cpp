@@ -114,11 +114,49 @@ bool Player::IssueOrder() {
   while (reinforcementPool > 0) {
     // TODO - Deploy based on threat level
     toDefend.at(rand() % toDefend.size())->IncreaseToDeploy(1);
+    reinforcementPool--;
   }
   // Create the deployment orders.
   for (Territory* t: toDefend) {
     AddOrderToPlayer(new Deploy(this, t, t->GetToDeploy())); // TODO - make sure these are getting destroyed!
   }
+  // Play Reinforcement card.
+  for (Card* c : handOfCards) {
+    ReinforcementCard* rc = dynamic_cast<ReinforcementCard*>(c);
+    if (rc) {
+      rc->play();
+      break;
+    }
+  }
+  for (Card* c : handOfCards) {
+    AirliftCard* ac = dynamic_cast<AirliftCard*>(c);
+    if (ac) {
+      ac->play();
+      break;
+    }
+  }
+  for (Card* c : handOfCards) {
+    BlockadeCard* bc = dynamic_cast<BlockadeCard*>(c);
+    if (bc) {
+      bc->play();
+      break;
+    }
+  }
+  for (Card* c : handOfCards) {
+    BombCard* bc = dynamic_cast<BombCard*>(c);
+    if (bc) {
+      bc->play();
+      break;
+    }
+  }
+  for (Card* c : handOfCards) {
+    DiplomacyCard* dc = dynamic_cast<DiplomacyCard*>(c);
+    if (dc) {
+      dc->play();
+      break;
+    }
+  }
+
   // Attack adjacent territories by priority
   for (Territory* t: toAttack) {
     for (Territory* s: *t->GetNeighbors()) {
@@ -127,7 +165,14 @@ bool Player::IssueOrder() {
       }
     }
   }
-
+  // Defend territories
+  for (Territory* t : toDefend) {
+    for (Territory* s : *t->GetNeighbors()) {
+      if ((s->GetPlayer() == this) && (s->GetTotalTroops() < 0)) {
+        AddOrderToPlayer(new Advance(this, s, t, s->GetTotalTroops()));
+      }
+    }
+  }
 
 
   phase = Phase::None;
