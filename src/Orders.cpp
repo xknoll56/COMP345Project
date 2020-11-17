@@ -10,13 +10,14 @@
 // Based on the 'https://www.warzone.com/' game.
 
 #include "Orders.h"
-#include "GameEngine.h"
 
 #include <stdlib.h>
 #include <time.h>
 
 #include <algorithm>
 #include <cmath>
+
+#include "GameEngine.h"
 
 // Orders List
 OrdersList::OrdersList() { ordersList = new std::vector<Order*>(); }
@@ -190,11 +191,13 @@ Advance::Advance()
       drawAfterConquer(true) {}
 
 Advance::Advance(Player* player, Territory* sourceTerritory,
-                 Territory* targetTerritory, int numberOfArmies)
+                 Territory* targetTerritory, int numberOfArmies,
+                 Deck* gameCardDeck)
     : Order(player),
       sourceTerritory(sourceTerritory),
       targetTerritory(targetTerritory),
-      drawAfterConquer(true) {
+      drawAfterConquer(true),
+      gameCardDeck(gameCardDeck) {
   this->numberOfArmies = std::max(0, numberOfArmies);
 }
 Advance::Advance(const Advance& toCopy) : Order(toCopy) {
@@ -202,6 +205,7 @@ Advance::Advance(const Advance& toCopy) : Order(toCopy) {
   this->targetTerritory = toCopy.targetTerritory;
   this->numberOfArmies = toCopy.numberOfArmies;
   this->drawAfterConquer = toCopy.drawAfterConquer;
+  this->gameCardDeck = toCopy.gameCardDeck;
 }
 
 Advance::~Advance() {}
@@ -212,6 +216,7 @@ Advance& Advance::operator=(const Advance& rightSide) {
   targetTerritory = rightSide.targetTerritory;
   numberOfArmies = rightSide.numberOfArmies;
   drawAfterConquer = rightSide.drawAfterConquer;
+  gameCardDeck = rightSide.gameCardDeck;
   return *this;
 }
 
@@ -238,10 +243,12 @@ void Advance::execute() {
                         numberOfArmies);
   moveTroops.ExecuteTheMove();
   if (moveTroops.AttackerConqueredTarget() && drawAfterConquer) {
-    // TODO Player draws card
     DisableCardDrawVisitor disableDrawVisitor(player);
     player->GetOrdersList()->visitOrders(&disableDrawVisitor);
-    std::cout << " A card was drawn and added to " << player << "'s hand.";
+    Card* drawnCard = gameCardDeck->draw();
+    player->AddCardToPlayer(drawnCard);
+    std::cout << " A " << drawnCard << " card was drawn and added to " << player
+              << "'s hand.";
   } else {
     std::cout << " No card was drawn";
   }
@@ -395,8 +402,11 @@ Negotiate& Negotiate::operator=(const Negotiate& rightSide) {
 bool Negotiate::validate() {
   bool baseValidation{Order::validate()};
   bool opponentIsNotPlayer{player != opponent};
-  std::cout << "Opponent is not player : " << opponentIsNotPlayer << std::endl;
-  return (baseValidation && opponentIsNotPlayer);
+  bool opponentIsNotNeutralPlayer{opponent != GameEngine::GetNeutralPlayer()};
+  std::cout << "Opponent is not player : " << opponentIsNotPlayer << ", ";
+  std::cout << "Opponent is not neutral player : " << opponentIsNotNeutralPlayer
+            << std::endl;
+  return (baseValidation && opponentIsNotPlayer && opponentIsNotNeutralPlayer);
 }
 
 void Negotiate::execute() {
@@ -439,11 +449,13 @@ Airlift::Airlift()
       drawAfterConquer(true) {}
 
 Airlift::Airlift(Player* player, Territory* sourceTerritory,
-                 Territory* targetTerritory, int numberOfArmies)
+                 Territory* targetTerritory, int numberOfArmies,
+                 Deck* gameCardDeck)
     : Order(player),
       sourceTerritory(sourceTerritory),
       targetTerritory(targetTerritory),
-      drawAfterConquer(true) {
+      drawAfterConquer(true),
+      gameCardDeck(gameCardDeck) {
   this->numberOfArmies =
       std::max(0, std::min(numberOfArmies, sourceTerritory->GetTroops()));
 }
@@ -453,6 +465,7 @@ Airlift::Airlift(const Airlift& toCopy) : Order(toCopy) {
   this->targetTerritory = toCopy.targetTerritory;
   this->numberOfArmies = toCopy.numberOfArmies;
   this->drawAfterConquer = toCopy.drawAfterConquer;
+  this->gameCardDeck = toCopy.gameCardDeck;
 }
 
 Airlift::~Airlift() {}
@@ -463,6 +476,7 @@ Airlift& Airlift::operator=(const Airlift& rightSide) {
   targetTerritory = rightSide.targetTerritory;
   numberOfArmies = rightSide.numberOfArmies;
   drawAfterConquer = rightSide.drawAfterConquer;
+  gameCardDeck = rightSide.gameCardDeck;
   return *this;
 }
 
@@ -489,7 +503,10 @@ void Airlift::execute() {
     // TODO Player draws card
     DisableCardDrawVisitor disableDrawVisitor(player);
     player->GetOrdersList()->visitOrders(&disableDrawVisitor);
-    std::cout << " A card was drawn and added to " << player << "'s hand.";
+    Card* drawnCard = gameCardDeck->draw();
+    player->AddCardToPlayer(drawnCard);
+    std::cout << " A " << drawnCard << " card was drawn and added to " << player
+              << "'s hand.";
   } else {
     std::cout << " No card was drawn";
   }
@@ -612,7 +629,7 @@ void MoveTroops::AttackTarget() {
     opponent->RemoveTerritoryFromPlayer(target);
     player->AddTerritoryToPlayer(target);
     target->SetPlayer(player);
-    
+
     target->SetTroops(numberOfArmies);
     attackerConquered = true;
     std::cout << " " << player << " conquered " << target << ".";

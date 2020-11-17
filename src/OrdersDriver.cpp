@@ -18,6 +18,7 @@
 #include "Map.h"
 #include "Orders.h"
 #include "Player.h"
+#include "Cards.h"
 
 int main() {
   // Create a map
@@ -38,6 +39,11 @@ int main() {
   t3->AddTroops(3);
   t4->AddTroops(10);
 
+  // Create a deck of cards
+  Deck *deckOfCards = new Deck();
+  Card *bombCard = new BombCard(5);
+  deckOfCards->addCard(bombCard);
+
   // Create and setup players
   Player *player = new Player(map);
   Player *opponent = new Player(map);
@@ -55,13 +61,13 @@ int main() {
 
   // Create orders and add them to player's orders list
   Order *deploy = new Deploy(player, t1, 10);
-  Order *advance = new Advance(player, t1, t2, 10);
-  Order *airlift = new Airlift(player, t1, t3, 10);
+  Order *advance = new Advance(player, t1, t2, 10, deckOfCards);
+  Order *airlift = new Airlift(player, t1, t3, 10, deckOfCards);
   Order *bomb = new Bomb(player, t4);
   Order *negotiate = new Negotiate(player, opponent);
   Order *bomb2 = new Bomb(player, t4);
   Order *blockade = new Blockade(player, t1);
-  Order *airliftFromOpponent = new Airlift(opponent, t4, t2, 5);
+  Order *airliftFromOpponent = new Airlift(opponent, t4, t2, 5, deckOfCards);
 
   player->AddOrderToPlayer(deploy);
   player->AddOrderToPlayer(advance);
@@ -98,9 +104,11 @@ int main() {
   // No need to delete territories and continent,
   // cleaned up by map
   // Orders are deleted by OrdersList, so no need to clean that either
+  // Cards are deleted by the deck or hand that contains it
   delete map;
   delete player;
   delete opponent;
+  delete deckOfCards;
   return 0;
 };
 #endif

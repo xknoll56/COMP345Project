@@ -17,12 +17,14 @@
 
 #include "Map.h"
 #include "Player.h"
+#include "Cards.h"
 
 class Player;
 class Territory;
 class Graph;
 class Map;
 class OrdersVisitor;
+class Deck;
 
 class Order {
  public:
@@ -74,7 +76,7 @@ class Advance : public Order {
  public:
   Advance();
   Advance(Player* player, Territory* sourceTerritory,
-          Territory* targetTerritory, int numberOfArmies);
+          Territory* targetTerritory, int numberOfArmies, Deck* gameCardDeck);
   Advance(const Advance& toCopy);
   ~Advance();
   Advance& operator=(const Advance& rightSide);
@@ -90,6 +92,7 @@ class Advance : public Order {
  private:
   Territory* sourceTerritory;
   Territory* targetTerritory;
+  Deck* gameCardDeck;
   int numberOfArmies;
   bool drawAfterConquer;
   virtual std::ostream& doPrint(std::ostream& out) const;
@@ -162,7 +165,7 @@ class Airlift : public Order {
  public:
   Airlift();
   Airlift(Player* player, Territory* sourceTerritory,
-          Territory* targetTerritory, int numberOfArmies);
+          Territory* targetTerritory, int numberOfArmies, Deck* gameCardDeck);
   Airlift(const Airlift& toCopy);
   ~Airlift();
   Airlift& operator=(const Airlift& rightSide);
@@ -178,6 +181,7 @@ class Airlift : public Order {
  private:
   Territory* sourceTerritory;
   Territory* targetTerritory;
+  Deck* gameCardDeck;
   int numberOfArmies;
   bool drawAfterConquer;
   virtual std::ostream& doPrint(std::ostream& out) const;
