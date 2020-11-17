@@ -85,9 +85,13 @@ int main() {
   std::cout << std::endl;
   negotiate->execute();
   std::cout << std::endl;
-  bomb2->execute(); // Disabled b/c of negotiate order
+
+  std::cout << "=== The following two orders are disabled because of the " <<
+               "negotiation order ==="
+            << std::endl;
+  bomb2->execute();  // Disabled b/c of negotiate order
   std::cout << std::endl;
-  airliftFromOpponent->execute(); // Disabled b/c of negotiate order
+  airliftFromOpponent->execute();  // Disabled b/c of negotiate order
   std::cout << std::endl;
 
   // Cleanup

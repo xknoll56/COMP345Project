@@ -10,6 +10,7 @@
 // Based on the 'https://www.warzone.com/' game.
 
 #include "Orders.h"
+#include "GameEngine.h"
 
 #include <stdlib.h>
 #include <time.h>
@@ -355,9 +356,8 @@ void Blockade::execute() {
   // Double number of troops
   int numberOfTroops = territoryToBlockade->GetTroops();
   territoryToBlockade->AddTroops(numberOfTroops);
-  // Transfer ownership to neutral player (who that?)
-  // NULL for now
-  territoryToBlockade->SetPlayer(nullptr);
+  // Transfer ownership to neutral player
+  territoryToBlockade->SetPlayer(GameEngine::GetNeutralPlayer());
   std::cout
       << "BLOCKADE ORDER: " << numberOfTroops << " troops were added to "
       << territoryToBlockade
@@ -608,7 +608,11 @@ void MoveTroops::AttackTarget() {
   // If no troops left in target, player takes ownership
   // and we assign the number of surviving armies to the territory
   if (target->GetTroops() == 0) {
+    Player* opponent = target->GetPlayer();
+    opponent->RemoveTerritoryFromPlayer(target);
+    player->AddTerritoryToPlayer(target);
     target->SetPlayer(player);
+    
     target->SetTroops(numberOfArmies);
     attackerConquered = true;
     std::cout << " " << player << " conquered " << target << ".";

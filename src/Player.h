@@ -38,7 +38,7 @@ class Player : public Subject {
 
  public:
   Map* map;
-
+  Player();
   Player(Map* map);
   // Parametric constructor
   Player(Map* map, std::vector<Territory*> terr, int numberOfArmies);

@@ -12,9 +12,11 @@ class GameEngine {
   Map* map;
   std::vector<Player*> players;  // Keep these in order of play.
   Deck deck;
+  static Player* neutralPlayer; // Used by blockade order
 
  public:
   GameEngine(){};
+  ~GameEngine();
   void Init();
   void StartupPhase();
   int MainGameLoop();
@@ -23,5 +25,6 @@ class GameEngine {
   bool ExecuteOrdersPhase();
   void RoundRobin(bool(Player::*func)());
   std::vector<Player*> getPlayers();
+  static Player* GetNeutralPlayer();
 
 };

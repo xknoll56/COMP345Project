@@ -13,7 +13,10 @@
 
 #include <algorithm>
 
-Player::Player(Map* map) : 
+Player::Player() {}
+
+Player::Player(Map* map)
+    : 
       map(map),
       ownedTerritories(std::vector<Territory*>(0)),
       handOfCards(std::vector<Card*>(0)),

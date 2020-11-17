@@ -164,3 +164,7 @@ bool GameEngine::ExecuteOrdersPhase() {
   RoundRobin(&Player::ExecuteNextOrder);
   return true;
 }
+
+Player* GameEngine::neutralPlayer = new Player();
+
+Player* GameEngine::GetNeutralPlayer() { return neutralPlayer; }
