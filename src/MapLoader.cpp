@@ -87,11 +87,11 @@ void MapLoader::PreprocessBorders(const std::string line,
   if (words.size() > 0) {
     // The line must contain at least 2 data points (otherwise its a floating
     // territory with no edges).
-    if (words.size() < 2) {
-      validityData.validData = false;
-      std::cout << "Error, territory has no edges... invalid map file"
-                << std::endl;
-    }
+    //if (words.size() < 2) {
+    //  validityData.validData = false;
+    //  std::cout << "Error, territory has no edges... invalid map file"
+    //            << std::endl;
+    //}
     try {
       // The number of neighbors is equal to the number of remaining indices
       neighborsSizes[std::stoi(words[0]) - 1] = words.size() - 1;
@@ -109,11 +109,11 @@ void MapLoader::ProcessBorders(const std::string line,
   std::vector<std::string> words = Split(line);
   if (words.size() > 0) {
     // Each territory MUST have at least 1 border
-    if (words.size() < 2) {
-      validityData.validData = false;
-      std::cout << "Error, territory has no edges... invalid map file"
-                << std::endl;
-    }
+    //if (words.size() < 1) {
+    //  validityData.validData = false;
+    //  std::cout << "Error, territory has no edges... invalid map file"
+    //            << std::endl;
+    //}
     // JG
     try{
       Territory* territory =
@@ -290,7 +290,7 @@ Map* MapLoader::GenerateMap(const std::string filePath) {
               << std::endl;
     // Clear the data for another use.
     validityData = ValidityData();
-    delete[] continentsSizes;
+    //delete[] continentsSizes;
     return nullptr;
   }
 }
