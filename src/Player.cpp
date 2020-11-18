@@ -10,6 +10,7 @@
 // Based on the 'https://www.warzone.com/' game.
 
 #include "Player.h"
+#include "Orders.h"
 
 #include <algorithm>
 
@@ -130,7 +131,10 @@ bool Player::IssueOrder() {
   }
   if (handOfCards.size() > 0) {
     std::cout << "            Issuing a Card Order..." << std::endl;
-    handOfCards.back()->play();
+    Order* order = handOfCards.back()->play();
+    ConfigureOrdersVisitor configurator(this);
+    order->acceptVisitor(&configurator);
+    AddOrderToPlayer(order);
     handOfCards.pop_back();
     return true;
   }
