@@ -87,6 +87,7 @@ void GameEngine::Init() {
 			p->Attach(gameStatsObs);
 			p->Attach(phaseObs);
 		}
+		gameStatsObs->Start();
 	}
 		
 	/* 5. Create a deck of cards. */ 
