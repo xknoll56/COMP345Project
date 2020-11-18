@@ -13,6 +13,8 @@ class GameEngine {
   std::vector<Player*> players;  // Keep these in order of play.
   Deck deck;
   static Player* neutralPlayer; // Used by blockade order
+  GameStatisticsObserver* gameStatsObs;
+  PhaseObserver* phaseObs;
 
  public:
   GameEngine(){};
