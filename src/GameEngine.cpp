@@ -223,6 +223,7 @@ bool GameEngine::ExecuteOrdersPhase() {
     }
   }
   if (players.size() < 2) {
+      players[0]->Notify();
     return true;
   }
   return false;
