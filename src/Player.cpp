@@ -213,13 +213,16 @@ void Player::SetReinforcementPool(int amount) {
 }
 
 bool Player::ExecuteNextOrder() {
+  std::cout << "        Executing an Order..." << std::endl;
   phase = Phase::ExecuteOrders;
   this->Notify();
-  // Find the order with the highest priority.
-  // Execute it.
-  // Erase it from the list of orders.
-  // return true if there are still orders to be executed.
+  Order* order = listOfOrders->popNextOrder();
+  order->execute();
+  delete order;
   phase = Phase::None;
+  if (listOfOrders->getListSize() > 0) {
+    return true;
+  }
   return false;
 }
 

@@ -93,7 +93,7 @@ void OrdersList::visitOrders(OrdersVisitor* visitor) {
   }
 }
 
-Order* OrdersList::popNextOrder() {
+Order* OrdersList::popNextOrder() { // TODO - get the elemenets in their correct prority order.
   Order* toReturn = (*ordersList)[0];
   ordersList->erase(ordersList->begin());
   return toReturn;
