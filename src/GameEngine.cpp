@@ -212,7 +212,15 @@ bool GameEngine::ExecuteOrdersPhase() {
 	std::cout << "    Starting Execute Orders Phase..." << std::endl;
   RoundRobin(&Player::ExecuteNextOrder);
   std::cout << "    Finished Execute Orders Phase" << std::endl;
-  return true;
+  for (int i = players.size() - 1; i >= 0 ; i--) {
+    if (players.at(i)->GetOwnedTerritories()->size() < 1) {
+      players.erase(players.begin() + i);
+	}
+  }
+  if (players.size() < 2) {
+    return true;
+  }
+  return false;
 }
 
 Map* GameEngine::GetMap() { return map; }
