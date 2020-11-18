@@ -14,8 +14,11 @@
 #include <ostream>
 #include <vector>
 
+#include "Orders.h"
+
 class Player;
 class Deck;
+class Order;
 
 class Card {
  public:
@@ -24,7 +27,9 @@ class Card {
   Card(const Card& card);
   virtual ~Card();
 
-  virtual void play();
+  // The play method of each card is basically a factory method that returns an
+  // order of the correct type
+  virtual Order* play();
 
   Card& operator=(const Card& card);
 
@@ -48,7 +53,7 @@ class BombCard : public Card {
 
   virtual std::ostream& print(std::ostream& out) const override;
 
-  void play() override;
+  Order* play() override;
 };
 
 class ReinforcementCard : public Card {
@@ -63,7 +68,7 @@ class ReinforcementCard : public Card {
 
   virtual std::ostream& print(std::ostream& out) const override;
 
-  void play() override;
+  Order* play() override;
 };
 
 class BlockadeCard : public Card {
@@ -78,7 +83,7 @@ class BlockadeCard : public Card {
 
   virtual std::ostream& print(std::ostream& out) const override;
 
-  void play() override;
+  Order* play() override;
 };
 
 class AirliftCard : public Card {
@@ -93,7 +98,7 @@ class AirliftCard : public Card {
 
   virtual std::ostream& print(std::ostream& out) const override;
 
-  void play() override;
+  Order* play() override;
 };
 
 class DiplomacyCard : public Card {
@@ -108,7 +113,7 @@ class DiplomacyCard : public Card {
 
   virtual std::ostream& print(std::ostream& out) const override;
 
-  void play() override;
+  Order* play() override;
 };
 
 class Deck {

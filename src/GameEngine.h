@@ -9,6 +9,7 @@
 
 
 class Map;
+class Deck;
 
 class GameEngine {
  private:
