@@ -16,6 +16,8 @@
 
 #include "Map.h"
 
+class Map;
+
 // The map loader class will be used to simply read a map file, and instantiate
 // a Map object based on the data.
 class MapLoader {

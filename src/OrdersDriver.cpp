@@ -15,12 +15,13 @@
 #include <iostream>
 #include <string>
 
+#include "Cards.h"
 #include "Map.h"
 #include "Orders.h"
 #include "Player.h"
-#include "Cards.h"
 
 int main() {
+  return 0;
   // Create a map
   Map *map = new Map(1, 4);
   Continent *continent = map->CreateContinent("America", 10);
@@ -41,12 +42,12 @@ int main() {
 
   // Create a deck of cards
   Deck *deckOfCards = new Deck();
-  Card *bombCard = new BombCard(5);
+  Card *bombCard = new BombCard();
   deckOfCards->addCard(bombCard);
 
   // Create and setup players
-  Player *player = new Player(map);
-  Player *opponent = new Player(map);
+  Player *player = new Player();
+  Player *opponent = new Player();
   player->AddArmiesToReinforcementPool(20);
   opponent->AddArmiesToReinforcementPool(10);
 
@@ -61,13 +62,13 @@ int main() {
 
   // Create orders and add them to player's orders list
   Order *deploy = new Deploy(player, t1, 10);
-  Order *advance = new Advance(player, t1, t2, 15, deckOfCards);
-  Order *airlift = new Airlift(player, t1, t3, 10, deckOfCards);
+  Order *advance = new Advance(player, t1, t2, 15);
+  Order *airlift = new Airlift(player, t1, t3, 10);
   Order *bomb = new Bomb(player, t4);
   Order *negotiate = new Negotiate(player, opponent);
   Order *bomb2 = new Bomb(player, t4);
   Order *blockade = new Blockade(player, t1);
-  Order *airliftFromOpponent = new Airlift(opponent, t4, t2, 5, deckOfCards);
+  Order *airliftFromOpponent = new Airlift(opponent, t4, t2, 5);
 
   player->AddOrderToPlayer(deploy);
   player->AddOrderToPlayer(advance);
@@ -92,9 +93,8 @@ int main() {
   negotiate->execute();
   std::cout << std::endl;
 
-  std::cout << "=== The following two orders are disabled because of the " <<
-               "negotiation order ==="
-            << std::endl;
+  std::cout << "=== The following two orders are disabled because of the "
+            << "negotiation order ===" << std::endl;
   bomb2->execute();  // Disabled b/c of negotiate order
   std::cout << std::endl;
   airliftFromOpponent->execute();  // Disabled b/c of negotiate order

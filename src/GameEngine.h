@@ -7,6 +7,8 @@
 #include "Orders.h"
 #include "Map.h"
 
+class Map;
+
 class GameEngine {
  private:
   Map* map;
@@ -17,7 +19,7 @@ class GameEngine {
   PhaseObserver* phaseObs;
 
  public:
-  GameEngine(){};
+  GameEngine();
   ~GameEngine();
   void Init();
   void StartupPhase();
