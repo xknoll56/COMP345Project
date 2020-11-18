@@ -238,6 +238,7 @@ class OrdersList {
 
  private:
   std::vector<Order*>* ordersList;
+  int priorityLevel;
 };
 
 // Class that contains the algorithm to displace troops
