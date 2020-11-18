@@ -146,15 +146,20 @@ void GameEngine::StartupPhase() {
 }
 
 int GameEngine::MainGameLoop() {
+  std::cout << "------------------------" << std::endl;
+  std::cout << "Starting Main Game Loop..." << std::endl;
   while (true) {
     ReinforcementPhase();
     IssueOrdersPhase();
     if (ExecuteOrdersPhase()) {
-      return 0;
+      std::cout << "Game has ended." << std::endl;
+	  return 0;
     }
   }
 }
+
 void GameEngine::ReinforcementPhase() {
+  std::cout << "    Starting Reinforcement Phase..." << std::endl;
   for (Continent* continent: map->GetContinents()) {
     Player* player = continent->GetLeader();
     if (player != nullptr) {
@@ -167,6 +172,7 @@ void GameEngine::ReinforcementPhase() {
       player->SetReinforcementPool(3);
     }
   }
+  std::cout << "    Finished Reinforcement Phase." << std::endl;
 }
 
 void GameEngine::RoundRobin(bool(Player::*func)()) {
@@ -189,14 +195,23 @@ std::vector<Player*> GameEngine::getPlayers()
 }
 
 void GameEngine::IssueOrdersPhase() {
+  std::cout << "    Starting Issue Orders Phase..." << std::endl;
   for (Territory* t: *map->GetTerritories()) {
     t->SetToDeploy(0);
+    t->SetStandByTroops(0);
+  }
+  for (Player* p: players) {
+    p->GenerateToAttack();
+    p->GenerateToDefend();
   }
   RoundRobin(&Player::IssueOrder);
+  std::cout << "    Finished Issue Orders Phase." << std::endl;
 }
 
 bool GameEngine::ExecuteOrdersPhase() { 
+	std::cout << "    Starting Execute Orders Phase..." << std::endl;
   RoundRobin(&Player::ExecuteNextOrder);
+  std::cout << "    Finished Execute Orders Phase" << std::endl;
   return true;
 }
 

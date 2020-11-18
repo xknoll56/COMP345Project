@@ -19,6 +19,7 @@ Player::Player()
 Player::Player(GameEngine* gameEngine)
     : gameEngine(gameEngine),
       ownedTerritories(std::vector<Territory*>(0)),
+      toAttack(std::vector<Territory*>(0)),
       handOfCards(std::vector<Card*>(0)),
       listOfOrders(new OrdersList()),
       reinforcementPool(0),
@@ -80,15 +81,18 @@ std::ostream& operator<<(std::ostream& out, const Player& toOutput) {
 
 // Returns a vector of pointers of territories to defend
 std::vector<Territory*> Player::ToDefend() {
-  // TODO - return this list as a priority list rather than randomizing.
-  std::random_shuffle(ownedTerritories.begin(), ownedTerritories.end());
   return ownedTerritories;
+}
+
+void Player::GenerateToDefend() {
+  // TODO - priority list rather than randomizing.
+  std::random_shuffle(ownedTerritories.begin(), ownedTerritories.end());
 }
 
 // Returns a vector of pointers of territories to attack
 // TODO - IMPORTANT TODO BEFORE A2 SUBMISSION!!! this should only return
 // neighbors!
-std::vector<Territory*> Player::ToAttack() {
+void Player::GenerateToAttack() {
   const std::vector<Territory*>* const vectorAllTerritories =
       gameEngine->GetMap()->GetTerritories();
   std::vector<Territory*> territoriesToAttack;
@@ -104,84 +108,50 @@ std::vector<Territory*> Player::ToAttack() {
   }
   // TODO - return this list as a priority list rather than randomizing.
   std::random_shuffle(territoriesToAttack.begin(), territoriesToAttack.end());
-  return territoriesToAttack;
+  toAttack =  territoriesToAttack;
 }
+
+std::vector<Territory*> Player::ToAttack() { return toAttack; }
 
 // Creates an Order object and adds it to the vector of pointers of orders
 bool Player::IssueOrder() {
+  std::cout << "        Issuing an Order..." << std::endl;
   // TODO - Why are they making us call toAttack() every time??
   phase = Phase::IssueOrders;
   this->Notify();
-  std::vector<Territory*> toAttack(ToAttack());
-  std::vector<Territory*> toDefend(ToDefend());
-  // Generate deployments until theres no more reinforcments in the pool.
-  while (reinforcementPool > 0) {
+  if (reinforcementPool > 0) {
+    std::cout << "            Issuing a Deploy Order..." << std::endl;
     // TODO - Deploy based on threat level
-    toDefend.at(rand() % toDefend.size())->IncreaseToDeploy(1);
+    Territory* territory = ToDefend().at(rand() % ToDefend().size());
+    territory->IncreaseToDeploy(1);
+    AddOrderToPlayer(new Deploy(this, territory, 1));  // TODO - make sure these are getting destroyed!
     reinforcementPool--;
+    return true;
   }
-  // Create the deployment orders.
-  for (Territory* t : toDefend) {
-    AddOrderToPlayer(new Deploy(
-        this, t,
-        t->GetToDeploy()));  // TODO - make sure these are getting destroyed!
+  if (handOfCards.size() > 0) {
+    std::cout << "            Issuing a Card Order..." << std::endl;
+    handOfCards.at(0)->play();
+    return true;
   }
-  // Play Reinforcement card.
-  for (Card* c : handOfCards) {
-    ReinforcementCard* rc = dynamic_cast<ReinforcementCard*>(c);
-    if (rc) {
-      rc->play();
-      break;
-    }
-  }
-  for (Card* c : handOfCards) {
-    AirliftCard* ac = dynamic_cast<AirliftCard*>(c);
-    if (ac) {
-      ac->play();
-      break;
-    }
-  }
-  for (Card* c : handOfCards) {
-    BlockadeCard* bc = dynamic_cast<BlockadeCard*>(c);
-    if (bc) {
-      bc->play();
-      break;
-    }
-  }
-  for (Card* c : handOfCards) {
-    BombCard* bc = dynamic_cast<BombCard*>(c);
-    if (bc) {
-      bc->play();
-      break;
-    }
-  }
-  for (Card* c : handOfCards) {
-    DiplomacyCard* dc = dynamic_cast<DiplomacyCard*>(c);
-    if (dc) {
-      dc->play();
-      break;
-    }
-  }
-
-  // Attack adjacent territories by priority
-  for (Territory* t : toAttack) {
-    for (Territory* s : *t->GetNeighbors()) {
-      if ((s->GetPlayer() == this) && (s->GetTotalTroops() < 0)) {
-        AddOrderToPlayer(new Advance(this, s, t, s->GetTotalTroops()));
+  while (toAttack.size() > 0) {
+    std::cout << "            Issuing an Advance (Attack) Order..." << std::endl;
+    std::cout << "_attacking: " << *ToAttack().back()->GetName() << std::endl;
+    int troops;
+    for (Territory* t : *ToAttack().back()->GetNeighbors()) {
+      troops = t->GetAvailableTroops();
+      if ((troops > 0) && (t->GetPlayer() == this)) {
+        t->IncreaseStandByTroops(troops);
+        AddOrderToPlayer(new Advance(this, t, ToAttack().back(), troops));
+        std::cout << "_success" << std::endl;
+        return true;
       }
     }
+    std::cout << "_fail" << std::endl;
+    toAttack.pop_back();
   }
-  // Defend territories
-  for (Territory* t : toDefend) {
-    for (Territory* s : *t->GetNeighbors()) {
-      if ((s->GetPlayer() == this) && (s->GetTotalTroops() < 0)) {
-        AddOrderToPlayer(new Advance(this, s, t, s->GetTotalTroops()));
-      }
-    }
-  }
-
+  // TODO - DEFEND;
   phase = Phase::None;
-  return true;
+  return false;
 }
 
 // Adds the given territory pointer to the vector of owned territories

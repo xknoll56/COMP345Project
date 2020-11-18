@@ -9,7 +9,7 @@
 //
 // Based on the 'https://www.warzone.com/' game.
 
-#define ORDERS_DRIVER
+//#define ORDERS_DRIVER
 #ifdef ORDERS_DRIVER
 
 #include <iostream>
