@@ -10,6 +10,7 @@
 // Based on the 'https://www.warzone.com/' game.
 
 #include "Player.h"
+#include "Orders.h"
 
 #include <algorithm>
 
@@ -130,7 +131,10 @@ bool Player::IssueOrder() {
   }
   if (handOfCards.size() > 0) {
     std::cout << "            Issuing a Card Order..." << std::endl;
-    handOfCards.back()->play();
+    Order* orderFromCard = handOfCards.back()->play();
+    ConfigureOrdersVisitor configurator(this);
+    orderFromCard->acceptVisitor(&configurator);
+    AddOrderToPlayer(orderFromCard);
     handOfCards.pop_back();
     return true;
   }
@@ -213,11 +217,15 @@ void Player::SetReinforcementPool(int amount) {
   reinforcementPool = std::max(0, amount);
 }
 
+// Return true if has orders left
 bool Player::ExecuteNextOrder() {
   std::cout << "        Executing an Order..." << std::endl;
   phase = Phase::ExecuteOrders;
   this->Notify();
   Order* order = listOfOrders->popNextOrder();
+  if (order == NULL) {
+    return false;
+  }
   order->execute();
   delete order;
   phase = Phase::None;

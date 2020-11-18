@@ -15,9 +15,9 @@
 #include <string>
 #include <vector>
 
+#include "Cards.h"
 #include "Map.h"
 #include "Player.h"
-#include "Cards.h"
 
 class Player;
 class Territory;
@@ -42,6 +42,8 @@ class Order {
 
   friend std::ostream& operator<<(std::ostream& out, const Order& toOutput);
 
+  void setPlayer(Player* p);
+
  protected:
   Player* player;
   bool wasExecuted{false};
@@ -64,6 +66,9 @@ class Deploy : public Order {
   virtual bool validate();
   virtual void execute();
   virtual void acceptVisitor(OrdersVisitor* visitor);
+
+  void setNumberOfArmies(int n);
+  void setTerritoryToDeploy(Territory* t);
 
  private:
   int numberOfArmies;
@@ -88,6 +93,10 @@ class Advance : public Order {
   virtual void acceptVisitor(OrdersVisitor* visitor);
   void disableDrawAfterConquer();
   Player* getOpponent();
+
+  void setSourceTerritory(Territory* t);
+  void setTargetTerritory(Territory* t);
+  void setNumberOfArmies(int n);
 
  private:
   Territory* sourceTerritory;
@@ -114,6 +123,8 @@ class Bomb : public Order {
 
   Player* getOpponent();
 
+  void setTargetTerritory(Territory* t);
+
  private:
   Territory* targetTerritory;
   virtual std::ostream& doPrint(std::ostream& out) const;
@@ -134,6 +145,8 @@ class Blockade : public Order {
   virtual void execute();
   virtual void acceptVisitor(OrdersVisitor* visitor);
 
+  void setTerritory(Territory* t);
+
  private:
   Territory* territoryToBlockade;
   virtual std::ostream& doPrint(std::ostream& out) const;
@@ -153,6 +166,8 @@ class Negotiate : public Order {
   virtual bool validate();
   virtual void execute();
   virtual void acceptVisitor(OrdersVisitor* visitor);
+
+  void setOpponent(Player* o);
 
  private:
   Player* opponent;
@@ -176,6 +191,10 @@ class Airlift : public Order {
   virtual void acceptVisitor(OrdersVisitor* visitor);
   void disableDrawAfterConquer();
   Player* getOpponent();
+
+  void setSourceTerritory(Territory* t);
+  void setTargetTerritory(Territory* t);
+  void setNumberOfArmies(int n);
 
  private:
   Territory* sourceTerritory;
@@ -205,7 +224,9 @@ class OrdersList {
   // reserved keyword, which drove Visual Studio nuts
   void remove(int position);
 
-  // Returns the next order in the orders list and removes it from the orders list
+  // Returns the next order in the orders list and removes it from the orders
+  // list Any class that uses this method MUST take care of deleting the order
+  // after use
   Order* popNextOrder();
 
   friend std::ostream& operator<<(std::ostream& outs,
@@ -217,6 +238,7 @@ class OrdersList {
 
  private:
   std::vector<Order*>* ordersList;
+  int priorityLevel;
 };
 
 // Class that contains the algorithm to displace troops
@@ -256,6 +278,8 @@ class MoveTroops {
 class OrdersVisitor {
  public:
   virtual ~OrdersVisitor();
+  friend std::ostream& operator<<(std::ostream& out,
+                                  const OrdersVisitor& toOutput);
 
   // All of these do nothing by default, and will only perform an operation if
   // redefined in subtypes
@@ -276,6 +300,8 @@ class NegotiateVisitor : public OrdersVisitor {
   NegotiateVisitor(NegotiateVisitor& tocopy);
   NegotiateVisitor& operator=(const NegotiateVisitor& rightSide);
   virtual ~NegotiateVisitor();
+  friend std::ostream& operator<<(std::ostream& out,
+                                  const NegotiateVisitor& toOutput);
 
   virtual void VisitAdvance(Advance* order);
   virtual void VisitAirlift(Airlift* order);
@@ -295,9 +321,32 @@ class DisableCardDrawVisitor : public OrdersVisitor {
   DisableCardDrawVisitor(DisableCardDrawVisitor& toCopy);
   DisableCardDrawVisitor& operator=(const DisableCardDrawVisitor& rightSide);
   virtual ~DisableCardDrawVisitor();
+  friend std::ostream& operator<<(std::ostream& out,
+                                  const DisableCardDrawVisitor& toOutput);
 
   virtual void VisitAdvance(Advance* order);
   virtual void VisitAirlift(Airlift* order);
+
+ private:
+  Player* player;
+};
+
+// Visitor to configure orders that are created by cards
+class ConfigureOrdersVisitor : public OrdersVisitor {
+ public:
+  ConfigureOrdersVisitor();
+  ConfigureOrdersVisitor(Player* player);
+  ConfigureOrdersVisitor(ConfigureOrdersVisitor& toCopy);
+  ConfigureOrdersVisitor& operator=(const ConfigureOrdersVisitor& rightSide);
+  virtual ~ConfigureOrdersVisitor();
+  friend std::ostream& operator<<(std::ostream& out,
+                                  const ConfigureOrdersVisitor& toOutput);
+
+  virtual void VisitDeploy(Deploy* order);
+  virtual void VisitAirlift(Airlift* order);
+  virtual void VisitBomb(Bomb* order);
+  virtual void VisitBlockade(Blockade* order);
+  virtual void VisitNegotiate(Negotiate* order);
 
  private:
   Player* player;

@@ -10,10 +10,11 @@
 // Based on the 'https://www.warzone.com/' game.
 
 #include "Cards.h"
-#include "Orders.h"
 
 #include <iostream>
 #include <random>
+
+#include "Orders.h"
 
 Card::Card() : deck() {}
 Card::Card(Deck* deck) : deck(deck) {}
@@ -28,16 +29,20 @@ std::ostream& Card::print(std::ostream& out) const {
   return out;
 }
 
-void Card::play() {
+Order* Card::play() {
   // Reput the card into the deck
+  // The actual returning will be done by each subtype's implementation of
+  // play()
   deck->addCard(this);
+  return nullptr;
 }
 
 Card::~Card() {}
 
-void BombCard::play() {
+Order* BombCard::play() {
   Order* bomb = new Bomb();
   Card::play();
+  return bomb;
 }
 
 BombCard::BombCard() : Card() {}
@@ -55,9 +60,10 @@ std::ostream& BombCard::print(std::ostream& out) const {
   return out;
 }
 
-void ReinforcementCard::play() {
+Order* ReinforcementCard::play() {
   Order* deploy = new Deploy();
   Card::play();
+  return deploy;
 }
 
 ReinforcementCard::ReinforcementCard() : Card() {}
@@ -79,9 +85,10 @@ std::ostream& ReinforcementCard::print(std::ostream& out) const {
   return out;
 }
 
-void BlockadeCard::play() {
+Order* BlockadeCard::play() {
   Order* blockade = new Blockade();
   Card::play();
+  return blockade;
 }
 
 BlockadeCard::BlockadeCard() : Card() {}
@@ -101,9 +108,10 @@ std::ostream& BlockadeCard::print(std::ostream& out) const {
   return out;
 }
 
-void AirliftCard::play() {
+Order* AirliftCard::play() {
   Order* airlift = new Airlift();
   Card::play();
+  return airlift;
 }
 
 AirliftCard::AirliftCard() : Card() {}
@@ -123,9 +131,10 @@ std::ostream& AirliftCard::print(std::ostream& out) const {
   return out;
 }
 
-void DiplomacyCard::play() {
+Order* DiplomacyCard::play() {
   Order* negotiate = new Negotiate();
   Card::play();
+  return negotiate;
 }
 
 DiplomacyCard::DiplomacyCard() : Card() {}
@@ -141,7 +150,7 @@ DiplomacyCard& DiplomacyCard::operator=(const DiplomacyCard& diplomacyCard) {
 }
 
 std::ostream& DiplomacyCard::print(std::ostream& out) const {
-  out << "Diplocamy Card";
+  out << "Diplomacy Card";
   return out;
 }
 
