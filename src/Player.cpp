@@ -15,17 +15,17 @@
 
 Player::Player() {}
 
-Player::Player(Map* map)
-    : 
-      map(map),
+Player::Player(GameEngine* gameEngine)
+    : gameEngine(gameEngine),
       ownedTerritories(std::vector<Territory*>(0)),
       handOfCards(std::vector<Card*>(0)),
       listOfOrders(new OrdersList()),
       reinforcementPool(0),
       phase(Phase::None) {}
 // Parametric constructor
-Player::Player(Map* map, std::vector<Territory*> terr, int numberOfArmies)
-    : map(map),
+Player::Player(GameEngine* gameEngine, std::vector<Territory*> terr,
+               int numberOfArmies)
+    : gameEngine(gameEngine),
       handOfCards(std::vector<Card*>(0)),
       reinforcementPool(numberOfArmies),
       listOfOrders(new OrdersList()),
@@ -35,7 +35,7 @@ Player::Player(Map* map, std::vector<Territory*> terr, int numberOfArmies)
 
 // Copy constructor
 Player::Player(const Player& pCopy) {
-  map = pCopy.map;
+  gameEngine = pCopy.gameEngine;
   for (Territory* t : pCopy.ownedTerritories) this->AddTerritoryToPlayer(t);
   handOfCards = pCopy.handOfCards;
   listOfOrders = pCopy.listOfOrders;
@@ -79,16 +79,17 @@ std::ostream& operator<<(std::ostream& out, const Player& toOutput) {
 
 // Returns a vector of pointers of territories to defend
 std::vector<Territory*> Player::ToDefend() {
-    // TODO - return this list as a priority list rather than randomizing.
-    std::random_shuffle(ownedTerritories.begin(), ownedTerritories.end());
-    return ownedTerritories;
+  // TODO - return this list as a priority list rather than randomizing.
+  std::random_shuffle(ownedTerritories.begin(), ownedTerritories.end());
+  return ownedTerritories;
 }
 
 // Returns a vector of pointers of territories to attack
-// TODO - IMPORTANT TODO BEFORE A2 SUBMISSION!!! this should only return neighbors!
+// TODO - IMPORTANT TODO BEFORE A2 SUBMISSION!!! this should only return
+// neighbors!
 std::vector<Territory*> Player::ToAttack() {
   const std::vector<Territory*>* const vectorAllTerritories =
-      map->GetTerritories();
+      gameEngine->GetMap()->GetTerritories();
   std::vector<Territory*> territoriesToAttack;
   Territory* territory;
 
@@ -117,8 +118,10 @@ bool Player::IssueOrder() {
     reinforcementPool--;
   }
   // Create the deployment orders.
-  for (Territory* t: toDefend) {
-    AddOrderToPlayer(new Deploy(this, t, t->GetToDeploy())); // TODO - make sure these are getting destroyed!
+  for (Territory* t : toDefend) {
+    AddOrderToPlayer(new Deploy(
+        this, t,
+        t->GetToDeploy()));  // TODO - make sure these are getting destroyed!
   }
   // Play Reinforcement card.
   for (Card* c : handOfCards) {
@@ -158,8 +161,8 @@ bool Player::IssueOrder() {
   }
 
   // Attack adjacent territories by priority
-  for (Territory* t: toAttack) {
-    for (Territory* s: *t->GetNeighbors()) {
+  for (Territory* t : toAttack) {
+    for (Territory* s : *t->GetNeighbors()) {
       if ((s->GetPlayer() == this) && (s->GetTotalTroops() < 0)) {
         AddOrderToPlayer(new Advance(this, s, t, s->GetTotalTroops()));
       }
@@ -173,7 +176,6 @@ bool Player::IssueOrder() {
       }
     }
   }
-
 
   phase = Phase::None;
   return true;
@@ -233,7 +235,9 @@ const std::vector<Territory*>* Player::GetOwnedTerritories() {
   return &ownedTerritories;
 }
 
-void Player::SetReinforcementPool(int amount) { reinforcementPool = std::max(0, amount); }
+void Player::SetReinforcementPool(int amount) {
+  reinforcementPool = std::max(0, amount);
+}
 
 bool Player::ExecuteNextOrder() {
   phase = Phase::ExecuteOrders;
@@ -245,6 +249,8 @@ bool Player::ExecuteNextOrder() {
   phase = Phase::None;
   return false;
 }
+
+void Player::DrawCard() { gameEngine->PlayerDrawCard(this); }
 
 Phase Player::GetPhase() { return phase; }
 

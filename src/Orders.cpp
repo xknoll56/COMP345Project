@@ -188,17 +188,14 @@ Advance::Advance()
       sourceTerritory(),
       targetTerritory(),
       numberOfArmies(0),
-      drawAfterConquer(true),
-      gameCardDeck() {}
+      drawAfterConquer(true) {}
 
 Advance::Advance(Player* player, Territory* sourceTerritory,
-                 Territory* targetTerritory, int numberOfArmies,
-                 Deck* gameCardDeck)
+                 Territory* targetTerritory, int numberOfArmies)
     : Order(player),
       sourceTerritory(sourceTerritory),
       targetTerritory(targetTerritory),
-      drawAfterConquer(true),
-      gameCardDeck(gameCardDeck) {
+      drawAfterConquer(true) {
   this->numberOfArmies = std::max(0, numberOfArmies);
 }
 Advance::Advance(const Advance& toCopy) : Order(toCopy) {
@@ -206,7 +203,6 @@ Advance::Advance(const Advance& toCopy) : Order(toCopy) {
   this->targetTerritory = toCopy.targetTerritory;
   this->numberOfArmies = toCopy.numberOfArmies;
   this->drawAfterConquer = toCopy.drawAfterConquer;
-  this->gameCardDeck = toCopy.gameCardDeck;
 }
 
 Advance::~Advance() {}
@@ -217,7 +213,6 @@ Advance& Advance::operator=(const Advance& rightSide) {
   targetTerritory = rightSide.targetTerritory;
   numberOfArmies = rightSide.numberOfArmies;
   drawAfterConquer = rightSide.drawAfterConquer;
-  gameCardDeck = rightSide.gameCardDeck;
   return *this;
 }
 
@@ -246,10 +241,8 @@ void Advance::execute() {
   if (moveTroops.AttackerConqueredTarget() && drawAfterConquer) {
     DisableCardDrawVisitor disableDrawVisitor(player);
     player->GetOrdersList()->visitOrders(&disableDrawVisitor);
-    Card* drawnCard = gameCardDeck->draw();
-    player->AddCardToPlayer(drawnCard);
-    std::cout << " A " << drawnCard << " card was drawn and added to " << player
-              << "'s hand.";
+    player->DrawCard();
+    std::cout << " A card was drawn and added to " << player << "'s hand.";
   } else {
     std::cout << " No card was drawn";
   }
@@ -449,17 +442,14 @@ Airlift::Airlift()
       sourceTerritory(),
       targetTerritory(),
       numberOfArmies(0),
-      drawAfterConquer(true),
-      gameCardDeck() {}
+      drawAfterConquer(true) {}
 
 Airlift::Airlift(Player* player, Territory* sourceTerritory,
-                 Territory* targetTerritory, int numberOfArmies,
-                 Deck* gameCardDeck)
+                 Territory* targetTerritory, int numberOfArmies)
     : Order(player),
       sourceTerritory(sourceTerritory),
       targetTerritory(targetTerritory),
-      drawAfterConquer(true),
-      gameCardDeck(gameCardDeck) {
+      drawAfterConquer(true) {
   this->numberOfArmies =
       std::max(0, std::min(numberOfArmies, sourceTerritory->GetTroops()));
 }
@@ -469,7 +459,6 @@ Airlift::Airlift(const Airlift& toCopy) : Order(toCopy) {
   this->targetTerritory = toCopy.targetTerritory;
   this->numberOfArmies = toCopy.numberOfArmies;
   this->drawAfterConquer = toCopy.drawAfterConquer;
-  this->gameCardDeck = toCopy.gameCardDeck;
 }
 
 Airlift::~Airlift() {}
@@ -480,7 +469,6 @@ Airlift& Airlift::operator=(const Airlift& rightSide) {
   targetTerritory = rightSide.targetTerritory;
   numberOfArmies = rightSide.numberOfArmies;
   drawAfterConquer = rightSide.drawAfterConquer;
-  gameCardDeck = rightSide.gameCardDeck;
   return *this;
 }
 
@@ -507,10 +495,8 @@ void Airlift::execute() {
     // TODO Player draws card
     DisableCardDrawVisitor disableDrawVisitor(player);
     player->GetOrdersList()->visitOrders(&disableDrawVisitor);
-    Card* drawnCard = gameCardDeck->draw();
-    player->AddCardToPlayer(drawnCard);
-    std::cout << " A " << drawnCard << " card was drawn and added to " << player
-              << "'s hand.";
+    player->DrawCard();
+    std::cout << " A card was drawn and added to " << player << "'s hand.";
   } else {
     std::cout << " No card was drawn";
   }

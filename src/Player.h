@@ -14,12 +14,14 @@
 #include "GameObservers.h"
 #include "Map.h"
 #include "Orders.h"
+#include "GameEngine.h"
 
 class Order;
 class Territory;
 class Graph;
 class Map;
 class OrdersList;
+class GameEngine;
 
 class Player : public Subject {
  private:
@@ -31,17 +33,16 @@ class Player : public Subject {
   OrdersList* listOfOrders;
   // Player's reinforcement pool
   int reinforcementPool;
-
-
   // The Phase observer needs to know the current phase
   Phase phase;
 
+  GameEngine* gameEngine;
+
  public:
-  Map* map;
   Player();
-  Player(Map* map);
+  Player(GameEngine* gameEngine);
   // Parametric constructor
-  Player(Map* map, std::vector<Territory*> terr, int numberOfArmies);
+  Player(GameEngine* gameEngine, std::vector<Territory*> terr, int numberOfArmies);
   // Copy constructor
   Player(const Player& pCopy);
   // Destructor
@@ -74,6 +75,7 @@ class Player : public Subject {
   const std::vector<Territory*>* GetOwnedTerritories();
   void SetReinforcementPool(int amount);
   bool ExecuteNextOrder();
+  void DrawCard();
 
   Phase GetPhase();
 

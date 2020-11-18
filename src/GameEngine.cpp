@@ -6,6 +6,7 @@
 #include <chrono>
 #include <cctype>
 
+GameEngine::GameEngine() : deck() {}
 
 // Part 1: Game Start.
 void GameEngine::Init() {
@@ -72,7 +73,7 @@ void GameEngine::Init() {
 
 	/* 4. Create Players. */
 	for (int i = 0; i < num_players; i++) {
-		players.push_back(new Player(map));
+		players.push_back(new Player(this));
 		std::cout << "Player " << i + 1 << " has been created with an empty hand of cards. " << std::endl;
 	} 
 
@@ -89,16 +90,16 @@ void GameEngine::Init() {
 	}
 		
 	/* 5. Create a deck of cards. */ 
-	deck.addCard(new BombCard());
-    deck.addCard(new ReinforcementCard());
-    deck.addCard(new BlockadeCard());
-    deck.addCard(new AirliftCard());
-    deck.addCard(new DiplomacyCard());
-    deck.addCard(new BombCard());
-    deck.addCard(new ReinforcementCard());
-    deck.addCard(new BlockadeCard());
-    deck.addCard(new AirliftCard());
-    deck.addCard(new DiplomacyCard());
+	deck->addCard(new BombCard());
+    deck->addCard(new ReinforcementCard());
+    deck->addCard(new BlockadeCard());
+    deck->addCard(new AirliftCard());
+    deck->addCard(new DiplomacyCard());
+    deck->addCard(new BombCard());
+    deck->addCard(new ReinforcementCard());
+    deck->addCard(new BlockadeCard());
+    deck->addCard(new AirliftCard());
+    deck->addCard(new DiplomacyCard());
 
 	// Displaying the deck information to the user
 	std::cout << "\nA deck of 10 cards has been created. " << std::endl; // change 10 to deck.size of something like that
@@ -197,6 +198,11 @@ bool GameEngine::ExecuteOrdersPhase() {
 
 Map* GameEngine::GetMap() { return map; }
 
+void GameEngine::PlayerDrawCard(Player* player) {
+  Card* card = deck->draw();
+  player->AddCardToPlayer(card);
+}
+
 Player* GameEngine::neutralPlayer = new Player();
 
 Player* GameEngine::GetNeutralPlayer() { return neutralPlayer; }
@@ -207,6 +213,7 @@ GameEngine::~GameEngine() {
 		delete p;
 		p = nullptr;
 	}
+	players.clear();
 	delete gameStatsObs;
 	gameStatsObs = nullptr;
 	delete phaseObs;
@@ -215,4 +222,6 @@ GameEngine::~GameEngine() {
 	neutralPlayer = nullptr; 
 	delete map;
 	map = nullptr;
+	delete deck;
+	deck = nullptr;
 }
