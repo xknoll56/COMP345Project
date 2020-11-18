@@ -126,11 +126,11 @@ void GameEngine::StartupPhase() {
     std::shuffle(players.begin(), players.end(), e);
 
   // 2. Distribute Territories randomly.
-  const std::vector<Territory*>* territories = map->GetTerritories();
-  // std::shuffle(territories->begin(), territories->end(), e);
+  std::vector<Territory*> territories = *map->GetTerritories();
+  std::shuffle(territories.begin(), territories.end(), e);
 
-  for (int i = 0; i < territories->size(); i++) {
-    players.at(i % players.size())->AddTerritoryToPlayer(territories->at(i));
+  for (int i = 0; i < territories.size(); i++) {
+    players.at(i % players.size())->AddTerritoryToPlayer(territories.at(i));
   }
 
 
