@@ -90,6 +90,7 @@ void GameEngine::Init() {
 		
 	}
 		
+	deck = new Deck();
 	/* 5. Create a deck of cards. */ 
 	deck->addCard(new BombCard());
     deck->addCard(new ReinforcementCard());
