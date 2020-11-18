@@ -9,11 +9,12 @@
 //
 // Based on the 'https://www.warzone.com/' game.
 
-//#define ORDERS_DRIVER
+#define ORDERS_DRIVER
 #ifdef ORDERS_DRIVER
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "Cards.h"
 #include "GameEngine.h"
@@ -22,7 +23,7 @@
 #include "Player.h"
 
 int main() {
-  // Create a game engine
+  // Create and initialize a game engine
   GameEngine *gameEngine = new GameEngine();
   gameEngine->Init();
 
@@ -44,9 +45,9 @@ int main() {
   t3->AddTroops(3);
   t4->AddTroops(10);
 
-  // Create and setup players
-  Player *player = new Player(gameEngine);
-  Player *opponent = new Player(gameEngine);
+  // Setup players
+  Player *player = gameEngine->getPlayers()[0];
+  Player *opponent = gameEngine->getPlayers()[1];
   player->AddArmiesToReinforcementPool(20);
   opponent->AddArmiesToReinforcementPool(10);
 
@@ -60,6 +61,7 @@ int main() {
   t4->SetPlayer(opponent);
 
   // Create orders and add them to player's orders list
+  // Done manually to make sure we test each order type
   Order *deploy = new Deploy(player, t1, 10);
   Order *advance = new Advance(player, t1, t2, 15);
   Order *airlift = new Airlift(player, t1, t3, 10);
@@ -67,9 +69,7 @@ int main() {
   Order *negotiate = new Negotiate(player, opponent);
   Order *bomb2 = new Bomb(player, t4);
   Order *blockade = new Blockade(player, t1);
-  Order *airliftFromOpponent = new Airlift(opponent, t4, t2, 5);
 
-  // 1-5: Demonstrate that every order works correctly in isolation
   player->AddOrderToPlayer(deploy);
   player->AddOrderToPlayer(advance);
   player->AddOrderToPlayer(airlift);
@@ -78,44 +78,17 @@ int main() {
   player->AddOrderToPlayer(bomb2);
   player->AddOrderToPlayer(blockade);
 
-  opponent->AddOrderToPlayer(airliftFromOpponent);
-
-  std::cout
-      << "Points 1-5: demonstrate that each order works correctly in isolation"
-      << std::endl;
-  deploy->execute();
-  std::cout << std::endl;
-  advance->execute();
-  std::cout << std::endl;
-  airlift->execute();
-  std::cout << std::endl;
-  bomb->execute();
-  std::cout << std::endl;
-  blockade->execute();
-  std::cout << std::endl;
-  negotiate->execute();
-  std::cout << std::endl;
-
-  std::cout << "=== The following two orders are disabled because of the "
-            << "negotiation order ===" << std::endl;
-  bomb2->execute();  // Disabled b/c of negotiate order
-  std::cout << std::endl;
-  airliftFromOpponent->execute();  // Disabled b/c of negotiate order
-  std::cout << std::endl;
-
-  // 6: Demonstrate that orders can be issued by the players and executed by the
-  // game engine
-  std::cout << "Point 6: Demonstrate that orders can be issued by the players and "
-               "executed by the game engine"
+  // Demonstrating that orders can be issued by the player is shown in the driver of part 3
+  std::cout << std::endl
+            << "=== Demonstrates that each order can be executed by the GameEngine and that they behave correctly ==="
             << std::endl;
+  gameEngine->ExecuteOrdersPhase();
 
   // Cleanup
-  // No need to delete territories and continent,
-  // deleted by map
+  // Territories and continent deleted by map
   // Orders are deleted by OrdersList, so no need to clean that either
+  // Players are deleted by GameEngine
   delete map;
-  delete player;
-  delete opponent;
   delete gameEngine;
   return 0;
 };

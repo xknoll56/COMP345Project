@@ -213,11 +213,15 @@ void Player::SetReinforcementPool(int amount) {
   reinforcementPool = std::max(0, amount);
 }
 
+// Return true if has orders left
 bool Player::ExecuteNextOrder() {
   std::cout << "        Executing an Order..." << std::endl;
   phase = Phase::ExecuteOrders;
   this->Notify();
   Order* order = listOfOrders->popNextOrder();
+  if (order == NULL) {
+    return false;
+  }
   order->execute();
   delete order;
   phase = Phase::None;
