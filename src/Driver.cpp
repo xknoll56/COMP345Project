@@ -1,6 +1,6 @@
 #include "GameEngine.h"
 
-//#define DRIVER
+#define DRIVER
 #ifdef DRIVER
 
 int main() {

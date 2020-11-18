@@ -20,14 +20,15 @@
 #include "GameEngine.h"
 
 // Orders List
-OrdersList::OrdersList() { 
-    ordersList = new std::vector<Order*>(); 
-    priorityLevel = 0;
+OrdersList::OrdersList() {
+  ordersList = new std::vector<Order*>();
+  priorityLevel = 0;
 }
 
 OrdersList::OrdersList(const OrdersList& toCopy) {
   // TODO implement copy constructor correctly
   ordersList = toCopy.ordersList;
+  priorityLevel = toCopy.priorityLevel;
 }
 
 OrdersList::~OrdersList() {
@@ -101,8 +102,8 @@ Order* OrdersList::popNextOrder() {
     return nullptr;
   }
   Order* order = nullptr;
-  switch (priorityLevel) { 
-    case 0: // Deploy
+  switch (priorityLevel) {
+    case 0:  // Deploy
       std::cout << "priority level: " << priorityLevel << std::endl;
       std::cout << "size: " << ordersList->size() << std::endl;
       for (int i = 0; i < ordersList->size(); i++) {
@@ -116,7 +117,7 @@ Order* OrdersList::popNextOrder() {
       }
       // There are no more deploy orders in the list
       priorityLevel++;
-    case 1: // Airlift
+    case 1:  // Airlift
       for (int i = 0; i < ordersList->size(); i++) {
         order = dynamic_cast<Airlift*>(ordersList->at(i));
         if (order) {
@@ -126,7 +127,7 @@ Order* OrdersList::popNextOrder() {
       }
       // There are no more deploy orders in the list
       priorityLevel++;
-    case 2: // Blockade
+    case 2:  // Blockade
       for (int i = 0; i < ordersList->size(); i++) {
         order = dynamic_cast<Blockade*>(ordersList->at(i));
         if (order) {
@@ -136,7 +137,7 @@ Order* OrdersList::popNextOrder() {
       }
       // There are no more deploy orders in the list
       priorityLevel++;
-    case 3: // Other
+    case 3:  // Other
       if (ordersList->size() > 0) {
         order = ordersList->at(0);
         ordersList->erase(ordersList->begin());
@@ -176,7 +177,7 @@ std::ostream& operator<<(std::ostream& out, const Order& toOutput) {
 bool Order::validate() {
   std::cout << "Order is enabled: " << isEnabled
             << ", Order wasn't executed yet: " << !wasExecuted << ", ";
-  return (isEnabled && !wasExecuted);
+  return (player != NULL && isEnabled && !wasExecuted);
 }
 
 void Order::setPlayer(Player* p) { player = p; }
@@ -185,7 +186,7 @@ void Order::disableOrder() { isEnabled = false; }
 
 Player* Order::getPlayer() { return player; }
 
-Deploy::Deploy() : Order(), territoryToDeploy(nullptr), numberOfArmies(0) {}
+Deploy::Deploy() : Order(), territoryToDeploy(), numberOfArmies(0) {}
 
 Deploy::Deploy(Player* player, Territory* territory,
                int requestedNumberOfArmies)
@@ -212,9 +213,10 @@ std::ostream& operator<<(std::ostream& out, const Deploy& toOutput) {
 
 bool Deploy::validate() {
   bool baseValidation{Order::validate()};
-  bool playerOwnsTerritory{territoryToDeploy->GetPlayer() == player};
+  bool playerOwnsTerritory{territoryToDeploy != NULL &&
+                           territoryToDeploy->GetPlayer() == player};
   std::cout << "Player owns territory: " << playerOwnsTerritory << std::endl;
-  return (baseValidation && playerOwnsTerritory);
+  return (baseValidation && territoryToDeploy != NULL && playerOwnsTerritory);
 }
 
 void Deploy::execute() {
@@ -248,8 +250,8 @@ std::ostream& Deploy::doPrint(std::ostream& out) const {
 
 Advance::Advance()
     : Order(),
-      sourceTerritory(nullptr),
-      targetTerritory(nullptr),
+      sourceTerritory(),
+      targetTerritory(),
       numberOfArmies(0),
       drawAfterConquer(true) {}
 
@@ -281,9 +283,11 @@ Advance& Advance::operator=(const Advance& rightSide) {
 
 bool Advance::validate() {
   bool baseValidation{Order::validate()};
-  bool playerOwnsSource = (sourceTerritory->GetPlayer() == player);
+  bool playerOwnsSource =
+      (sourceTerritory != NULL && sourceTerritory->GetPlayer() == player);
   bool territoriesAreAdjacent =
-      sourceTerritory->TestAdjacencyTo(targetTerritory);
+      (targetTerritory != NULL &&
+       sourceTerritory->TestAdjacencyTo(targetTerritory));
   std::cout << "Player owns source territory: " << playerOwnsSource
             << ", Territories are adjacent: " << territoriesAreAdjacent
             << std::endl;
@@ -336,7 +340,7 @@ std::ostream& operator<<(std::ostream& out, const Advance& toOutput) {
   return toOutput.doPrint(out);
 }
 
-Bomb::Bomb() : Order(), targetTerritory(nullptr) {}
+Bomb::Bomb() : Order(), targetTerritory() {}
 
 Bomb::Bomb(Player* player, Territory* targetTerritory)
     : Order(player), targetTerritory(targetTerritory) {}
@@ -359,7 +363,8 @@ std::ostream& operator<<(std::ostream& out, const Bomb& toOutput) {
 
 bool Bomb::validate() {
   bool baseValidation{Order::validate()};
-  bool playerDoesntOwnTarget{targetTerritory->GetPlayer() != player};
+  bool playerDoesntOwnTarget{targetTerritory != NULL &&
+                             targetTerritory->GetPlayer() != player};
   std::cout << "Player doesn't own target: " << playerDoesntOwnTarget
             << std::endl;
   return (baseValidation && playerDoesntOwnTarget);
@@ -389,7 +394,7 @@ std::ostream& Bomb::doPrint(std::ostream& out) const {
   return out;
 }
 
-Blockade::Blockade() : Order(), territoryToBlockade(nullptr) {}
+Blockade::Blockade() : Order(), territoryToBlockade() {}
 
 Blockade::Blockade(Player* player, Territory* territoryToBlockade)
     : Order(player) {
@@ -414,7 +419,8 @@ std::ostream& operator<<(std::ostream& out, const Blockade& toOutput) {
 
 bool Blockade::validate() {
   bool baseValidation{Order::validate()};
-  bool playerOwnsTerritory = (territoryToBlockade->GetPlayer() == player);
+  bool playerOwnsTerritory = (territoryToBlockade != NULL &&
+                              territoryToBlockade->GetPlayer() == player);
   std::cout << "Player owns territory: " << playerOwnsTerritory << std::endl;
   return (baseValidation && playerOwnsTerritory);
 }
@@ -450,7 +456,7 @@ std::ostream& Blockade::doPrint(std::ostream& out) const {
   return out;
 }
 
-Negotiate::Negotiate() : Order(), opponent(nullptr) {}
+Negotiate::Negotiate() : Order(), opponent() {}
 
 Negotiate::Negotiate(Player* player, Player* opponent) : Order(player) {
   this->opponent = opponent;
@@ -470,12 +476,15 @@ Negotiate& Negotiate::operator=(const Negotiate& rightSide) {
 
 bool Negotiate::validate() {
   bool baseValidation{Order::validate()};
+  bool opponentIsDefined{opponent != NULL};
   bool opponentIsNotPlayer{player != opponent};
   bool opponentIsNotNeutralPlayer{opponent != GameEngine::GetNeutralPlayer()};
-  std::cout << "Opponent is not player : " << opponentIsNotPlayer << ", ";
+  std::cout << "Opponent is defined: " << opponentIsDefined
+            << ", Opponent is not player : " << opponentIsNotPlayer << ", ";
   std::cout << "Opponent is not neutral player : " << opponentIsNotNeutralPlayer
             << std::endl;
-  return (baseValidation && opponentIsNotPlayer && opponentIsNotNeutralPlayer);
+  return (baseValidation && opponentIsDefined && opponentIsNotPlayer &&
+          opponentIsNotNeutralPlayer);
 }
 
 void Negotiate::execute() {
@@ -514,8 +523,8 @@ std::ostream& operator<<(std::ostream& out, const Negotiate& toOutput) {
 
 Airlift::Airlift()
     : Order(),
-      sourceTerritory(nullptr),
-      targetTerritory(nullptr),
+      sourceTerritory(),
+      targetTerritory(),
       numberOfArmies(0),
       drawAfterConquer(true) {}
 
@@ -549,7 +558,8 @@ Airlift& Airlift::operator=(const Airlift& rightSide) {
 
 bool Airlift::validate() {
   bool baseValidation{Order::validate()};
-  bool playerOwnsSource = (sourceTerritory->GetPlayer() == player);
+  bool playerOwnsSource =
+      (sourceTerritory != NULL && sourceTerritory->GetPlayer() == player);
   std::cout << "Player owns source territory: " << playerOwnsSource
             << std::endl;
   return (baseValidation && playerOwnsSource);

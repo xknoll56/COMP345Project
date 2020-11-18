@@ -9,7 +9,7 @@
 //
 // Based on the 'https://www.warzone.com/' game.
 
-#define ORDERS_DRIVER
+//#define ORDERS_DRIVER
 #ifdef ORDERS_DRIVER
 
 #include <iostream>
@@ -77,6 +77,10 @@ int main() {
   player->AddOrderToPlayer(negotiate);
   player->AddOrderToPlayer(bomb2);
   player->AddOrderToPlayer(blockade);
+
+  Order *test = new Deploy();
+  test->execute();
+  delete test;
 
   // Demonstrating that orders can be issued by the player is shown in the driver of part 3
   std::cout << std::endl
