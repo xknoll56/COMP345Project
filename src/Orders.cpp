@@ -20,7 +20,10 @@
 #include "GameEngine.h"
 
 // Orders List
-OrdersList::OrdersList() { ordersList = new std::vector<Order*>(); }
+OrdersList::OrdersList() { 
+    ordersList = new std::vector<Order*>(); 
+    priorityLevel = 0;
+}
 
 OrdersList::OrdersList(const OrdersList& toCopy) {
   // TODO implement copy constructor correctly
@@ -93,13 +96,57 @@ void OrdersList::visitOrders(OrdersVisitor* visitor) {
   }
 }
 
-Order* OrdersList::popNextOrder() { // TODO - get the elemenets in their correct prority order.
+Order* OrdersList::popNextOrder() {
   if (ordersList->size() < 1) {
-    return NULL;
+    return nullptr;
   }
-  Order* toReturn = (*ordersList)[0];
-  ordersList->erase(ordersList->begin());
-  return toReturn;
+  Order* order = nullptr;
+  switch (priorityLevel) { 
+    case 0: // Deploy
+      std::cout << "priority level: " << priorityLevel << std::endl;
+      std::cout << "size: " << ordersList->size() << std::endl;
+      for (int i = 0; i < ordersList->size(); i++) {
+        std::cout << "index: " << i << std::endl;
+        std::cout << "order: " << ordersList->at(i) << std::endl;
+        order = dynamic_cast<Deploy*>(ordersList->at(i));
+        if (order) {
+          ordersList->erase(ordersList->begin() + i);
+          return order;
+        }
+      }
+      // There are no more deploy orders in the list
+      priorityLevel++;
+    case 1: // Airlift
+      for (int i = 0; i < ordersList->size(); i++) {
+        order = dynamic_cast<Airlift*>(ordersList->at(i));
+        if (order) {
+          ordersList->erase(ordersList->begin() + i);
+          return order;
+        }
+      }
+      // There are no more deploy orders in the list
+      priorityLevel++;
+    case 2: // Blockade
+      for (int i = 0; i < ordersList->size(); i++) {
+        order = dynamic_cast<Blockade*>(ordersList->at(i));
+        if (order) {
+          ordersList->erase(ordersList->begin() + i);
+          return order;
+        }
+      }
+      // There are no more deploy orders in the list
+      priorityLevel++;
+    case 3: // Other
+      if (ordersList->size() > 0) {
+        order = ordersList->at(0);
+        ordersList->erase(ordersList->begin());
+        return order;
+      }
+      // There are no more orders in the list
+      priorityLevel = 0;
+    default:
+      return nullptr;
+  }
 }
 
 // Orders
