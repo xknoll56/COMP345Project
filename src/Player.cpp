@@ -119,7 +119,7 @@ bool Player::IssueOrder() {
   // TODO - Why are they making us call toAttack() every time??
   phase = Phase::IssueOrders;
   this->Notify();
-  if (reinforcementPool > 0) {
+  if (reinforcementPool > 0  && ToDefend().size()>0) {
     std::cout << "            Issuing a Deploy Order..." << std::endl;
     // TODO - Deploy based on threat level
     Territory* territory = ToDefend().at(rand() % ToDefend().size());

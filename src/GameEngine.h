@@ -7,6 +7,7 @@
 #include "Orders.h"
 #include "Map.h"
 
+
 class Map;
 
 class GameEngine {
@@ -29,6 +30,7 @@ class GameEngine {
   bool ExecuteOrdersPhase();
   void RoundRobin(bool(Player::*func)());
   std::vector<Player*> getPlayers();
+  std::vector<Player*>* getPlayersAdress();
   static Player* GetNeutralPlayer();
   Map* GetMap();
   void PlayerDrawCard(Player* player);

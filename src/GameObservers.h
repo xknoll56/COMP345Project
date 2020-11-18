@@ -9,7 +9,6 @@
 //
 // Based on the 'https://www.warzone.com/' game.
 #pragma once
-
 #include <algorithm>
 #include <iostream>
 #include <list>
@@ -20,6 +19,7 @@ class Player;
 class Subject;
 class Order;
 class Card;
+class GameEngine;
 
 //Base observer abstract class.
 class Observer {
@@ -69,13 +69,13 @@ public:
 	//The update method will calculate the percent of territories owned by each player and determine if a player is still  in the game or has won 
 	void Update();
 	//Adds a player
-	void AddPlayer(Player* player);
+	void AddPlayers(GameEngine* ge);
 	//Starts the observer, should be done after all players are attached and map is distributed.
 	void Start();
 
 private:
 	//An array of players
-	std::vector<Player*> players;
+	std::vector<Player*>* players = nullptr;
 	//Total number of territories on the map
 	int numTerritories;
 	bool gameStarted = false;
@@ -88,7 +88,7 @@ public:
 	//Update will display which player is currently playing on which phase
 	void Update();
 	//Adds a player to the array
-	void AddPlayer(Player* player);
+	void AddPlayers(GameEngine* ge);
 
 private:
 	//Displays information about reinforcements
@@ -98,7 +98,7 @@ private:
 	//Displays information about orders being executed
 	void UpdateExecuteOrders(Player* player);
 	//An array of all the players
-	std::vector<Player*> players;
+	std::vector<Player*>* players = nullptr;
 	//The current phase that a player is on
 	Phase currentPhase = Phase::None;
 
