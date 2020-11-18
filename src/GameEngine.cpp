@@ -87,7 +87,7 @@ void GameEngine::Init() {
 			p->Attach(gameStatsObs);
 			p->Attach(phaseObs);
 		}
-		gameStatsObs->Start();
+		
 	}
 		
 	/* 5. Create a deck of cards. */ 
@@ -139,6 +139,8 @@ void GameEngine::StartupPhase() {
       else
           std::cout << "Incorrect number of players. Players have no army.";
   }
+
+  gameStatsObs->Start();
 
 }
 
