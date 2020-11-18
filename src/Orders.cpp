@@ -617,8 +617,8 @@ void MoveTroops::AttackTarget() {
     }
   }
   std::cout << "Attacker killed " << ennemyKilledArmies << " ennemy armies on "
-            << target << ", " << attackerKilledArmies
-            << " attacking armies from " << source << " were killed.";
+            << *target->GetName() << ", " << attackerKilledArmies
+            << " attacking armies from " << *source->GetName() << " were killed.";
 
   // If no troops left in target, player takes ownership
   // and we assign the number of surviving armies to the territory
@@ -630,7 +630,7 @@ void MoveTroops::AttackTarget() {
 
     target->SetTroops(numberOfArmies);
     attackerConquered = true;
-    std::cout << " " << player << " conquered " << target
+    std::cout << " " << player << " conquered " << *target->GetName()
               << " which now contains " << numberOfArmies << " troops.";
   }
 }
