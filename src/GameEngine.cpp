@@ -18,6 +18,7 @@ void GameEngine::Init() {
 		<< "artic.map\nbigeurope.map\ncanada.map\neurope.map\nfrance.map\nsolar.map\nswiss.map\n";
 
 	// Loops until the user enters a valid map
+	bool validMap = false;
 	do {
 		std::cout << "\nEnter your choice of map: ";
 		std::cin >> map_name;
@@ -26,7 +27,14 @@ void GameEngine::Init() {
 
 		if (map == nullptr)
 			std::cout << "Please try again." << std::endl;
-	} while (map == nullptr);
+		else {
+			validMap = map->ValidateMap();
+			if (!validMap)
+				std::cout << "Not a valid map, please try again\n";
+		}
+
+
+	} while (map == nullptr || !validMap);
 	
 	// Deleting the map loader
 	delete ml;

@@ -74,7 +74,7 @@ bool Graph::TravelledAll() {
 
 Graph::Graph() {}
 void Graph::DepthFirstSearch(Territory* position) {
-	std::cout << "entering territory " << *position->GetName() << std::endl;
+	//std::cout << "entering territory " << *position->GetName() << std::endl;
 	position->SetDiscovered(true);
 	for (Territory* neighbor : *position->GetNeighbors()) {
 		if (!neighbor->GetDiscovered() &&
@@ -176,5 +176,9 @@ bool Map::ValidateMap() {
 	for (Continent* continent : GetContinents()) {
 		if (!continent->ValidateGraph()) return false;
 	}
+	if (!valid)
+		std::cout << "Invalid map" << std::endl;
+	else
+		std::cout << "Map validated\n";
 	return valid;
 }
