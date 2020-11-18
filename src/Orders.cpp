@@ -178,7 +178,7 @@ void Deploy::execute() {
   }
   territoryToDeploy->AddTroops(numberOfArmies);
   std::cout << "DEPLOY ORDER: Deployed " << numberOfArmies << " troops to "
-            << territoryToDeploy << std::endl;
+            << *territoryToDeploy->GetName() << std::endl;
 }
 
 void Deploy::acceptVisitor(OrdersVisitor* visitor) {
@@ -187,7 +187,7 @@ void Deploy::acceptVisitor(OrdersVisitor* visitor) {
 
 std::ostream& Deploy::doPrint(std::ostream& out) const {
   out << "Deploy orders by " << player << " of " << numberOfArmies
-      << " troops on " << territoryToDeploy;
+      << " troops on " << *territoryToDeploy->GetName();
   return out;
 }
 
@@ -266,8 +266,8 @@ void Advance::disableDrawAfterConquer() { drawAfterConquer = false; }
 Player* Advance::getOpponent() { return targetTerritory->GetPlayer(); }
 
 std::ostream& Advance::doPrint(std::ostream& out) const {
-  out << "Advance order of " << numberOfArmies << " from " << sourceTerritory
-      << " to " << targetTerritory;
+    out << "Advance order of " << numberOfArmies << " from " << *sourceTerritory->GetName()
+      << " to " << *targetTerritory->GetName();
   return out;
 }
 
@@ -314,7 +314,7 @@ void Bomb::execute() {
       std::floor((float)targetTerritory->GetTroops() / 2.0f);
   targetTerritory->RemoveTroops(numberOfDestroyedArmies);
   std::cout << "BOMB ORDER: destroyed " << numberOfDestroyedArmies
-            << " troops in " << targetTerritory << std::endl;
+            << " troops in " << *targetTerritory->GetName() << std::endl;
 }
 
 void Bomb::acceptVisitor(OrdersVisitor* visitor) { visitor->VisitBomb(this); }
@@ -322,7 +322,7 @@ void Bomb::acceptVisitor(OrdersVisitor* visitor) { visitor->VisitBomb(this); }
 Player* Bomb::getOpponent() { return targetTerritory->GetPlayer(); }
 
 std::ostream& Bomb::doPrint(std::ostream& out) const {
-  out << "Bomb order on " << targetTerritory;
+  out << "Bomb order on " << *targetTerritory->GetName();
   return out;
 }
 
@@ -371,7 +371,7 @@ void Blockade::execute() {
   territoryToBlockade->SetPlayer(GameEngine::GetNeutralPlayer());
   std::cout
       << "BLOCKADE ORDER: " << numberOfTroops << " troops were added to "
-      << territoryToBlockade
+      << *territoryToBlockade->GetName()
       << ", and ownership of the territory was transferred to the null player."
       << std::endl;
 }
@@ -381,7 +381,7 @@ void Blockade::acceptVisitor(OrdersVisitor* visitor) {
 }
 
 std::ostream& Blockade::doPrint(std::ostream& out) const {
-  out << "Blockade order on " << territoryToBlockade;
+  out << "Blockade order on " << *territoryToBlockade->GetName();
   return out;
 }
 
@@ -520,8 +520,8 @@ void Airlift::disableDrawAfterConquer() { drawAfterConquer = false; }
 Player* Airlift::getOpponent() { return targetTerritory->GetPlayer(); }
 
 std::ostream& Airlift::doPrint(std::ostream& out) const {
-  std::cout << "Airlift order from " << sourceTerritory << " to "
-            << targetTerritory;
+  std::cout << "Airlift order from " << *sourceTerritory->GetName() << " to "
+            << *targetTerritory->GetName();
   return out;
 }
 
@@ -588,8 +588,8 @@ void MoveTroops::MoveArmies() {
   }
   source->RemoveTroops(numberOfArmies);
   target->AddTroops(numberOfArmies);
-  std::cout << "Moved " << numberOfArmies << " from " << source << " to "
-            << target << std::endl;
+  std::cout << "Moved " << numberOfArmies << " from " << *source->GetName() << " to "
+            << *target->GetName() << std::endl;
 }
 
 void MoveTroops::AttackTarget() {
