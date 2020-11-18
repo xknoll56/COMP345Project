@@ -28,6 +28,7 @@ class Player : public Subject {
   // Vector of pointers of territories
   std::vector<Territory*> ownedTerritories;
   std::vector<Territory*> toAttack;
+  std::vector<Territory*> toDefend;
   // Vector of pointers of cards
   std::vector<Card*> handOfCards;
   // Pointer to a list of orders

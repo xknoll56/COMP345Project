@@ -48,6 +48,12 @@ public:
 	int getId();
 	//Get the name of the subject
 	std::string GetName();
+	//Copy constructor
+	Subject(const Subject& toCopy);
+	//Assignment operator
+	Subject operator=(const Subject& toCopy);
+	//Stream overload
+	friend std::ostream& operator<<(std::ostream& out, const Subject& subject);
 
 private:
 	//TODO, these should go into player
@@ -73,9 +79,18 @@ public:
 	//Starts the observer, should be done after all players are attached and map is distributed.
 	void Start();
 
+	//Copy constructor
+	GameStatisticsObserver(const GameStatisticsObserver& toCopy);
+	//Assignment operator
+	GameStatisticsObserver operator=(const GameStatisticsObserver& toCopy);
+	//Stream overload
+	friend std::ostream& operator<<(std::ostream& out, const GameStatisticsObserver& subject);
+
 private:
 	//An array of players
 	std::vector<Player*>* players = nullptr;
+	//Player names to keep track of everyone still remaining
+	std::vector<std::string> playerNames;
 	//Total number of territories on the map
 	int numTerritories;
 	bool gameStarted = false;
@@ -89,6 +104,13 @@ public:
 	void Update();
 	//Adds a player to the array
 	void AddPlayers(GameEngine* ge);
+
+	//Copy constructor
+	PhaseObserver(const PhaseObserver& toCopy);
+	//Assignment operator
+	PhaseObserver operator=(const PhaseObserver& toCopy);
+	//Stream overload
+	friend std::ostream& operator<<(std::ostream& out, const PhaseObserver& subject);
 
 private:
 	//Displays information about reinforcements
