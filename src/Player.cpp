@@ -10,7 +10,6 @@
 // Based on the 'https://www.warzone.com/' game.
 
 #include "Player.h"
-#include "Orders.h"
 
 #include <algorithm>
 
@@ -81,13 +80,13 @@ std::ostream& operator<<(std::ostream& out, const Player& toOutput) {
 }
 
 // Returns a vector of pointers of territories to defend
-std::vector<Territory*> Player::ToDefend() {
-  return ownedTerritories;
+std::vector<Territory*> Player::ToDefend() { 
+    return toDefend; 
 }
 
 void Player::GenerateToDefend() {
-  // TODO - priority list rather than randomizing.
-  std::random_shuffle(ownedTerritories.begin(), ownedTerritories.end());
+  toDefend = ownedTerritories;
+  std::random_shuffle(toDefend.begin(), toDefend.end());
 }
 
 // Returns a vector of pointers of territories to attack
@@ -131,10 +130,7 @@ bool Player::IssueOrder() {
   }
   if (handOfCards.size() > 0) {
     std::cout << "            Issuing a Card Order..." << std::endl;
-    Order* orderFromCard = handOfCards.back()->play();
-    ConfigureOrdersVisitor configurator(this);
-    orderFromCard->acceptVisitor(&configurator);
-    AddOrderToPlayer(orderFromCard);
+    handOfCards.back()->play();
     handOfCards.pop_back();
     return true;
   }
@@ -154,7 +150,21 @@ bool Player::IssueOrder() {
     std::cout << "_fail" << std::endl;
     toAttack.pop_back();
   }
-  // TODO - DEFEND;
+  while (toDefend.size() > 0) {
+    std::cout << "            Issuing an Advance (Defense) Order..." << std::endl;
+    int troops;
+    for (Territory* t : *ToDefend().back()->GetNeighbors()) {
+      troops = t->GetAvailableTroops();
+      if ((troops > 0) && (t->GetPlayer() == this)) {
+        t->IncreaseStandByTroops(troops);
+        AddOrderToPlayer(new Advance(this, t, ToDefend().back(), troops));
+        std::cout << "_success" << std::endl;
+        return true;
+      }
+    }
+    std::cout << "_fail" << std::endl;
+    toDefend.pop_back();
+  }
   phase = Phase::None;
   return false;
 }
