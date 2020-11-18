@@ -251,7 +251,6 @@ bool Player::ExecuteNextOrder() {
 }
 
 void Player::DrawCard() { gameEngine->PlayerDrawCard(this); }
-
 Phase Player::GetPhase() { return phase; }
-
 OrdersList* Player::GetOrdersList() { return listOfOrders; }
+GameEngine* Player::GetGameEngine() { return this->gameEngine; }

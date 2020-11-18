@@ -841,7 +841,37 @@ void ConfigureOrdersVisitor::VisitDeploy(Deploy* order) {
   order->setTerritoryToDeploy(player->ToDefend()[0]);
   order->setNumberOfArmies(player->GetReinforcementPoolCount());
 }
-void ConfigureOrdersVisitor::VisitAirlift(Airlift* order) {}
-void ConfigureOrdersVisitor::VisitBomb(Bomb* order) {}
-void ConfigureOrdersVisitor::VisitBlockade(Blockade* order) {}
-void ConfigureOrdersVisitor::VisitNegotiate(Negotiate* order) {}
+void ConfigureOrdersVisitor::VisitAirlift(Airlift* order) {
+  const std::vector<Territory*>* territories = player->GetOwnedTerritories();
+  int troops = 0;
+  int i = 0;
+  Territory* source = nullptr;
+  // 12 attemps
+  while ((troops < 1) && (i < 12)) {
+    source = territories->at(rand() % territories->size());
+    troops = source->GetAvailableTroops();
+  }
+  order->setNumberOfArmies(troops);
+  order->setSourceTerritory(source);
+  order->setTargetTerritory(territories->at(rand() % territories->size()));
+}
+void ConfigureOrdersVisitor::VisitBomb(Bomb* order) { 
+  Territory* target = nullptr;
+  player->GenerateToAttack();
+  std::vector<Territory*> territories = player->ToAttack();
+  if (territories.size() > 0) {
+    target = territories.at(0);
+    for (Territory* t : player->ToAttack()) {
+      if (t->GetTroops() > target->GetTroops()) {
+        target = t;
+      }
+    }
+  }
+  order->setTargetTerritory(target);
+}
+void ConfigureOrdersVisitor::VisitBlockade(Blockade* order) {
+  order->setTerritory(player->GetOwnedTerritories()->at(rand() % player->GetOwnedTerritories()->size()));
+}
+void ConfigureOrdersVisitor::VisitNegotiate(Negotiate* order) {
+  order->setOpponent(player->GetGameEngine()->getPlayers().at(rand() % player->GetGameEngine()->getPlayers().size()));
+}

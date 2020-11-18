@@ -83,4 +83,5 @@ class Player : public Subject {
   void GenerateToAttack();
   void GenerateToDefend();
   OrdersList* GetOrdersList();
+  GameEngine* GetGameEngine();
 };
