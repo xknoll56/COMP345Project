@@ -93,6 +93,12 @@ void OrdersList::visitOrders(OrdersVisitor* visitor) {
   }
 }
 
+Order* OrdersList::popNextOrder() {
+  Order* toReturn = (*ordersList)[0];
+  ordersList->erase(ordersList->begin());
+  return toReturn;
+}
+
 // Orders
 Order::Order() : player(), isEnabled(true) {}
 

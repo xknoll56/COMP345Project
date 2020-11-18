@@ -205,6 +205,9 @@ class OrdersList {
   // reserved keyword, which drove Visual Studio nuts
   void remove(int position);
 
+  // Returns the next order in the orders list and removes it from the orders list
+  Order* popNextOrder();
+
   friend std::ostream& operator<<(std::ostream& outs,
                                   const OrdersList& toOutput);
   int getListSize();
