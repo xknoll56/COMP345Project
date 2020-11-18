@@ -130,7 +130,8 @@ bool Player::IssueOrder() {
   }
   if (handOfCards.size() > 0) {
     std::cout << "            Issuing a Card Order..." << std::endl;
-    handOfCards.at(0)->play();
+    handOfCards.back()->play();
+    handOfCards.pop_back();
     return true;
   }
   while (toAttack.size() > 0) {

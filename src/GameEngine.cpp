@@ -92,16 +92,16 @@ void GameEngine::Init() {
 		
 	deck = new Deck();
 	/* 5. Create a deck of cards. */ 
-	deck->addCard(new BombCard());
-    deck->addCard(new ReinforcementCard());
-    deck->addCard(new BlockadeCard());
-    deck->addCard(new AirliftCard());
-    deck->addCard(new DiplomacyCard());
-    deck->addCard(new BombCard());
-    deck->addCard(new ReinforcementCard());
-    deck->addCard(new BlockadeCard());
-    deck->addCard(new AirliftCard());
-    deck->addCard(new DiplomacyCard());
+	deck->addCard(new BombCard(deck));
+    deck->addCard(new ReinforcementCard(deck));
+    deck->addCard(new BlockadeCard(deck));
+    deck->addCard(new AirliftCard(deck));
+    deck->addCard(new DiplomacyCard(deck));
+    deck->addCard(new BombCard(deck));
+    deck->addCard(new ReinforcementCard(deck));
+    deck->addCard(new BlockadeCard(deck));
+    deck->addCard(new AirliftCard(deck));
+    deck->addCard(new DiplomacyCard(deck));
 
 	// Displaying the deck information to the user
 	std::cout << "\nA deck of 10 cards has been created. " << std::endl; // change 10 to deck.size of something like that
