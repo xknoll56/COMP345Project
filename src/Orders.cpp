@@ -30,8 +30,10 @@ OrdersList::OrdersList(const OrdersList& toCopy) {
 OrdersList::~OrdersList() {
   // The orders don't really deserve an existence outside of the orders list
   // so we'll delete them on the orders list's destruction
-  for (auto order : *ordersList) {
-    delete order;
+  if (ordersList->size() > 0) {
+    for (auto order : *ordersList) {
+      delete order;
+    }  
   }
   ordersList->clear();
   delete ordersList;

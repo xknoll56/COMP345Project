@@ -13,7 +13,8 @@
 
 #include <algorithm>
 
-Player::Player() {}
+Player::Player()
+    : gameEngine(), listOfOrders(), phase(Phase::None), reinforcementPool(0) {}
 
 Player::Player(GameEngine* gameEngine)
     : gameEngine(gameEngine),

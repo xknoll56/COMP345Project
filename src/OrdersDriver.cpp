@@ -16,12 +16,16 @@
 #include <string>
 
 #include "Cards.h"
+#include "GameEngine.h"
 #include "Map.h"
 #include "Orders.h"
 #include "Player.h"
 
 int main() {
-  return 0;
+  // Create a game engine
+  GameEngine *gameEngine = new GameEngine();
+  gameEngine->Init();
+
   // Create a map
   Map *map = new Map(1, 4);
   Continent *continent = map->CreateContinent("America", 10);
@@ -40,14 +44,9 @@ int main() {
   t3->AddTroops(3);
   t4->AddTroops(10);
 
-  // Create a deck of cards
-  Deck *deckOfCards = new Deck();
-  Card *bombCard = new BombCard();
-  deckOfCards->addCard(bombCard);
-
   // Create and setup players
-  Player *player = new Player();
-  Player *opponent = new Player();
+  Player *player = new Player(gameEngine);
+  Player *opponent = new Player(gameEngine);
   player->AddArmiesToReinforcementPool(20);
   opponent->AddArmiesToReinforcementPool(10);
 
@@ -70,6 +69,7 @@ int main() {
   Order *blockade = new Blockade(player, t1);
   Order *airliftFromOpponent = new Airlift(opponent, t4, t2, 5);
 
+  // 1-5: Demonstrate that every order works correctly in isolation
   player->AddOrderToPlayer(deploy);
   player->AddOrderToPlayer(advance);
   player->AddOrderToPlayer(airlift);
@@ -80,6 +80,9 @@ int main() {
 
   opponent->AddOrderToPlayer(airliftFromOpponent);
 
+  std::cout
+      << "Points 1-5: demonstrate that each order works correctly in isolation"
+      << std::endl;
   deploy->execute();
   std::cout << std::endl;
   advance->execute();
@@ -100,15 +103,20 @@ int main() {
   airliftFromOpponent->execute();  // Disabled b/c of negotiate order
   std::cout << std::endl;
 
+  // 6: Demonstrate that orders can be issued by the players and executed by the
+  // game engine
+  std::cout << "Point 6: Demonstrate that orders can be issued by the players and "
+               "executed by the game engine"
+            << std::endl;
+
   // Cleanup
   // No need to delete territories and continent,
-  // cleaned up by map
+  // deleted by map
   // Orders are deleted by OrdersList, so no need to clean that either
-  // Cards are deleted by the deck or hand that contains it
   delete map;
   delete player;
   delete opponent;
-  delete deckOfCards;
+  delete gameEngine;
   return 0;
 };
 #endif
