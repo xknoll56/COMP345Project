@@ -51,7 +51,9 @@ GameStatisticsObserver::GameStatisticsObserver(int numTerritories) {
 
 GameStatisticsObserver::~GameStatisticsObserver() {
 	//The array should be cleared but the players are deleted in game engine.
-	//players.clear();
+	playerNames.clear();
+	//players are deleted elsewhere
+	players = nullptr;
 }
 
 void GameStatisticsObserver::Start() { gameStarted = true; }
@@ -81,9 +83,11 @@ void GameStatisticsObserver::Update() {
 				}
 			}
 			if (!found) {
-				std::cout << "\n***************Player " << playerNames.at(index) << " has been eliminated.*******************\n";
-				playerNames.erase(playerNames.begin() + index);
-				if (playerNames.size() == 1) {
+				if (playerNames.size() > 1) {
+					std::cout << "\n***************Player " << playerNames.at(index) << " has been eliminated.*******************\n";
+					playerNames.erase(playerNames.begin() + index);
+				}
+				else{
 					std::cout << "\n***************Player " << playerNames.at(index) << " has won the game.*******************\n";
 				}
 			}
