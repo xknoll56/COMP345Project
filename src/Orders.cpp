@@ -825,6 +825,7 @@ ConfigureOrdersVisitor& ConfigureOrdersVisitor::operator=(
   player = rightSide.player;
   return *this;
 }
+ConfigureOrdersVisitor::~ConfigureOrdersVisitor() {}
 
 void ConfigureOrdersVisitor::VisitDeploy(Deploy* order) {}
 void ConfigureOrdersVisitor::VisitAirlift(Airlift* order) {}
