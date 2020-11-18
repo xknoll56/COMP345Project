@@ -827,7 +827,10 @@ ConfigureOrdersVisitor& ConfigureOrdersVisitor::operator=(
 }
 ConfigureOrdersVisitor::~ConfigureOrdersVisitor() {}
 
-void ConfigureOrdersVisitor::VisitDeploy(Deploy* order) {}
+void ConfigureOrdersVisitor::VisitDeploy(Deploy* order) {
+  order->setTerritoryToDeploy(player->ToDefend()[0]);
+  order->setNumberOfArmies(player->GetReinforcementPoolCount());
+}
 void ConfigureOrdersVisitor::VisitAirlift(Airlift* order) {}
 void ConfigureOrdersVisitor::VisitBomb(Bomb* order) {}
 void ConfigureOrdersVisitor::VisitBlockade(Blockade* order) {}

@@ -133,6 +133,7 @@ bool Player::IssueOrder() {
     std::cout << "            Issuing a Card Order..." << std::endl;
     Order* order = handOfCards.back()->play();
     ConfigureOrdersVisitor configurator(this);
+    order->setPlayer(this);
     order->acceptVisitor(&configurator);
     AddOrderToPlayer(order);
     handOfCards.pop_back();
