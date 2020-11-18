@@ -96,7 +96,9 @@ std::vector<Territory*> Player::ToAttack() {
   for (int i = 0; i < vectorAllTerritories->size(); i++) {
     territory = vectorAllTerritories->at(i);
     if (territory->GetPlayer() != this) {
-      territoriesToAttack.push_back(territory);
+      if (territory->IsNeighborTo(this)) {
+        territoriesToAttack.push_back(territory);
+      }
     }
   }
   // TODO - return this list as a priority list rather than randomizing.
