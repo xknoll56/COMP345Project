@@ -41,6 +41,7 @@ class Territory {
   void IncreaseToDeploy(int amount);
   void SetToDeploy(int toDeploy);
   int GetToDeploy();
+  bool IsNeighborTo(Player* player);
 };
 
 class Graph {

@@ -63,8 +63,9 @@ void GameEngine::Init() {
 		setObs = true;
 		
 	// Initializing the Observers
-	gameStatsObs = new GameStatisticsObserver(map->GetTerritories()->size());
-	phaseObs = new PhaseObserver();
+        gameStatsObs =
+            new GameStatisticsObserver(map->GetTerritories()->size());
+        phaseObs = new PhaseObserver();
 
 	// Displaying the observer information to the user
 	std::cout << "\nObservers are now " << (setObs ? "enabled." : "disabled.") << std::endl;
@@ -88,16 +89,16 @@ void GameEngine::Init() {
 	}
 		
 	/* 5. Create a deck of cards. */ 
-	deck.addCard(new BombCard{10});
-	deck.addCard(new ReinforcementCard{20});
-	deck.addCard(new BlockadeCard{30});
-	deck.addCard(new AirliftCard{40});
-	deck.addCard(new DiplomacyCard{50});
-	deck.addCard(new BombCard{60});
-	deck.addCard(new ReinforcementCard{70});
-	deck.addCard(new BlockadeCard{80});
-	deck.addCard(new AirliftCard{90});
-	deck.addCard(new DiplomacyCard{100});
+	deck.addCard(new BombCard());
+    deck.addCard(new ReinforcementCard());
+    deck.addCard(new BlockadeCard());
+    deck.addCard(new AirliftCard());
+    deck.addCard(new DiplomacyCard());
+    deck.addCard(new BombCard());
+    deck.addCard(new ReinforcementCard());
+    deck.addCard(new BlockadeCard());
+    deck.addCard(new AirliftCard());
+    deck.addCard(new DiplomacyCard());
 
 	// Displaying the deck information to the user
 	std::cout << "\nA deck of 10 cards has been created. " << std::endl; // change 10 to deck.size of something like that
@@ -193,6 +194,8 @@ bool GameEngine::ExecuteOrdersPhase() {
   RoundRobin(&Player::ExecuteNextOrder);
   return true;
 }
+
+Map* GameEngine::GetMap() { return map; }
 
 Player* GameEngine::neutralPlayer = new Player();
 

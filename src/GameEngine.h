@@ -28,5 +28,5 @@ class GameEngine {
   void RoundRobin(bool(Player::*func)());
   std::vector<Player*> getPlayers();
   static Player* GetNeutralPlayer();
-
+  Map* GetMap();
 };

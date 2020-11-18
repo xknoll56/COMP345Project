@@ -45,6 +45,15 @@ bool Territory::TestAdjacencyTo(Territory* toTest) {
 		neighbors.end());
 }
 
+bool Territory::IsNeighborTo(Player* player) {
+  for (Territory* t: *GetNeighbors()) {
+    if (t->GetPlayer() == player) {
+      return true;
+	}
+  }
+  return false;
+}
+
 int Territory::GetTotalTroops() { return troops + toDeploy; }
 void Territory::IncreaseToDeploy(int amount) { toDeploy += amount; }
 void Territory::SetToDeploy(int toDeploy) { this->toDeploy = toDeploy; }
