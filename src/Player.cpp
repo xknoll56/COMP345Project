@@ -85,12 +85,17 @@ std::vector<Territory*> Player::ToDefend() {
     return toDefend; 
 }
 
+/*
+Initiates the list of territories that are to be defended in priority
+*/
 void Player::GenerateToDefend() {
   toDefend = ownedTerritories;
   std::random_shuffle(toDefend.begin(), toDefend.end());
 }
 
-// Returns a vector of pointers of territories to attack
+/*
+Initiates the list of territories that are to be attacked in priority
+*/
 void Player::GenerateToAttack() {
   const std::vector<Territory*>* const vectorAllTerritories =
       gameEngine->GetMap()->GetTerritories();
@@ -111,7 +116,9 @@ void Player::GenerateToAttack() {
 
 std::vector<Territory*> Player::ToAttack() { return toAttack; }
 
-// Creates an Order object and adds it to the vector of pointers of orders
+/*
+Automatically creates an order and adds it to the player's list of orders.
+*/
 bool Player::IssueOrder() {
   phase = Phase::IssueOrders;
   this->Notify();
@@ -217,7 +224,10 @@ void Player::SetReinforcementPool(int amount) {
   reinforcementPool = std::max(0, amount);
 }
 
-// Return true if has orders left
+
+/*
+Executes the highest priority order as returned by popNextOrder()
+*/
 bool Player::ExecuteNextOrder() {
   phase = Phase::ExecuteOrders;
   this->Notify();
