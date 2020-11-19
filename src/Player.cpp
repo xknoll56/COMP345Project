@@ -91,8 +91,6 @@ void Player::GenerateToDefend() {
 }
 
 // Returns a vector of pointers of territories to attack
-// TODO - IMPORTANT TODO BEFORE A2 SUBMISSION!!! this should only return
-// neighbors!
 void Player::GenerateToAttack() {
   const std::vector<Territory*>* const vectorAllTerritories =
       gameEngine->GetMap()->GetTerritories();
@@ -107,7 +105,6 @@ void Player::GenerateToAttack() {
       }
     }
   }
-  // TODO - return this list as a priority list rather than randomizing.
   std::random_shuffle(territoriesToAttack.begin(), territoriesToAttack.end());
   toAttack =  territoriesToAttack;
 }
@@ -116,14 +113,12 @@ std::vector<Territory*> Player::ToAttack() { return toAttack; }
 
 // Creates an Order object and adds it to the vector of pointers of orders
 bool Player::IssueOrder() {
-  // TODO - Why are they making us call toAttack() every time??
   phase = Phase::IssueOrders;
   this->Notify();
   if (reinforcementPool > 0  && ToDefend().size()>0) {
-    // TODO - Deploy based on threat level
     Territory* territory = ToDefend().at(rand() % ToDefend().size());
     territory->IncreaseToDeploy(1);
-    AddOrderToPlayer(new Deploy(this, territory, 1));  // TODO - make sure these are getting destroyed!
+    AddOrderToPlayer(new Deploy(this, territory, 1));
     reinforcementPool--;
     return true;
   }

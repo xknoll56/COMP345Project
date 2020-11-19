@@ -26,7 +26,6 @@ OrdersList::OrdersList() {
 }
 
 OrdersList::OrdersList(const OrdersList& toCopy) {
-  // TODO implement copy constructor correctly
   ordersList = toCopy.ordersList;
   priorityLevel = toCopy.priorityLevel;
 }
@@ -577,7 +576,6 @@ void Airlift::execute() {
                         numberOfArmies);
   moveTroops.ExecuteTheMove();
   if (moveTroops.AttackerConqueredTarget() && drawAfterConquer) {
-    // TODO Player draws card
     DisableCardDrawVisitor disableDrawVisitor(player);
     player->GetOrdersList()->visitOrders(&disableDrawVisitor);
     player->DrawCard();
