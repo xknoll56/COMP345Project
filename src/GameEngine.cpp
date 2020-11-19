@@ -10,7 +10,7 @@
 #define MGL_DRIVER
 #ifdef MGL_DRIVER
 #define STOP std::cin.get();
-#define LOG(x) std::cout << x << std::endl
+#define LOG(x) std::cout << "[Main Game Loop Log] " << x << std::endl
 #else
 #define LOG(X)
 #endif
@@ -162,26 +162,22 @@ void GameEngine::MainGameLoop() {
   LOG("Starting Main Game Loop...");
   STOP
   while (true) {
-    LOG("Starting Reinforcement Phase...");
-    STOP
     ReinforcementPhase();
-    LOG("Starting Issue Orders Phase...");
-    STOP
     IssueOrdersPhase();
-    LOG("Starting Execute Orders Phase...");
-    STOP
     ExecuteOrdersPhase();
     for (int i = players.size() - 1; i >= 0; i--) {
       if (players.at(i)->GetOwnedTerritories()->size() < 1) {
+        LOG("A player has been eliminated.");
+        STOP
         players.erase(players.begin() + i);
       }
     }
     if (players.size() < 2) {
-      LOG("There's only one player left...");
+      LOG("There's only one player left.");
       STOP
       if (players.at(0)->GetOwnedTerritories()->size() >= map->GetTerritories()->size()) {
         players[0]->Notify();
-        std::cout << "Game has ended." << std::endl;
+        LOG("Exiting Main Game Loop.");
         return;
       }
     }
@@ -189,7 +185,8 @@ void GameEngine::MainGameLoop() {
 }
 
 void GameEngine::ReinforcementPhase() {
-  std::cout << "    Starting Reinforcement Phase..." << std::endl;
+  LOG("Starting Reinforcement Phase...");
+  STOP
   for (Continent* continent : map->GetContinents()) {
     Player* player = continent->GetLeader();
     if (player != nullptr) {
@@ -197,13 +194,11 @@ void GameEngine::ReinforcementPhase() {
     }
   }
   for (Player* player : players) {
-    player->AddArmiesToReinforcementPool(player->GetOwnedTerritories()->size() /
-                                         3);
+    player->AddArmiesToReinforcementPool(player->GetOwnedTerritories()->size() / 3);
     if (player->GetReinforcementPoolCount() < 3) {
       player->SetReinforcementPool(3);
     }
   }
-  std::cout << "    Finished Reinforcement Phase." << std::endl;
 }
 
 void GameEngine::RoundRobin(bool (Player::*func)()) {
@@ -225,7 +220,8 @@ std::vector<Player*> GameEngine::getPlayers() { return players; }
 std::vector<Player*>* GameEngine::getPlayersAdress() { return &players; }
 
 void GameEngine::IssueOrdersPhase() {
-  std::cout << "    Starting Issue Orders Phase..." << std::endl;
+  LOG("Starting Issue Orders Phase...");
+  STOP
   for (Territory* t : *map->GetTerritories()) {
     t->SetToDeploy(0);
     t->SetStandByTroops(0);
@@ -235,13 +231,12 @@ void GameEngine::IssueOrdersPhase() {
     p->GenerateToDefend();
   }
   RoundRobin(&Player::IssueOrder);
-  std::cout << "    Finished Issue Orders Phase." << std::endl;
 }
 
 void GameEngine::ExecuteOrdersPhase() {
-  std::cout << "    Starting Execute Orders Phase..." << std::endl;
+  LOG("Starting Execute Orders Phase...");
+  STOP
   RoundRobin(&Player::ExecuteNextOrder);
-  std::cout << "    Finished Execute Orders Phase" << std::endl;
 }
 
 Map* GameEngine::GetMap() { return map; }
