@@ -83,12 +83,14 @@ void GameStatisticsObserver::Update() {
 				}
 			}
 			if (!found) {
-				if (playerNames.size() > 1) {
+				if (playerNames.size() > 2) {
 					std::cout << "\n***************Player " << playerNames.at(index) << " has been eliminated.*******************\n";
 					playerNames.erase(playerNames.begin() + index);
 				}
 				else{
-					std::cout << "\n***************Player " << playerNames.at(index) << " has won the game.*******************\n";
+					std::cout << "\n***************Player " << playerNames.at(index) << " has been eliminated.*******************\n";
+					playerNames.erase(playerNames.begin() + index);
+					std::cout << "\n***************Player " << playerNames.at(0) << " has won the game.*******************\n";
 				}
 			}
 
