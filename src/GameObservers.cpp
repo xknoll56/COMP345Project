@@ -82,19 +82,21 @@ void GameStatisticsObserver::Update() {
 					break;
 				}
 			}
+			//If the players name isnt found it can be removed from the vector
 			if (!found) {
-				if (playerNames.size() > 2) {
+				if (playerNames.size() > 1) {
 					std::cout << "\n***************Player " << playerNames.at(index) << " has been eliminated.*******************\n";
 					playerNames.erase(playerNames.begin() + index);
-				}
-				else{
-					std::cout << "\n***************Player " << playerNames.at(index) << " has been eliminated.*******************\n";
-					playerNames.erase(playerNames.begin() + index);
-					std::cout << "\n***************Player " << playerNames.at(0) << " has won the game.*******************\n";
 				}
 			}
 
 		}
+	}
+
+	//Finally check for the winner
+	if (players->size() == 1){
+		if(players->at(0)->GetOwnedTerritories()->size()==numTerritories)
+			std::cout << "\n***************Player " << playerNames.at(0) << " has been won the game, congradulations.*******************\n";
 	}
 	std::cout << "\n----------------------------------------------------------------" << std::endl;
 
