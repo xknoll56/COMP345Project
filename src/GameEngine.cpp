@@ -150,15 +150,24 @@ void GameEngine::StartupPhase() {
   gameStatsObs->Start();
 }
 
-int GameEngine::MainGameLoop() {
+void GameEngine::MainGameLoop() {
   std::cout << "------------------------" << std::endl;
   std::cout << "Starting Main Game Loop..." << std::endl;
   while (true) {
     ReinforcementPhase();
     IssueOrdersPhase();
-    if (ExecuteOrdersPhase()) {
-      std::cout << "Game has ended." << std::endl;
-      return 0;
+    ExecuteOrdersPhase();
+    for (int i = players.size() - 1; i >= 0; i--) {
+      if (players.at(i)->GetOwnedTerritories()->size() < 1) {
+        players.erase(players.begin() + i);
+      }
+    }
+    if (players.size() < 2) {
+      if (players.at(0)->GetOwnedTerritories()->size() >= map->GetTerritories()->size()) {
+        players[0]->Notify();
+        std::cout << "Game has ended." << std::endl;
+        return;
+      }
     }
   }
 }
@@ -213,20 +222,10 @@ void GameEngine::IssueOrdersPhase() {
   std::cout << "    Finished Issue Orders Phase." << std::endl;
 }
 
-bool GameEngine::ExecuteOrdersPhase() {
+void GameEngine::ExecuteOrdersPhase() {
   std::cout << "    Starting Execute Orders Phase..." << std::endl;
   RoundRobin(&Player::ExecuteNextOrder);
   std::cout << "    Finished Execute Orders Phase" << std::endl;
-  for (int i = players.size() - 1; i >= 0; i--) {
-    if (players.at(i)->GetOwnedTerritories()->size() < 1) {
-      players.erase(players.begin() + i);
-    }
-  }
-  if (players.size() < 2) {
-      players[0]->Notify();
-    return true;
-  }
-  return false;
 }
 
 Map* GameEngine::GetMap() { return map; }

@@ -25,10 +25,10 @@ class GameEngine {
   ~GameEngine();
   void Init();
   void StartupPhase();
-  int MainGameLoop();
+  void MainGameLoop();
   void ReinforcementPhase();
   void IssueOrdersPhase();
-  bool ExecuteOrdersPhase();
+  void ExecuteOrdersPhase();
   void RoundRobin(bool(Player::*func)());
   std::vector<Player*> getPlayers();
   std::vector<Player*>* getPlayersAdress();

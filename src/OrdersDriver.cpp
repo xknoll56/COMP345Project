@@ -63,9 +63,9 @@ int main() {
   // Create orders and add them to player's orders list
   // Done manually to make sure we test each order type
   Order *deploy = new Deploy(player, t1, 10);
-  Order *advance = new Advance(player, t3, t4, 15);
+  Order *advance = new Advance(player, t1, t2, 15);
   Order *airlift = new Airlift(player, t1, t3, 10);
-  Order *bomb = new Bomb(player, t1);
+  Order *bomb = new Bomb(player, t4);
   Order *negotiate = new Negotiate(player, opponent);
   Order *bomb2 = new Bomb(player, t4);
   Order *blockade = new Blockade(player, t1);
@@ -77,6 +77,10 @@ int main() {
   player->AddOrderToPlayer(negotiate);
   player->AddOrderToPlayer(bomb2);
   player->AddOrderToPlayer(blockade);
+
+  Order *test = new Deploy();
+  test->execute();
+  delete test;
 
   // Demonstrating that orders can be issued by the player is shown in the driver of part 3
   std::cout << std::endl
