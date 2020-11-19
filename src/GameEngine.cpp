@@ -7,6 +7,14 @@
 #include <chrono>
 #include <random>
 
+#define MGL_DRIVER
+#ifdef MGL_DRIVER
+#define STOP std::cin.get();
+#define LOG(x) std::cout << x << std::endl
+#else
+#define LOG(X)
+#endif
+
 GameEngine::GameEngine()
     : deck(), gameStatsObs(nullptr), map(nullptr), phaseObs(nullptr) {}
 
@@ -151,11 +159,17 @@ void GameEngine::StartupPhase() {
 }
 
 void GameEngine::MainGameLoop() {
-  std::cout << "------------------------" << std::endl;
-  std::cout << "Starting Main Game Loop..." << std::endl;
+  LOG("Starting Main Game Loop...");
+  STOP
   while (true) {
+    LOG("Starting Reinforcement Phase...");
+    STOP
     ReinforcementPhase();
+    LOG("Starting Issue Orders Phase...");
+    STOP
     IssueOrdersPhase();
+    LOG("Starting Execute Orders Phase...");
+    STOP
     ExecuteOrdersPhase();
     for (int i = players.size() - 1; i >= 0; i--) {
       if (players.at(i)->GetOwnedTerritories()->size() < 1) {
@@ -163,6 +177,8 @@ void GameEngine::MainGameLoop() {
       }
     }
     if (players.size() < 2) {
+      LOG("There's only one player left...");
+      STOP
       if (players.at(0)->GetOwnedTerritories()->size() >= map->GetTerritories()->size()) {
         players[0]->Notify();
         std::cout << "Game has ended." << std::endl;
