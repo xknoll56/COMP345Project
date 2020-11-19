@@ -1,6 +1,6 @@
 #include "GameEngine.h"
 
-// #define GAME_START_DRIVER
+//#define GAME_START_DRIVER
 #ifdef GAME_START_DRIVER
 
 int main() {
@@ -10,7 +10,11 @@ int main() {
 
   // return Territories of each player 
   for (int i = 0; i < engine.getPlayers().size(); i++) {
-      std::cout << engine.getPlayers().at(i)->GetOwnedTerritories();
+      std::cout << "Player " << engine.getPlayers().at(i)->GetName() << " owns the following territories: \n";
+      for (Territory* terr : *engine.getPlayers().at(i)->GetOwnedTerritories())
+          std::cout << *terr->GetName() << std::endl;
+
+      std::cout << std::endl;
   }
 
   // return reinforcement pool count of each player 
