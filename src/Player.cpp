@@ -116,12 +116,10 @@ std::vector<Territory*> Player::ToAttack() { return toAttack; }
 
 // Creates an Order object and adds it to the vector of pointers of orders
 bool Player::IssueOrder() {
-  std::cout << "        Issuing an Order..." << std::endl;
   // TODO - Why are they making us call toAttack() every time??
   phase = Phase::IssueOrders;
   this->Notify();
   if (reinforcementPool > 0  && ToDefend().size()>0) {
-    std::cout << "            Issuing a Deploy Order..." << std::endl;
     // TODO - Deploy based on threat level
     Territory* territory = ToDefend().at(rand() % ToDefend().size());
     territory->IncreaseToDeploy(1);
@@ -130,7 +128,6 @@ bool Player::IssueOrder() {
     return true;
   }
   if (handOfCards.size() > 0) {
-    std::cout << "            Issuing a Card Order..." << std::endl;
     Order* order = handOfCards.back()->play();
     ConfigureOrdersVisitor configurator(this);
     order->setPlayer(this);
@@ -140,34 +137,27 @@ bool Player::IssueOrder() {
     return true;
   }
   while (toAttack.size() > 0) {
-    std::cout << "            Issuing an Advance (Attack) Order..." << std::endl;
-    std::cout << "_attacking: " << *ToAttack().back()->GetName() << std::endl;
     int troops;
     for (Territory* t : *ToAttack().back()->GetNeighbors()) {
       troops = t->GetAvailableTroops();
       if ((troops > 0) && (t->GetPlayer() == this)) {
         t->IncreaseStandByTroops(troops);
         AddOrderToPlayer(new Advance(this, t, ToAttack().back(), troops));
-        std::cout << "_success" << std::endl;
         return true;
       }
     }
-    std::cout << "_fail" << std::endl;
     toAttack.pop_back();
   }
   while (toDefend.size() > 0) {
-    std::cout << "            Issuing an Advance (Defense) Order..." << std::endl;
     int troops;
     for (Territory* t : *ToDefend().back()->GetNeighbors()) {
       troops = t->GetAvailableTroops();
       if ((troops > 0) && (t->GetPlayer() == this)) {
         t->IncreaseStandByTroops(troops);
         AddOrderToPlayer(new Advance(this, t, ToDefend().back(), troops));
-        std::cout << "_success" << std::endl;
         return true;
       }
     }
-    std::cout << "_fail" << std::endl;
     toDefend.pop_back();
   }
   phase = Phase::None;
@@ -234,7 +224,6 @@ void Player::SetReinforcementPool(int amount) {
 
 // Return true if has orders left
 bool Player::ExecuteNextOrder() {
-  std::cout << "        Executing an Order..." << std::endl;
   phase = Phase::ExecuteOrders;
   this->Notify();
   Order* order = listOfOrders->popNextOrder();
