@@ -142,8 +142,6 @@ void GameEngine::StartupPhase() {
 
   // 3. Give starting troops to all players.
   for (Player* player : players) {
-    // TODO - REMOVE THIS TEMP LINE
-    // player->AddCardToPlayer(deck.draw());
     if (players.size() == 2)
       player->AddArmiesToReinforcementPool(40);
     else if (players.size() == 3)
@@ -159,6 +157,7 @@ void GameEngine::StartupPhase() {
   gameStatsObs->Start();
 }
 
+// Part 3. Main Game Loop
 void GameEngine::MainGameLoop() {
   LOG("Starting Main Game Loop...");
   STOP
@@ -166,6 +165,7 @@ void GameEngine::MainGameLoop() {
     ReinforcementPhase();
     IssueOrdersPhase();
     ExecuteOrdersPhase();
+    // Eliminate players who don't have any more territories.
     for (int i = players.size() - 1; i >= 0; i--) {
       if (players.at(i)->GetOwnedTerritories()->size() < 1) {
         LOG("A player has been eliminated.");
@@ -173,6 +173,7 @@ void GameEngine::MainGameLoop() {
         players.erase(players.begin() + i);
       }
     }
+    // If a player controls all territories, they win the game.
     if (players.size() < 2) {
       LOG("There's only one player left.");
       STOP
@@ -185,15 +186,20 @@ void GameEngine::MainGameLoop() {
   }
 }
 
+/*
+Adds troops to a player's reinforcement pool at the start of the turn.
+*/
 void GameEngine::ReinforcementPhase() {
   LOG("Starting Reinforcement Phase...");
   STOP
+  // If a player controls a continent, they get a bonus
   for (Continent* continent : map->GetContinents()) {
     Player* player = continent->GetLeader();
     if (player != nullptr) {
       player->AddArmiesToReinforcementPool(continent->GetBonus());
     }
   }
+  // Troops are given based on the amount of controlled territories.
   for (Player* player : players) {
     player->AddArmiesToReinforcementPool(player->GetOwnedTerritories()->size() / 3);
     if (player->GetReinforcementPoolCount() < 3) {
@@ -202,6 +208,12 @@ void GameEngine::ReinforcementPhase() {
   }
 }
 
+/*
+Calls the given boolean function for every player in a round robin fashion.
+When said function returns false, the player is removed from the
+round robin (until next turn).
+The function returns when there ae no players left in the round robin.
+*/
 void GameEngine::RoundRobin(bool (Player::*func)()) {
   std::vector<Player*> remainingPlayers = players;
   while (remainingPlayers.size() > 0) {
@@ -216,10 +228,15 @@ void GameEngine::RoundRobin(bool (Player::*func)()) {
   }
 }
 
+// Returns all the players in the game in their order of play.
 std::vector<Player*> GameEngine::getPlayers() { return players; }
 
 std::vector<Player*>* GameEngine::getPlayersAdress() { return &players; }
 
+/*
+Calls IssueOrder in a round robin fashion until all players
+have commited that they are done issuing orders.
+*/
 void GameEngine::IssueOrdersPhase() {
   LOG("Starting Issue Orders Phase...");
   STOP
@@ -234,12 +251,17 @@ void GameEngine::IssueOrdersPhase() {
   RoundRobin(&Player::IssueOrder);
 }
 
+/*
+Calls ExecuteOrder() in a round robin fashion until all players
+have no more orders in their orders list.
+*/
 void GameEngine::ExecuteOrdersPhase() {
   LOG("Starting Execute Orders Phase...");
   STOP
   RoundRobin(&Player::ExecuteNextOrder);
 }
 
+// Returns a pointer to the game map.
 Map* GameEngine::GetMap() { return map; }
 
 void GameEngine::PlayerDrawCard(Player* player) {
@@ -247,8 +269,10 @@ void GameEngine::PlayerDrawCard(Player* player) {
   player->AddCardToPlayer(card);
 }
 
+ // The neutral player owns territories and troops but cannot attack.
 Player* GameEngine::neutralPlayer = new Player();
 
+// Returns the neutral player.
 Player* GameEngine::GetNeutralPlayer() { return neutralPlayer; }
 
 // Destructor
