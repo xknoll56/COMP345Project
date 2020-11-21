@@ -24,10 +24,16 @@ class MapLoader {
  public:
   MapLoader();
   // Destruction of the map will not affect the map
-  ~MapLoader();
+  virtual ~MapLoader();
   // The main function here, it will return a null pointer if the data is not
   // valid
   Map* GenerateMap(const std::string filePath);
+
+  // The copy constructur and assignment overload operators just create new
+  // objects because this object is just used for map creation
+  MapLoader(const MapLoader& toCopy);
+  MapLoader& operator=(const MapLoader& rightSide);
+  friend std::ostream& operator<<(std::ostream& out, const MapLoader& toOutput);
 
  private:
   // Struct used to store all the validity data as the map loader scans a map
@@ -99,10 +105,29 @@ class MapLoader {
   // Utility function that is used in the GenerateMap function to control all
   // the processing.
   void ReadFile(const std::string path);
+};
 
-  // The copy constructur and assignment overload operators just create new
-  // objects because this object is just used for map creation
-  MapLoader(const MapLoader& toCopy);
-  MapLoader& operator=(const MapLoader& rightSide);
-  friend std::ostream& operator<<(std::ostream& out, const MapLoader& toOutput);
+class ConquestFileReader {
+ public:
+  ConquestFileReader();
+  ConquestFileReader(const ConquestFileReader& toCopy);
+  ConquestFileReader& operator=(const ConquestFileReader& rightSide);
+  ~ConquestFileReader();
+  friend std::ostream& operator<<(std::ostream& out,
+                                  const ConquestFileReader& toOutput);
+};
+
+class ConquestFileReaderAdapter : public MapLoader {
+  ConquestFileReaderAdapter();
+  ConquestFileReaderAdapter(ConquestFileReader* fileReader);
+  ConquestFileReaderAdapter(const ConquestFileReaderAdapter& toCopy);
+  ConquestFileReaderAdapter& operator=(ConquestFileReaderAdapter& rightSide);
+  friend std::ostream& operator<<(std::ostream& out,
+                                  const ConquestFileReaderAdapter& toOutput);
+  virtual ~ConquestFileReaderAdapter();
+
+  // Overwrite some methods of MapLoader where relevant and delegate the work to
+  // ConquestFileReader instead
+ private:
+  ConquestFileReader* conquestFileReader;
 };

@@ -87,7 +87,7 @@ void MapLoader::PreprocessBorders(const std::string line,
   if (words.size() > 0) {
     // The line must contain at least 2 data points (otherwise its a floating
     // territory with no edges).
-    //if (words.size() < 2) {
+    // if (words.size() < 2) {
     //  validityData.validData = false;
     //  std::cout << "Error, territory has no edges... invalid map file"
     //            << std::endl;
@@ -109,21 +109,21 @@ void MapLoader::ProcessBorders(const std::string line,
   std::vector<std::string> words = Split(line);
   if (words.size() > 0) {
     // Each territory MUST have at least 1 border
-    //if (words.size() < 1) {
+    // if (words.size() < 1) {
     //  validityData.validData = false;
     //  std::cout << "Error, territory has no edges... invalid map file"
     //            << std::endl;
     //}
     // JG
-    try{
+    try {
       Territory* territory =
           generatedMap->GetTerritories()->at(std::stoi(words[0]) - 1);
-      for (int i = 1; i < words.size();i++) {
+      for (int i = 1; i < words.size(); i++) {
         Territory* neb =
             generatedMap->GetTerritories()->at(std::stoi(words[i]) - 1);
         territory->AddNeigbor(neb);
       }
-     
+
     } catch (std::invalid_argument) {
       std::cout << "failure reading integer" << std::endl;
       validityData.validData = false;
@@ -157,8 +157,6 @@ void MapLoader::ProcessContinents(const std::string line,
     // instantiate the Map object.
     *dataType = DataType::None;
     // JG
-
-    
   }
 }
 
@@ -173,7 +171,8 @@ void MapLoader::ProcessTerritories(const std::string line,
     // JG
     try {
       // A new territoy is created and is added to the continent
-      generatedMap->CreateTerritory(words[1],generatedMap->GetContinents().at(std::stoi(words[2])-1));
+      generatedMap->CreateTerritory(
+          words[1], generatedMap->GetContinents().at(std::stoi(words[2]) - 1));
     } catch (std::invalid_argument) {
       std::cout << "failure reading integer" << std::endl;
       validityData.validData = false;
@@ -269,7 +268,7 @@ void MapLoader::ReadFile(const std::string path) {
 }
 
 Map* MapLoader::GenerateMap(const std::string filePath) {
-  //Reset the data if a new file is being generated
+  // Reset the data if a new file is being generated
   validityData = ValidityData();
   index = 0;
   continentsCount = 0;
@@ -279,33 +278,33 @@ Map* MapLoader::GenerateMap(const std::string filePath) {
   // If the data is valid, then we can return the map, otherwise a nullptr is
   // returned.
   if (validityData.IsValid()) {
-     //Clear the data for another use.
-      validityData = ValidityData();
+    // Clear the data for another use.
+    validityData = ValidityData();
     delete[] continentsSizes;
     return generatedMap;
-  }
-  else {
+  } else {
     std::cout << "Warning, data in map file was not valid, a null pointer is "
                  "being returned!!!"
               << std::endl;
     // Clear the data for another use.
     validityData = ValidityData();
-    //delete[] continentsSizes;
+    // delete[] continentsSizes;
     return nullptr;
   }
 }
 
 MapLoader::MapLoader() {
- // validityData = new ValidityData();
+  // validityData = new ValidityData();
   index = 0;
   continentsCount = 0;
   territoriesCount = 0;
 }
 
-//All of the data is already deleted after the map is made, the rest is freed automatically apon object deletion.
+// All of the data is already deleted after the map is made, the rest is freed
+// automatically apon object deletion.
 MapLoader::~MapLoader() {
-  //delete validityData;
-  //delete[] continentsSizes;
+  // delete validityData;
+  // delete[] continentsSizes;
 }
 
 // The copy constructor just creates a new object because it needs to generate a
@@ -327,5 +326,45 @@ MapLoader& MapLoader::operator=(const MapLoader& rightSide) {
 }
 std::ostream& operator<<(std::ostream& out, const MapLoader& toOutput) {
   out << "This is a maploader, please use it to generate a map.\n";
+  return out;
+}
+
+// Conquest File reader
+ConquestFileReader::ConquestFileReader() {}
+ConquestFileReader::ConquestFileReader(const ConquestFileReader& toCopy) {}
+ConquestFileReader& ConquestFileReader::operator=(
+    const ConquestFileReader& rightSide) {
+  // Copy stuff
+  return *this;
+}
+ConquestFileReader::~ConquestFileReader() {}
+std::ostream& operator<<(std::ostream& out,
+                         const ConquestFileReader& toOutput) {
+  out << "Conquest file reader";
+  return out;
+}
+
+// Conquest file reader adapter
+ConquestFileReaderAdapter::ConquestFileReaderAdapter()
+    : MapLoader(), conquestFileReader() {}
+ConquestFileReaderAdapter::ConquestFileReaderAdapter(
+    ConquestFileReader* fileReader)
+    : MapLoader(), conquestFileReader(fileReader) {}
+ConquestFileReaderAdapter::ConquestFileReaderAdapter(
+    const ConquestFileReaderAdapter& toCopy)
+    : MapLoader(toCopy) {
+  this->conquestFileReader = new ConquestFileReader(*toCopy.conquestFileReader);
+}
+ConquestFileReaderAdapter& ConquestFileReaderAdapter::operator=(
+    ConquestFileReaderAdapter& rightSide) {
+  conquestFileReader = new ConquestFileReader(*rightSide.conquestFileReader);
+  return *this;
+}
+ConquestFileReaderAdapter::~ConquestFileReaderAdapter() {
+  delete conquestFileReader;
+}
+std::ostream& operator<<(std::ostream& out,
+                         const ConquestFileReaderAdapter& toOutput) {
+  out << "Conquest file reader adapter";
   return out;
 }
