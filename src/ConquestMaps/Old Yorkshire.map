@@ -1,0 +1,54 @@
+[Map]
+author=Stewart Ainsworth
+image=old yorkshire.bmp
+wrap=no
+scroll=horizontal
+
+[Continents]
+York=2
+East Riding=6
+North Riding=8
+West Riding=11
+
+[Territories]
+Anisty Liberty,363,300,York,York,Tadcaster,Ripon,Harrowgate,Thirsk
+Tadcaster,370,327,York,York,Anisty Liberty,West Derwent,Harrowgate,Leeds,Selby
+York,396,310,York,Anisty Liberty,Tadcaster,West Derwent,New Malton,Thirsk
+
+Hedon,630,362,East Riding,Kingston-Upon-Hull,Great Driffield
+Kingston-Upon-Hull,533,361,East Riding,Hedon,Howden,Pooklington,Great Driffield
+West Derwent,414,334,East Riding,York,Tadcaster,Howden,Pooklington,York Wolds,Selby,Thorne,New Malton
+Howden,463,359,East Riding,West Derwent,Kingston-Upon-Hull,Pooklington,Thorne
+Pooklington,506,300,East Riding,West Derwent,Howden,Kingston-Upon-Hull,Great Driffield,York Wolds
+York Wolds,496,245,East Riding,Bridlington,Great Driffield,Pooklington,West Derwent,Scarborough,New Malton
+Great Driffield,580,280,East Riding,Bridlington,York Wolds,Pooklington,Kingston-Upon-Hull,Hedon
+Bridlington,575,224,East Riding,York Wolds,Great Driffield,Scarborough
+
+Sedbergh,77,180,West Riding,Langsterdale Chase,Skipton and Ribble,Wensleydale
+Langsterdale Chase,140,261,West Riding,Sedbergh,Netherdale Forest,Skipton and Ribble,Otley,Harrowgate,Wensleydale
+Netherdale Forest,199,247,West Riding,Langsterdale Chase,Ripon,Harrowgate,Wensleydale
+Skipton and Ribble,95,316,West Riding,Otley,Langsterdale Chase,Sedbergh
+Otley,202,346,West Riding,Skipton and Ribble,Langsterdale Chase,Harrowgate,Halifax,Leeds
+Ripon,276,253,West Riding,Anisty Liberty,Netherdale Forest,Harrowgate,Masham,Thirsk
+Harrowgate,263,306,West Riding,Ripon,Netherdale Forest,Langsterdale Chase,Otley,Tadcaster,Anisty Liberty,Leeds
+Halifax,213,394,West Riding,Huddersfield,Otley,Leeds
+Huddersfield,246,460,West Riding,Halifax,Leeds,Sheffield,Pontefract
+Leeds,296,374,West Riding,Huddersfield,Halifax,Otley,Harrowgate,Tadcaster,Selby,Pontefract
+Sheffield,304,514,West Riding,Huddersfield,Rotherham,Pontefract
+Rotherham,375,531,West Riding,Sheffield,Pontefract,Doncaster
+Selby,370,370,West Riding,Leeds,Tadcaster,West Derwent,Pontefract,Thorne
+Pontefract,347,441,West Riding,Leeds,Selby,Huddersfield,Sheffield,Rotherham,Doncaster,Thorne
+Doncaster,417,465,West Riding,Rotherham,Pontefract,Thorne
+Thorne,445,422,West Riding,Doncaster,Pontefract,Selby,West Derwent,Howden
+
+Stainmore Forest,140,65,North Riding,Richmond
+Richmond,174,117,North Riding,Stainmore Forest,Wensleydale,Catterick
+Wensleydale,153,179,North Riding,Richmond,Catterick,Masham,Sedbergh,Langsterdale Chase,Netherdale Forest
+Catterick,258,134,North Riding,Richmond,Wensleydale,Masham,Northallerton
+Masham,260,198,North Riding,Wensleydale,Catterick,Northallerton,Thirsk,Ripon
+Northallerton,315,129,North Riding,Catterick,Masham,Whitby,Thirsk,North Yorkshire Moors
+Thirsk,361,205,North Riding,Northallerton,North Yorkshire Moors,New Malton,Masham,York,Anisty Liberty,Ripon
+Whitby,409,81,North Riding,Northallerton,North Yorkshire Moors,Scarborough
+North Yorkshire Moors,427,153,North Riding,Thirsk,Whitby,New Malton,Scarborough,Northallerton
+New Malton,425,245,North Riding,Thirsk,North Yorkshire Moors,Scarborough,York,West Derwent,York Wolds
+Scarborough,511,163,North Riding,Whitby,North Yorkshire Moors,New Malton,York Wolds,Bridlington

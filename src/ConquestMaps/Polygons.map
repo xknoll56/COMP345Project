@@ -1,0 +1,85 @@
+[Map]
+author=Zworg2
+warn=yes
+image=polygons.bmp
+wrap=yes
+scroll=horizontal
+
+[Continents]
+north tri=3
+south tri=3
+east square=4
+west square=4
+west ring=2
+east ring=2
+west hex=3
+east hex=3
+
+[Territories]
+1,130,59,north tri,2,17
+2,130,98,north tri,1,3,4
+3,101,115,north tri,2,6
+4,159,116,north tri,2,8,23,29
+6,100,152,north tri,3,5,7
+7,130,174,north tri,6,8,12
+8,161,159,north tri,4,7
+12,130,216,north tri,7,11
+
+5,70,173,south tri,6,10
+9,44,228,south tri,10,13
+10,70,215,south tri,5,9,11
+11,100,232,south tri,10,12,15
+13,44,270,south tri,9,14
+14,70,288,south tri,13,15,16
+15,100,274,south tri,11,14
+16,70,331,south tri,14,35,57
+
+17,252,71,west square,1,18,44,23
+18,296,71,west square,17,19,23,24
+19,339,71,west square,18,20,24,25
+23,267,113,west square,4,17,18,24,29,30
+24,309,113,west square,18,19,23,25,30,31
+25,352,113,west square,19,20,24,26,31,32
+29,253,156,west square,4,23,30,41
+30,295,156,west square,23,24,29,31
+31,338,156,west square,24,25,30,32
+
+20,382,71,east square,19,21,25,26
+21,425,71,east square,20,22,26,27
+22,469,71,east square,21,27,28
+26,398,113,east square,20,21,25,27,32,33
+27,440,113,east square,21,22,26,28,33,34
+28,482,113,east square,22,27,34,59
+32,382,156,east square,25,26,31,33,48
+33,426,156,east square,26,27,32,34
+34,469,156,east square,27,28,33,60
+
+35,130,350,west hex,16,36,37,56
+36,173,323,west hex,35,37,38,39
+37,173,380,west hex,35,36,39,40
+38,215,293,west hex,36,39,41,42
+39,215,350,west hex,36,37,38,40,42,43
+40,215,409,west hex,37,39,43,44
+41,259,264,west hex,29,38,42,45
+42,259,323,west hex,38,39,41,43,45,46
+
+43,259,380,east hex,39,40,42,44,46,47
+44,259,437,east hex,40,43,47,17
+45,304,293,east hex,41,42,46,48
+46,304,350,east hex,42,43,45,47,48,49
+47,304,409,east hex,43,44,46,49
+48,347,323,east hex,32,45,46,49,50
+49,347,380,east hex,46,47,48,50
+50,390,350,east hex,48,49,51,52
+
+51,455,312,west ring,50,52,60
+52,455,378,west ring,50,51,53
+53,492,428,west ring,52,54
+59,554,249,west ring,28,58,60
+60,492,264,west ring,34,51,59
+
+54,554,451,east ring,53,55
+55,616,428,east ring,54,56
+56,648,378,east ring,55,57,35
+57,648,312,east ring,16,56,58
+58,616,264,east ring,57,59

@@ -7,7 +7,7 @@
 #include <chrono>
 #include <random>
 
-//#define MGL_DRIVER
+#define MGL_DRIVER
 #ifdef MGL_DRIVER
 #define STOP std::cin.get();
 #define LOG(x) std::cout << "[Main Game Loop Log] " << x << std::endl

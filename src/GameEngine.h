@@ -10,6 +10,9 @@
 
 class Map;
 class Deck;
+class GameStatisticsObserver;
+class PhaseObserver;
+class Player;
 
 class GameEngine {
  private:

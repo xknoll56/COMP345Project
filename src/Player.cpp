@@ -278,6 +278,8 @@ PlayerStrategy& PlayerStrategy::operator=(const PlayerStrategy& rightSide) {
 PlayerStrategy::~PlayerStrategy() {}
 std::ostream& operator<<(std::ostream& out, const PlayerStrategy& toOutput) {
   out << "Abstract player strategy";
+  //temporary fix
+  return out;
 }
 void PlayerStrategy::setPlayer(Player* player) { this->player = player; }
 
@@ -300,8 +302,14 @@ std::ostream& operator<<(std::ostream& out,
 }
 
 void HumanPlayerStrategy::issueOrder() {}
-std::vector<Territory*> HumanPlayerStrategy::toDefend() {}
-std::vector<Territory*> HumanPlayerStrategy::toAttack() {}
+std::vector<Territory*> HumanPlayerStrategy::toDefend() {
+    //Temporary return
+    return std::vector<Territory*>();
+}
+std::vector<Territory*> HumanPlayerStrategy::toAttack() {
+    //Temporary return
+    return std::vector<Territory*>();
+}
 
 // Aggressive player strategy
 AggressivePlayerStrategy::AggressivePlayerStrategy() : PlayerStrategy() {}
@@ -323,8 +331,14 @@ std::ostream& operator<<(std::ostream& out,
 }
 
 void AggressivePlayerStrategy::issueOrder() {}
-std::vector<Territory*> AggressivePlayerStrategy::toDefend() {}
-std::vector<Territory*> AggressivePlayerStrategy::toAttack() {}
+std::vector<Territory*> AggressivePlayerStrategy::toDefend() {
+    //temporary return
+    return std::vector<Territory*>();
+}
+std::vector<Territory*> AggressivePlayerStrategy::toAttack() {
+    //temporary return
+    return std::vector<Territory*>();
+}
 
 // Benevolent Player Strategy
 BenevolentPlayerStrategy::BenevolentPlayerStrategy() : PlayerStrategy() {}
@@ -346,8 +360,14 @@ std::ostream& operator<<(std::ostream& out,
 }
 
 void BenevolentPlayerStrategy::issueOrder() {}
-std::vector<Territory*> BenevolentPlayerStrategy::toDefend() {}
-std::vector<Territory*> BenevolentPlayerStrategy::toAttack() {}
+std::vector<Territory*> BenevolentPlayerStrategy::toDefend() {
+    //Temporary return
+    return std::vector<Territory*>();
+}
+std::vector<Territory*> BenevolentPlayerStrategy::toAttack() {
+    //Temporary return
+    return std::vector<Territory*>();
+}
 
 // Neutral Player Strategy
 NeutralPlayerStrategy::NeutralPlayerStrategy() : PlayerStrategy() {}
@@ -369,5 +389,11 @@ std::ostream& operator<<(std::ostream& out,
 }
 
 void NeutralPlayerStrategy::issueOrder() {}
-std::vector<Territory*> NeutralPlayerStrategy::toDefend() {}
-std::vector<Territory*> NeutralPlayerStrategy::toAttack() {}
+std::vector<Territory*> NeutralPlayerStrategy::toDefend() {
+    //Temporary return
+    return std::vector<Territory*>();
+}
+std::vector<Territory*> NeutralPlayerStrategy::toAttack() {
+    //Temporary return
+    return std::vector<Territory*>();
+}
