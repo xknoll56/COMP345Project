@@ -9,56 +9,52 @@
 //
 // Based on the 'https://www.warzone.com/' game.
 
-#include "MapLoader.h" 
 #include <filesystem>
+#include <string>
 
+#include "MapLoader.h"
 
-
-//#define MAP_LOADER_DRIVER
+#define MAP_LOADER_DRIVER
 #ifdef MAP_LOADER_DRIVER
 
-
+using std::cin;
+using std::cout;
+using std::endl;
 
 int main() {
-  // Create a new map loader
-  MapLoader* ml = new MapLoader();
-  std::cout << (*ml);
-  std::string input;
-  do {
-    std::string path = "MapFiles/";
+  int mapType{0};
+  std::string fileName;
 
-    std::cout << "Please Enter the name of the map file that is to be created. \n";
-    // Generate the map
-    std::cin >> input;
-    Map* map = ml->GenerateMap("MapFiles/" + input);
-    if(map->Validate()) {
-      std::cout << "Map validated\n";
-    } else {
-      std::cout << "Map invalid!\n";
+  // Could the type of map be automatically chosen?
+  while (true) {
+    cout << "Which type of map should be read?" << endl;
+    cout << "1) Domination" << endl;
+    cout << "2) Conquest" << endl;
+    cin >> mapType;
+    if (mapType == 1 || mapType == 2) {
+      break;
     }
-    // If the map is valid, it will be displayed, otherwise if exit is entered quit.
-    if (map != nullptr ) {
+    cout << "Invalid choice, not cool :(" << endl;
+  }
 
-      for (int i = 0; i < map->getContinents()->size(); ++i) {
-        Continent* continent = (*map->getContinents())[i];
-        std::cout << *continent->getName() << std::endl;
-        for (int j = 0; j < continent->getTerritories()->size(); ++j) {
-         
-          Territory* territory = (continent->getTerritories())->at(j);
-          std::cout << *territory->getName() << " Neighbors: ";
-          for (auto neb : *territory->getNeighbors()) {
-            std::cout << "  " << *neb->getName() << "  ";
-          }
-          std::cout << std::endl;
-        }
-        std::cout << "*****************************************************"
-                  << std::endl;
-        std::cout << std::endl;
-      }
-    }
-    delete map;
-  } while (input.compare("exit")!=0);
+  cout << "Enter a filename (include subdirectory if necessary):" << endl;
+  cin >> fileName;
 
+  MapLoader* mapLoader = nullptr;
+  if (mapType == 1) {
+    mapLoader = new MapLoader();
+  } else if (mapType == 2) {
+    mapLoader = new ConquestFileReaderAdapter();
+  }
+  Map *map = mapLoader->GenerateMap(fileName);
+
+  //cout << "Map is valid: " << endl;
+  //bool mapIsValid{map->ValidateMap()};
+
+  // Display the map somehow
+  // TODO
+
+  //delete map;
   return 0;
 }
 #endif

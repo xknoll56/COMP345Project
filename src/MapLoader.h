@@ -27,7 +27,7 @@ class MapLoader {
   virtual ~MapLoader();
   // The main function here, it will return a null pointer if the data is not
   // valid
-  Map* GenerateMap(const std::string filePath);
+  virtual Map* GenerateMap(const std::string filePath);
 
   // The copy constructur and assignment overload operators just create new
   // objects because this object is just used for map creation
@@ -107,6 +107,10 @@ class MapLoader {
   void ReadFile(const std::string path);
 };
 
+// TODO Validation that must be done for Conquest Maps
+// Max 32 continents
+// Max 255 territories
+// Max 10 neighbors by territory
 class ConquestFileReader {
  public:
   ConquestFileReader();
@@ -115,9 +119,18 @@ class ConquestFileReader {
   ~ConquestFileReader();
   friend std::ostream& operator<<(std::ostream& out,
                                   const ConquestFileReader& toOutput);
+
+  void OpenFile(const std::string filePath);
+  void ParseContinents();
+  void ParseTerritories();
+
+ private:
+  std::vector<std::string> continentsData;
+  std::vector<std::string> territoriesData;
 };
 
 class ConquestFileReaderAdapter : public MapLoader {
+ public:
   ConquestFileReaderAdapter();
   ConquestFileReaderAdapter(ConquestFileReader* fileReader);
   ConquestFileReaderAdapter(const ConquestFileReaderAdapter& toCopy);
@@ -126,8 +139,8 @@ class ConquestFileReaderAdapter : public MapLoader {
                                   const ConquestFileReaderAdapter& toOutput);
   virtual ~ConquestFileReaderAdapter();
 
-  // Overwrite some methods of MapLoader where relevant and delegate the work to
-  // ConquestFileReader instead
+  virtual Map* GenerateMap(const std::string filePath);
+
  private:
   ConquestFileReader* conquestFileReader;
 };

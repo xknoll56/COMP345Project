@@ -338,10 +338,53 @@ ConquestFileReader& ConquestFileReader::operator=(
   return *this;
 }
 ConquestFileReader::~ConquestFileReader() {}
+
 std::ostream& operator<<(std::ostream& out,
                          const ConquestFileReader& toOutput) {
   out << "Conquest file reader";
   return out;
+}
+
+void ConquestFileReader::OpenFile(const std::string filePath) {
+  std::string line;
+  std::ifstream file(filePath);
+
+  if (file.is_open()) {
+    std::vector<std::string>* toAddTo{nullptr};
+    std::regex searchRegex("\\[[a-z]+\\]");
+    std::smatch m;
+    while (getline(file, line)) {
+      if (regex_search(line, m, searchRegex)) {
+        if (m.str().compare("[Map]") == 0) {
+          // We ignore this part of the file
+        } else if (m.str().compare("[Continents]") == 0) {
+          toAddTo = &continentsData;
+        } else if (m.str().compare("[Territories]") == 0) {
+          toAddTo = &territoriesData;
+        }
+      } else if (toAddTo != nullptr) {
+        toAddTo->push_back(line);
+      }
+    }
+  } else {
+    std::cout << "Error opening the map file\n" << std::endl;
+  }
+
+  file.close();
+}
+
+void ConquestFileReader::ParseContinents() {
+  for (auto const& continentLine : continentsData) {
+    // Split by "="
+    // Format: Name=points
+  }
+}
+
+void ConquestFileReader::ParseTerritories() {
+  for (auto const& territoryLine : territoriesData) {
+    // Split by ","
+    // Format: Name,x,y,Continent,...neighbors
+  }
 }
 
 // Conquest file reader adapter
@@ -357,14 +400,23 @@ ConquestFileReaderAdapter::ConquestFileReaderAdapter(
 }
 ConquestFileReaderAdapter& ConquestFileReaderAdapter::operator=(
     ConquestFileReaderAdapter& rightSide) {
-  conquestFileReader = new ConquestFileReader(*rightSide.conquestFileReader);
+  if (&rightSide != this) {
+    delete conquestFileReader;
+    conquestFileReader = new ConquestFileReader(*rightSide.conquestFileReader);
+  }
   return *this;
 }
 ConquestFileReaderAdapter::~ConquestFileReaderAdapter() {
   delete conquestFileReader;
 }
+
 std::ostream& operator<<(std::ostream& out,
                          const ConquestFileReaderAdapter& toOutput) {
   out << "Conquest file reader adapter";
   return out;
+}
+
+Map* ConquestFileReaderAdapter::GenerateMap(const std::string filePath) {
+  conquestFileReader->OpenFile(filePath);
+  return nullptr;
 }
