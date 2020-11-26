@@ -30,8 +30,6 @@ class Player : public Subject {
  private:
   // Vector of pointers of territories
   std::vector<Territory*> ownedTerritories;
-  std::vector<Territory*> toAttack;
-  std::vector<Territory*> toDefend;
   // Vector of pointers of cards
   std::vector<Card*> handOfCards;
   // Pointer to a list of orders
@@ -86,8 +84,6 @@ class Player : public Subject {
   void DrawCard();
 
   Phase GetPhase();
-  void GenerateToAttack();
-  void GenerateToDefend();
   OrdersList* GetOrdersList();
   GameEngine* GetGameEngine();
 

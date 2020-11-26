@@ -16,16 +16,16 @@
 #include "Orders.h"
 
 Player::Player()
-    : gameEngine(), listOfOrders(), phase(Phase::None), reinforcementPool(0) {}
+    : gameEngine(), listOfOrders(), phase(Phase::None), reinforcementPool(0), playerStrategy(new NeutralPlayerStrategy()) {}
 
 Player::Player(GameEngine* gameEngine)
     : gameEngine(gameEngine),
       ownedTerritories(std::vector<Territory*>(0)),
-      toAttack(std::vector<Territory*>(0)),
       handOfCards(std::vector<Card*>(0)),
       listOfOrders(new OrdersList()),
       reinforcementPool(0),
-      phase(Phase::None) {}
+      phase(Phase::None),
+      playerStrategy(new NeutralPlayerStrategy()) {}
 // Parametric constructor
 Player::Player(GameEngine* gameEngine, std::vector<Territory*> terr,
                int numberOfArmies)
@@ -33,7 +33,8 @@ Player::Player(GameEngine* gameEngine, std::vector<Territory*> terr,
       handOfCards(std::vector<Card*>(0)),
       reinforcementPool(numberOfArmies),
       listOfOrders(new OrdersList()),
-      phase(Phase::None) {
+      phase(Phase::None), 
+      playerStrategy(new NeutralPlayerStrategy()) {
   for (Territory* t : terr) this->AddTerritoryToPlayer(t);
 }
 
@@ -85,22 +86,14 @@ std::ostream& operator<<(std::ostream& out, const Player& toOutput) {
   return out;
 }
 
-// Returns a vector of pointers of territories to defend
-std::vector<Territory*> Player::ToDefend() {
-  return playerStrategy->toDefend();
-}
-
 /*
-Initiates the list of territories that are to be defended in priority
-*/
 void Player::GenerateToDefend() {
   toDefend = ownedTerritories;
   std::random_shuffle(toDefend.begin(), toDefend.end());
 }
+*/
 
 /*
-Initiates the list of territories that are to be attacked in priority
-*/
 void Player::GenerateToAttack() {
   const std::vector<Territory*>* const vectorAllTerritories =
       gameEngine->GetMap()->GetTerritories();
@@ -118,9 +111,15 @@ void Player::GenerateToAttack() {
   std::random_shuffle(territoriesToAttack.begin(), territoriesToAttack.end());
   toAttack = territoriesToAttack;
 }
+*/
 
 std::vector<Territory*> Player::ToAttack() {
   return playerStrategy->toAttack();
+}
+
+// Returns a vector of pointers of territories to defend
+std::vector<Territory*> Player::ToDefend() {
+    return playerStrategy->toDefend();
 }
 
 /*

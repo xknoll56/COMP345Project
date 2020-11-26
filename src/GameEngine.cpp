@@ -244,10 +244,6 @@ void GameEngine::IssueOrdersPhase() {
     t->SetToDeploy(0);
     t->SetStandByTroops(0);
   }
-  for (Player* p : players) {
-    p->GenerateToAttack();
-    p->GenerateToDefend();
-  }
   RoundRobin(&Player::IssueOrder);
 }
 

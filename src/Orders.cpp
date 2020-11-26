@@ -855,7 +855,6 @@ void ConfigureOrdersVisitor::VisitAirlift(Airlift* order) {
 }
 void ConfigureOrdersVisitor::VisitBomb(Bomb* order) { 
   Territory* target = nullptr;
-  player->GenerateToAttack();
   std::vector<Territory*> territories = player->ToAttack();
   if (territories.size() > 0) {
     target = territories.at(0);
