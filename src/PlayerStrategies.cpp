@@ -66,10 +66,9 @@ std::ostream& operator<<(std::ostream& out,
 }
 
 bool AggressivePlayerStrategy::issueOrder() {
-    std::cout << "issuing" << std::endl;
    std::vector<Territory*> td = toDefend();
    if (player->GetReinforcementPoolCount() > 0) {
-    if (td.size() > 0) { // Deploys all troops on highest priority territory.
+    if (td.size() > 0) { // Deploy all troops on highest priority territory.
         Territory* territory = toDefend().at(0);
         player->AddOrderToPlayer(new Deploy(player, territory, player->GetReinforcementPoolCount()));
         territory->IncreaseToDeploy(player->GetReinforcementPoolCount());
@@ -141,14 +140,49 @@ std::ostream& operator<<(std::ostream& out,
 }
 
 bool BenevolentPlayerStrategy::issueOrder() {
+    std::vector<Territory*> td = toDefend();
+    if (player->GetReinforcementPoolCount() > 0) {
+        if (td.size() > 0) { // Deploy a troop on highest priority territory.
+            Territory* territory = toDefend().at(0);
+            player->AddOrderToPlayer(new Deploy(player, territory, 1));
+            territory->IncreaseToDeploy(1);
+            player->TakeArmiesFromReinforcementPool(1);
+            return true;
+        }
+    }
+    if (player->GetHand()->size() > 0) {
+        player->PlayCard(0);
+        return true;
+    }
+    int troops;
+    for (Territory* target : td) {
+        int targetTroops = target->GetAvailableTroops();
+        for (Territory* source : *target->GetNeighbors()) {
+            troops = source->GetAvailableTroops();
+            if ((source->GetPlayer() == player) && (troops > targetTroops + 1)) {
+                int numberOfTroopsToAdvance = (troops + targetTroops) / 2;
+                // TODO - delete this if statement
+                if (numberOfTroopsToAdvance < 1) {
+                    std::cout << "****************\nPOSSIBLE INFINITE LOOP DETECTED!!!\n****************" << std::endl;
+                }
+                source->IncreaseStandByTroops(numberOfTroopsToAdvance);
+                player->AddOrderToPlayer(new Advance(player, source, target, numberOfTroopsToAdvance));
+                return true;
+            }
+        }
+    }
     return false;
 }
 std::vector<Territory*> BenevolentPlayerStrategy::toDefend() {
-    //Temporary return
-    return std::vector<Territory*>();
+    std::vector<Territory*> territories = *player->GetOwnedTerritories();
+    std::random_shuffle(territories.begin(), territories.end());
+    // Sorts territories by number of available troops (Increasing)
+    std::stable_sort(territories.begin(), territories.end(), Territory::HasLessAvailableTroops);
+    return territories;
 }
 std::vector<Territory*> BenevolentPlayerStrategy::toAttack() {
-    return *player->GetOwnedTerritories();
+    // Returns an empty vector since this player does not wish to attack.
+    return std::vector<Territory*>();
 }
 
 // Neutral Player Strategy

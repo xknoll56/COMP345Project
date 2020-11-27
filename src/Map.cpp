@@ -54,7 +54,7 @@ bool Territory::IsNeighborTo(Player* player) {
   return false;
 }
 
-int Territory::GetAvailableTroops() { return troops + toDeploy - standByTroops; }
+int Territory::GetAvailableTroops() const { return troops + toDeploy - standByTroops; }
 void Territory::IncreaseToDeploy(int amount) { toDeploy += amount; }
 void Territory::SetToDeploy(int toDeploy) { this->toDeploy = toDeploy; }
 int Territory::GetToDeploy() { return toDeploy; }
@@ -63,6 +63,10 @@ void Territory::SetStandByTroops(int standByTroops) { this->standByTroops = stan
 
 bool Territory::HasMoreTroops(const Territory* t1, const Territory* t2) {
 	return t1->troops > t2->troops;
+}
+
+bool Territory::HasLessAvailableTroops(const Territory* t1, const Territory* t2) {
+	return t1->GetAvailableTroops() < t2->GetAvailableTroops();
 }
 
 bool Graph::TravelledAll() {
