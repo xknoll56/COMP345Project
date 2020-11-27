@@ -13,10 +13,17 @@
 #include <fstream>
 #include <iostream>
 #include <regex>
+#include <list>
 
 #include "Map.h"
 
 class Map;
+class Territory;
+class Continent;
+
+// An enum used for the GenerateMap function to process the correct type of
+// data at that time.
+enum DataType { Continents = 0, Territories, Borders, Nil };
 
 // The map loader class will be used to simply read a map file, and instantiate
 // a Map object based on the data.
@@ -27,7 +34,7 @@ class MapLoader {
   virtual ~MapLoader();
   // The main function here, it will return a null pointer if the data is not
   // valid
-  Map* GenerateMap(const std::string filePath);
+  virtual Map* GenerateMap(const std::string filePath);
 
   // The copy constructur and assignment overload operators just create new
   // objects because this object is just used for map creation
@@ -60,9 +67,7 @@ class MapLoader {
     }
   };
 
-  // An enum used for the GenerateMap function to process the correct type of
-  // data at that time.
-  enum DataType { Continents = 0, Territories, Borders, None };
+
 
   // A pointer to the map that is being generated.
   Map* generatedMap;
@@ -115,9 +120,23 @@ class ConquestFileReader {
   ~ConquestFileReader();
   friend std::ostream& operator<<(std::ostream& out,
                                   const ConquestFileReader& toOutput);
+  Map* ReadFile(const std::string path);
+private:
+    Map* map;
+    std::vector<std::string> Split(const std::string line) const;
+    void PreprocessContinents(const std::string line, DataType* const dataType);
+    void PreprocessTerritories(const std::string line, DataType* const dataType);
+    void ProcessContinents();
+    void ProcessTerritories();
+    void ProcessBorders();
+    std::list<std::string> continentsData;
+    std::list<std::vector<std::string>> territoriesData;
+    Territory* GetTerritoryByName(std::string name);
+    Continent* GetContinentByName(std::string name);
 };
 
 class ConquestFileReaderAdapter : public MapLoader {
+public:
   ConquestFileReaderAdapter();
   ConquestFileReaderAdapter(ConquestFileReader* fileReader);
   ConquestFileReaderAdapter(const ConquestFileReaderAdapter& toCopy);
@@ -125,6 +144,7 @@ class ConquestFileReaderAdapter : public MapLoader {
   friend std::ostream& operator<<(std::ostream& out,
                                   const ConquestFileReaderAdapter& toOutput);
   virtual ~ConquestFileReaderAdapter();
+  Map* GenerateMap(const std::string filePath);
 
   // Overwrite some methods of MapLoader where relevant and delegate the work to
   // ConquestFileReader instead
