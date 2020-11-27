@@ -227,6 +227,21 @@ const std::vector<Territory*>* Player::GetOwnedTerritories() {
   return &ownedTerritories;
 }
 
+const std::vector<Territory*>* Player::GetAdjacentTerritories() {
+    const std::vector<Territory*> allTerritories =
+        *gameEngine->GetMap()->GetTerritories();
+    std::vector<Territory*> territories;
+
+    for (Territory* t : allTerritories) {
+        if (t->GetPlayer() != this) {
+            if (t->IsNeighborTo(this)) {
+                territories.push_back(t);
+            }
+        }
+    }
+    return &territories;
+}
+
 void Player::SetReinforcementPool(int amount) {
   reinforcementPool = std::max(0, amount);
 }

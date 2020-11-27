@@ -65,14 +65,23 @@ std::ostream& operator<<(std::ostream& out,
     return out;
 }
 
-void AggressivePlayerStrategy::issueOrder() {}
+void AggressivePlayerStrategy::issueOrder() {
+    
+}
 std::vector<Territory*> AggressivePlayerStrategy::toDefend() {
-    //temporary return
-    return std::vector<Territory*>();
+    std::vector<Territory*> territories = *player->GetOwnedTerritories();
+    std::random_shuffle(territories.begin(), territories.end());
+    // Sorts territories by number of troops (Decreasing)
+    std::stable_sort(territories.begin(), territories.end(), Territory::HasMoreTroops);
+    return territories;
 }
 std::vector<Territory*> AggressivePlayerStrategy::toAttack() {
-    //temporary return
-    return std::vector<Territory*>();
+
+    std::vector<Territory*> territories = *player->GetAdjacentTerritories();
+    std::random_shuffle(territories.begin(), territories.end());
+    // Sorts territories by number of troops (Decreasing)
+    std::stable_sort(territories.begin(), territories.end(), Territory::HasMoreTroops);
+    return territories;
 }
 
 // Benevolent Player Strategy
@@ -94,14 +103,15 @@ std::ostream& operator<<(std::ostream& out,
     return out;
 }
 
-void BenevolentPlayerStrategy::issueOrder() {}
+void BenevolentPlayerStrategy::issueOrder() {
+    
+}
 std::vector<Territory*> BenevolentPlayerStrategy::toDefend() {
     //Temporary return
     return std::vector<Territory*>();
 }
 std::vector<Territory*> BenevolentPlayerStrategy::toAttack() {
-    //Temporary return
-    return std::vector<Territory*>();
+    return *player->GetOwnedTerritories();
 }
 
 // Neutral Player Strategy

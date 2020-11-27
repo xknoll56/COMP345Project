@@ -80,6 +80,7 @@ class Player : public Subject {
   // (i.e. if less armies left than was asked for)
   int TakeArmiesFromReinforcementPool(int requestedNumberOfArmies);
   const std::vector<Territory*>* GetOwnedTerritories();
+  const std::vector<Territory*>* GetAdjacentTerritories();
   void SetReinforcementPool(int amount);
   bool ExecuteNextOrder();
   void DrawCard();

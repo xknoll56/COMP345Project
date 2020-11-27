@@ -61,20 +61,8 @@ int Territory::GetToDeploy() { return toDeploy; }
 void Territory::IncreaseStandByTroops(int amount) { standByTroops += amount; }
 void Territory::SetStandByTroops(int standByTroops) { this->standByTroops = standByTroops; }
 
-bool operator<(const Territory t1, const Territory t2) {
-	return t1.troops < t2.troops;
-}
-bool operator>(const Territory t1, const Territory t2) {
-	return t1.troops > t2.troops;
-}
-bool operator==(const Territory t1, const Territory t2) {
-	return t1.troops == t2.troops;
-}
-bool operator<=(const Territory t1, const Territory t2) {
-	return t1.troops <= t2.troops;
-}
-bool operator>=(const Territory t1, const Territory t2) {
-	return t1.troops >= t2.troops;
+bool Territory::HasMoreTroops(const Territory* t1, const Territory* t2) {
+	return t1->troops > t2->troops;
 }
 
 bool Graph::TravelledAll() {

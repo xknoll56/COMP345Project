@@ -45,18 +45,8 @@ class Territory {
   void IncreaseStandByTroops(int amount);
   void SetStandByTroops(int toDeploy);
   bool IsNeighborTo(Player* player);
-  friend bool operator<(const Territory t1, const Territory t2);
-  friend bool operator>(const Territory t1, const Territory t2);
-  friend bool operator==(const Territory t1, const Territory t2);
-  friend bool operator<=(const Territory t1, const Territory t2);
-  friend bool operator>=(const Territory t1, const Territory t2);
+  static bool HasMoreTroops(const Territory* t1, const Territory* t2);
 };
-
-bool operator<(const Territory t1, const Territory t2);
-bool operator>(const Territory t1, const Territory t2);
-bool operator==(const Territory t1, const Territory t2);
-bool operator<=(const Territory t1, const Territory t2);
-bool operator>=(const Territory t1, const Territory t2);
 
 class Graph {
  private:
