@@ -17,7 +17,7 @@ public:
     friend std::ostream& operator<<(std::ostream& out,
         const PlayerStrategy& toOutput);
 
-    virtual void issueOrder() = 0;
+    virtual bool issueOrder() = 0;
     virtual std::vector<Territory*> toDefend() = 0;
     virtual std::vector<Territory*> toAttack() = 0;
     void setPlayer(Player* player);
@@ -35,7 +35,7 @@ public:
     virtual ~HumanPlayerStrategy();
     friend std::ostream& operator<<(std::ostream& out,
         const HumanPlayerStrategy& toOutput);
-    virtual void issueOrder();
+    virtual bool issueOrder();
     virtual std::vector<Territory*> toDefend();
     virtual std::vector<Territory*> toAttack();
 };
@@ -50,7 +50,7 @@ public:
     virtual ~AggressivePlayerStrategy();
     friend std::ostream& operator<<(std::ostream& out,
         const AggressivePlayerStrategy& toOutput);
-    virtual void issueOrder();
+    virtual bool issueOrder();
     virtual std::vector<Territory*> toDefend();
     virtual std::vector<Territory*> toAttack();
 };
@@ -65,7 +65,7 @@ public:
     virtual ~BenevolentPlayerStrategy();
     friend std::ostream& operator<<(std::ostream& out,
         const BenevolentPlayerStrategy& toOutput);
-    virtual void issueOrder();
+    virtual bool issueOrder();
     virtual std::vector<Territory*> toDefend();
     virtual std::vector<Territory*> toAttack();
 };
@@ -79,7 +79,7 @@ public:
     virtual ~NeutralPlayerStrategy();
     friend std::ostream& operator<<(std::ostream& out,
         const NeutralPlayerStrategy& toOutput);
-    virtual void issueOrder();
+    virtual bool issueOrder();
     virtual std::vector<Territory*> toDefend();
     virtual std::vector<Territory*> toAttack();
 };

@@ -169,8 +169,12 @@ bool Player::IssueOrder() {
   //  toDefend.pop_back();
   //}
   // phase = Phase::None;
-  playerStrategy->issueOrder();
-  return false;
+
+  this->phase = Phase::IssueOrders;
+  this->Notify();
+  bool notFinished = playerStrategy->issueOrder();
+  phase = Phase::None;
+  return notFinished;
 }
 
 // Adds the given territory pointer to the vector of owned territories
@@ -227,7 +231,8 @@ const std::vector<Territory*>* Player::GetOwnedTerritories() {
   return &ownedTerritories;
 }
 
-const std::vector<Territory*>* Player::GetAdjacentTerritories() {
+const std::vector<Territory*> Player::GetAdjacentTerritories() {
+    std::cout << "fetching adj." << std::endl;
     const std::vector<Territory*> allTerritories =
         *gameEngine->GetMap()->GetTerritories();
     std::vector<Territory*> territories;
@@ -239,7 +244,8 @@ const std::vector<Territory*>* Player::GetAdjacentTerritories() {
             }
         }
     }
-    return &territories;
+    std::cout << "returning adj." << std::endl;
+    return territories;
 }
 
 void Player::SetReinforcementPool(int amount) {
@@ -274,4 +280,20 @@ void Player::SetPlayerStrategy(PlayerStrategy* strategy) {
   delete playerStrategy;  // Current player strategy becomes useless
   strategy->setPlayer(this);
   playerStrategy = strategy;
+}
+
+const std::vector<Card*>* const Player::GetHand() const {
+    return &handOfCards;
+}
+
+// TODO - We need to implement different card playing behaviors for different strategies. 
+void Player::PlayCard(int index) {
+    if (index < handOfCards.size()) {
+        Order* order = handOfCards.at(index)->play();
+        ConfigureOrdersVisitor configurator(this);
+        order->setPlayer(this);
+        order->acceptVisitor(&configurator);
+        AddOrderToPlayer(order);
+        handOfCards.erase(handOfCards.begin() + index);
+    }
 }
