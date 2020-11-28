@@ -332,6 +332,9 @@ class DisableCardDrawVisitor : public OrdersVisitor {
 };
 
 // Visitor to configure orders that are created by cards
+// Only implemented for the human player strategy (the assignment doesn't ask
+// for other strategies to implement card playing)
+// Prompts the player for the various configuration options
 class ConfigureOrdersVisitor : public OrdersVisitor {
  public:
   ConfigureOrdersVisitor();
@@ -350,4 +353,8 @@ class ConfigureOrdersVisitor : public OrdersVisitor {
 
  private:
   Player* player;
+
+  Player* PromptForAnOpponent(std::string promptMessage);
+  Territory* PromptForAPlayerTerritory(std::string promptMessage);
+  Territory* PromptForTerritoryToAttack(std::string promptMessage);
 };

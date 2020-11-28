@@ -169,7 +169,6 @@ bool Player::IssueOrder() {
   //  toDefend.pop_back();
   //}
   // phase = Phase::None;
-
   this->phase = Phase::IssueOrders;
   this->Notify();
   bool notFinished = playerStrategy->issueOrder();
@@ -288,7 +287,7 @@ const std::vector<Card*>* const Player::GetHand() const {
 
 // TODO - We need to implement different card playing behaviors for different strategies. 
 void Player::PlayCard(int index) {
-    if (index < handOfCards.size()) {
+    if (index < handOfCards.size() && index >= 0) {
         Order* order = handOfCards.at(index)->play();
         ConfigureOrdersVisitor configurator(this);
         order->setPlayer(this);

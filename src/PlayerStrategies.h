@@ -38,6 +38,9 @@ public:
     virtual bool issueOrder();
     virtual std::vector<Territory*> toDefend();
     virtual std::vector<Territory*> toAttack();
+
+    // Prompts the user for a value between min and max inclusively
+    static int promptForValueInRange(int min, int max);
 };
 
 class AggressivePlayerStrategy : public PlayerStrategy {
