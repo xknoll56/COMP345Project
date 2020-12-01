@@ -91,6 +91,11 @@ void GameEngine::Init() {
   /* 4. Create Players. */
   for (int i = 0; i < num_players; i++) {
     players.push_back(new Player(this));
+
+    //TODO - Prompt for player type. (Computer, Human, Neutral) and give them appropriate strat.
+
+    players.at(i)->SetPlayerStrategy(new AggressivePlayerStrategy());
+
     std::cout << "Player " << i + 1
               << " has been created with an empty hand of cards. " << std::endl;
   }
@@ -243,10 +248,6 @@ void GameEngine::IssueOrdersPhase() {
   for (Territory* t : *map->GetTerritories()) {
     t->SetToDeploy(0);
     t->SetStandByTroops(0);
-  }
-  for (Player* p : players) {
-    p->GenerateToAttack();
-    p->GenerateToDefend();
   }
   RoundRobin(&Player::IssueOrder);
 }

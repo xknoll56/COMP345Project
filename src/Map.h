@@ -38,13 +38,15 @@ class Territory {
   // amount
   int RemoveTroops(int troops);
   bool TestAdjacencyTo(Territory* toTest);
-  int GetAvailableTroops();
+  int GetAvailableTroops() const;
   void IncreaseToDeploy(int amount);
   void SetToDeploy(int toDeploy);
   int GetToDeploy();
   void IncreaseStandByTroops(int amount);
   void SetStandByTroops(int toDeploy);
   bool IsNeighborTo(Player* player);
+  static bool HasMoreTroops(const Territory* t1, const Territory* t2);
+  static bool HasLessAvailableTroops(const Territory* t1, const Territory* t2);
 };
 
 class Graph {

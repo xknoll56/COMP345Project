@@ -18,6 +18,7 @@
 #include <cmath>
 
 #include "GameEngine.h"
+#include "PlayerStrategies.h"
 
 // Orders List
 OrdersList::OrdersList() {
@@ -836,40 +837,77 @@ ConfigureOrdersVisitor& ConfigureOrdersVisitor::operator=(
 ConfigureOrdersVisitor::~ConfigureOrdersVisitor() {}
 
 void ConfigureOrdersVisitor::VisitDeploy(Deploy* order) {
-  order->setTerritoryToDeploy(player->ToDefend()[0]);
-  order->setNumberOfArmies(player->GetReinforcementPoolCount());
+  order->setTerritoryToDeploy(
+      PromptForAPlayerTerritory("Select a territory to deploy to:"));
+  std::cout << "How many armies to deploy? ()" << std::endl;
+  order->setNumberOfArmies(HumanPlayerStrategy::promptForValueInRange(
+      1, player->GetReinforcementPoolCount()));
 }
+
 void ConfigureOrdersVisitor::VisitAirlift(Airlift* order) {
-  const std::vector<Territory*>* territories = player->GetOwnedTerritories();
-  int troops = 0;
-  int i = 0;
-  Territory* source = nullptr;
-  // 12 attemps
-  while ((troops < 1) && (i < 12)) {
-    source = territories->at(rand() % territories->size());
-    troops = source->GetAvailableTroops();
-  }
-  order->setNumberOfArmies(troops);
-  order->setSourceTerritory(source);
-  order->setTargetTerritory(territories->at(rand() % territories->size()));
+  Territory* sourceT = PromptForAPlayerTerritory("Select a source territory");
+  order->setSourceTerritory(sourceT);
+  order->setTargetTerritory(
+      PromptForTerritoryToAttack("Select a target territory"));
+  std::cout << "How many troops should be airlifted?" << std::endl;
+  order->setNumberOfArmies(
+      HumanPlayerStrategy::promptForValueInRange(1, sourceT->GetTroops()));
 }
-void ConfigureOrdersVisitor::VisitBomb(Bomb* order) { 
-  Territory* target = nullptr;
-  player->GenerateToAttack();
-  std::vector<Territory*> territories = player->ToAttack();
-  if (territories.size() > 0) {
-    target = territories.at(0);
-    for (Territory* t : player->ToAttack()) {
-      if (t->GetTroops() > target->GetTroops()) {
-        target = t;
-      }
-    }
-  }
-  order->setTargetTerritory(target);
+
+void ConfigureOrdersVisitor::VisitBomb(Bomb* order) {
+  order->setTargetTerritory(PromptForTerritoryToAttack("Choose a territory to bomb"));
 }
+
 void ConfigureOrdersVisitor::VisitBlockade(Blockade* order) {
-  order->setTerritory(player->GetOwnedTerritories()->at(rand() % player->GetOwnedTerritories()->size()));
+  order->setTerritory(
+      PromptForAPlayerTerritory("Choose a territory to blockade"));
 }
+
 void ConfigureOrdersVisitor::VisitNegotiate(Negotiate* order) {
-  order->setOpponent(player->GetGameEngine()->getPlayers().at(rand() % player->GetGameEngine()->getPlayers().size()));
+  order->setOpponent(
+      PromptForAnOpponent("Choose an opponent to negotiate peace with"));
+}
+
+Territory* ConfigureOrdersVisitor::PromptForAPlayerTerritory(
+    std::string promptMessage) {
+  std::cout << promptMessage << std::endl;
+
+  const std::vector<Territory*>* territories = player->GetOwnedTerritories();
+  int choice{-1};
+  for (int i = 0; i < territories->size(); i++) {
+    std::cout << (i + 1) << ") " << territories->at(i)->GetName() << std::endl;
+  }
+  choice = HumanPlayerStrategy::promptForValueInRange(1, territories->size());
+  return territories->at(choice - 1);
+}
+Player* ConfigureOrdersVisitor::PromptForAnOpponent(std::string promptMessage) {
+  std::vector<Player*> players = player->GetGameEngine()->getPlayers();
+
+  // Remove the player from the vector so that it doesn't appear in the choices
+  auto it = std::find(players.begin(), players.end(), player);
+  if (it != players.end()) {
+    players.erase(it);
+    players.shrink_to_fit();
+  }
+
+  std::cout << promptMessage << std::endl;
+  int choice{-1};
+  for (int i = 0; i < players.size(); i++) {
+    std::cout << (i + 1) << ") " << players[i]->GetName() << std::endl;
+  }
+  choice = HumanPlayerStrategy::promptForValueInRange(1, players.size());
+
+  return players[choice - 1];
+};
+
+Territory* ConfigureOrdersVisitor::PromptForTerritoryToAttack(
+    std::string promptMessage) {
+  std::cout << promptMessage << std::endl;
+  std::vector<Territory*> toAttack = player->ToAttack();
+  int choice{-1};
+  for (int i = 0; i < toAttack.size(); i++) {
+    std::cout << (i + 1) << ") " << toAttack[i]->GetName() << std::endl;
+  }
+  choice = HumanPlayerStrategy::promptForValueInRange(1, toAttack.size());
+  return toAttack[choice - 1];
 }

@@ -9,23 +9,20 @@
 //
 // Based on the 'https://www.warzone.com/' game.
 
+#include <algorithm>
 #include "Player.h"
 
-#include <algorithm>
-
-#include "Orders.h"
-
 Player::Player()
-    : gameEngine(), listOfOrders(), phase(Phase::None), reinforcementPool(0) {}
+    : gameEngine(), listOfOrders(), phase(Phase::None), reinforcementPool(0), playerStrategy(new NeutralPlayerStrategy()) {}
 
 Player::Player(GameEngine* gameEngine)
     : gameEngine(gameEngine),
       ownedTerritories(std::vector<Territory*>(0)),
-      toAttack(std::vector<Territory*>(0)),
       handOfCards(std::vector<Card*>(0)),
       listOfOrders(new OrdersList()),
       reinforcementPool(0),
-      phase(Phase::None) {}
+      phase(Phase::None),
+      playerStrategy(new NeutralPlayerStrategy()) {}
 // Parametric constructor
 Player::Player(GameEngine* gameEngine, std::vector<Territory*> terr,
                int numberOfArmies)
@@ -33,7 +30,8 @@ Player::Player(GameEngine* gameEngine, std::vector<Territory*> terr,
       handOfCards(std::vector<Card*>(0)),
       reinforcementPool(numberOfArmies),
       listOfOrders(new OrdersList()),
-      phase(Phase::None) {
+      phase(Phase::None), 
+      playerStrategy(new NeutralPlayerStrategy()) {
   for (Territory* t : terr) this->AddTerritoryToPlayer(t);
 }
 
@@ -85,22 +83,14 @@ std::ostream& operator<<(std::ostream& out, const Player& toOutput) {
   return out;
 }
 
-// Returns a vector of pointers of territories to defend
-std::vector<Territory*> Player::ToDefend() {
-  return playerStrategy->toDefend();
-}
-
 /*
-Initiates the list of territories that are to be defended in priority
-*/
 void Player::GenerateToDefend() {
   toDefend = ownedTerritories;
   std::random_shuffle(toDefend.begin(), toDefend.end());
 }
+*/
 
 /*
-Initiates the list of territories that are to be attacked in priority
-*/
 void Player::GenerateToAttack() {
   const std::vector<Territory*>* const vectorAllTerritories =
       gameEngine->GetMap()->GetTerritories();
@@ -118,9 +108,15 @@ void Player::GenerateToAttack() {
   std::random_shuffle(territoriesToAttack.begin(), territoriesToAttack.end());
   toAttack = territoriesToAttack;
 }
+*/
 
 std::vector<Territory*> Player::ToAttack() {
   return playerStrategy->toAttack();
+}
+
+// Returns a vector of pointers of territories to defend
+std::vector<Territory*> Player::ToDefend() {
+    return playerStrategy->toDefend();
 }
 
 /*
@@ -173,8 +169,11 @@ bool Player::IssueOrder() {
   //  toDefend.pop_back();
   //}
   // phase = Phase::None;
-  playerStrategy->issueOrder();
-  return false;
+  this->phase = Phase::IssueOrders;
+  this->Notify();
+  bool notFinished = playerStrategy->issueOrder();
+  phase = Phase::None;
+  return notFinished;
 }
 
 // Adds the given territory pointer to the vector of owned territories
@@ -231,6 +230,23 @@ const std::vector<Territory*>* Player::GetOwnedTerritories() {
   return &ownedTerritories;
 }
 
+const std::vector<Territory*> Player::GetAdjacentTerritories() {
+    std::cout << "fetching adj." << std::endl;
+    const std::vector<Territory*> allTerritories =
+        *gameEngine->GetMap()->GetTerritories();
+    std::vector<Territory*> territories;
+
+    for (Territory* t : allTerritories) {
+        if (t->GetPlayer() != this) {
+            if (t->IsNeighborTo(this)) {
+                territories.push_back(t);
+            }
+        }
+    }
+    std::cout << "returning adj." << std::endl;
+    return territories;
+}
+
 void Player::SetReinforcementPool(int amount) {
   reinforcementPool = std::max(0, amount);
 }
@@ -265,135 +281,18 @@ void Player::SetPlayerStrategy(PlayerStrategy* strategy) {
   playerStrategy = strategy;
 }
 
-// Player strategies
-PlayerStrategy::PlayerStrategy() : player(nullptr) {}
-PlayerStrategy::PlayerStrategy(Player* player) : player(player) {}
-PlayerStrategy::PlayerStrategy(const PlayerStrategy& toCopy) {
-  this->player = toCopy.player;
-}
-PlayerStrategy& PlayerStrategy::operator=(const PlayerStrategy& rightSide) {
-  player = rightSide.player;
-  return *this;
-}
-PlayerStrategy::~PlayerStrategy() {}
-std::ostream& operator<<(std::ostream& out, const PlayerStrategy& toOutput) {
-  out << "Abstract player strategy";
-  //temporary fix
-  return out;
-}
-void PlayerStrategy::setPlayer(Player* player) { this->player = player; }
-
-// Human player strategy
-HumanPlayerStrategy::HumanPlayerStrategy() : PlayerStrategy() {}
-HumanPlayerStrategy::HumanPlayerStrategy(Player* player)
-    : PlayerStrategy(player) {}
-HumanPlayerStrategy::HumanPlayerStrategy(const HumanPlayerStrategy& toCopy)
-    : PlayerStrategy(toCopy) {}
-HumanPlayerStrategy& HumanPlayerStrategy::operator=(
-    const HumanPlayerStrategy& rightSide) {
-  player = rightSide.player;
-  return *this;
-}
-HumanPlayerStrategy::~HumanPlayerStrategy() {}
-std::ostream& operator<<(std::ostream& out,
-                         const HumanPlayerStrategy& toOutput) {
-  out << "Human player strategy";
-  return out;
+const std::vector<Card*>* const Player::GetHand() const {
+    return &handOfCards;
 }
 
-void HumanPlayerStrategy::issueOrder() {}
-std::vector<Territory*> HumanPlayerStrategy::toDefend() {
-    //Temporary return
-    return std::vector<Territory*>();
-}
-std::vector<Territory*> HumanPlayerStrategy::toAttack() {
-    //Temporary return
-    return std::vector<Territory*>();
-}
-
-// Aggressive player strategy
-AggressivePlayerStrategy::AggressivePlayerStrategy() : PlayerStrategy() {}
-AggressivePlayerStrategy::AggressivePlayerStrategy(Player* player)
-    : PlayerStrategy(player) {}
-AggressivePlayerStrategy::AggressivePlayerStrategy(
-    const AggressivePlayerStrategy& toCopy)
-    : PlayerStrategy(toCopy) {}
-AggressivePlayerStrategy& AggressivePlayerStrategy::operator=(
-    const AggressivePlayerStrategy& rightSide) {
-  player = rightSide.player;
-  return *this;
-}
-AggressivePlayerStrategy::~AggressivePlayerStrategy() {}
-std::ostream& operator<<(std::ostream& out,
-                         const AggressivePlayerStrategy& toOutput) {
-  out << "Aggressive player strategy";
-  return out;
-}
-
-void AggressivePlayerStrategy::issueOrder() {}
-std::vector<Territory*> AggressivePlayerStrategy::toDefend() {
-    //temporary return
-    return std::vector<Territory*>();
-}
-std::vector<Territory*> AggressivePlayerStrategy::toAttack() {
-    //temporary return
-    return std::vector<Territory*>();
-}
-
-// Benevolent Player Strategy
-BenevolentPlayerStrategy::BenevolentPlayerStrategy() : PlayerStrategy() {}
-BenevolentPlayerStrategy::BenevolentPlayerStrategy(Player* player)
-    : PlayerStrategy(player) {}
-BenevolentPlayerStrategy::BenevolentPlayerStrategy(
-    const BenevolentPlayerStrategy& toCopy)
-    : PlayerStrategy(toCopy) {}
-BenevolentPlayerStrategy& BenevolentPlayerStrategy::operator=(
-    const BenevolentPlayerStrategy& rightSide) {
-  player = rightSide.player;
-  return *this;
-}
-BenevolentPlayerStrategy::~BenevolentPlayerStrategy() {}
-std::ostream& operator<<(std::ostream& out,
-                         const BenevolentPlayerStrategy& toOutput) {
-  out << "Benevolent player strategy";
-  return out;
-}
-
-void BenevolentPlayerStrategy::issueOrder() {}
-std::vector<Territory*> BenevolentPlayerStrategy::toDefend() {
-    //Temporary return
-    return std::vector<Territory*>();
-}
-std::vector<Territory*> BenevolentPlayerStrategy::toAttack() {
-    //Temporary return
-    return std::vector<Territory*>();
-}
-
-// Neutral Player Strategy
-NeutralPlayerStrategy::NeutralPlayerStrategy() : PlayerStrategy() {}
-NeutralPlayerStrategy::NeutralPlayerStrategy(Player* player)
-    : PlayerStrategy(player) {}
-NeutralPlayerStrategy::NeutralPlayerStrategy(
-    const NeutralPlayerStrategy& toCopy)
-    : PlayerStrategy(toCopy) {}
-NeutralPlayerStrategy& NeutralPlayerStrategy::operator=(
-    const NeutralPlayerStrategy& rightSide) {
-  player = rightSide.player;
-  return *this;
-}
-NeutralPlayerStrategy::~NeutralPlayerStrategy() {}
-std::ostream& operator<<(std::ostream& out,
-                         const NeutralPlayerStrategy& toOutput) {
-  out << "Neutral player strategy";
-  return out;
-}
-
-void NeutralPlayerStrategy::issueOrder() {}
-std::vector<Territory*> NeutralPlayerStrategy::toDefend() {
-    //Temporary return
-    return std::vector<Territory*>();
-}
-std::vector<Territory*> NeutralPlayerStrategy::toAttack() {
-    //Temporary return
-    return std::vector<Territory*>();
+// TODO - We need to implement different card playing behaviors for different strategies. 
+void Player::PlayCard(int index) {
+    if (index < handOfCards.size() && index >= 0) {
+        Order* order = handOfCards.at(index)->play();
+        ConfigureOrdersVisitor configurator(this);
+        order->setPlayer(this);
+        order->acceptVisitor(&configurator);
+        AddOrderToPlayer(order);
+        handOfCards.erase(handOfCards.begin() + index);
+    }
 }
