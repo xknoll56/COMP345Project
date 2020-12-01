@@ -503,7 +503,9 @@ void ConquestFileReader::ProcessBorders() {
 
 // Conquest file reader adapter
 ConquestFileReaderAdapter::ConquestFileReaderAdapter()
-	: MapLoader(), conquestFileReader() {}
+    : MapLoader() {
+  conquestFileReader = new ConquestFileReader();
+}
 ConquestFileReaderAdapter::ConquestFileReaderAdapter(
 	ConquestFileReader* fileReader)
 	: MapLoader(), conquestFileReader(fileReader) {}

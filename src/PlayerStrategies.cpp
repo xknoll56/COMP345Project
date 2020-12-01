@@ -153,32 +153,6 @@ bool HumanPlayerStrategy::issueOrder() {
         else
             return false;
     }
-
-  // Play cards
-  //int cardChoice{-1};
-  //if (player->GetHand()->size() > 0) {
-  //  while (true) {
-  //    // Prompt the user for a card choice
-  //    std::cout << "Wanna play a card?" << std::endl;
-  //    std::cout << "0) Don't play a card" << std::endl;
-  //    for (int i = 0; i < player->GetHand()->size(); i++) {
-  //      std::cout << (i + 1) << ") " << player->GetHand()->at(i) << std::endl;
-  //    }
-  //    cardChoice = HumanPlayerStrategy::promptForValueInRange(
-  //        0, player->GetHand()->size());
-
-  //    // Play card
-  //    // Stop loop if no cards left or player chose to not play a card
-  //    if (cardChoice == 0) {
-  //      break;
-  //    }
-  //    player->PlayCard(cardChoice - 1);
-  //    if (player->GetHand()->size() == 0) {
-  //      break;
-  //    }
-  //  }
-  //}
-  //return false;
 }
 std::vector<Territory*> HumanPlayerStrategy::toDefend() {
     std::cout << "Here is a list of territories to defend: " << std::endl;
