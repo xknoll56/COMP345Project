@@ -92,11 +92,22 @@ void GameEngine::Init() {
   for (int i = 0; i < num_players; i++) {
     players.push_back(new Player(this));
 
-    //TODO - Prompt for player type. (Computer, Human, Neutral) and give them appropriate strat.
-
-    players.at(i)->SetPlayerStrategy(new AggressivePlayerStrategy());
-
-    std::cout << "Player " << i + 1
+    // Prompt for player type. (Computer, Human, Neutral) and give them appropriate strat.
+    std::cout << "\nStrategy for Player " << i + 1 << ":\n1 - Aggressive\n2 - Benevolent\n3 - Human\n4 - Neutral\nYour choice: ";
+    int strat;
+    do {
+        std::cin >> strat;
+        if (strat < 1 || strat > 4)
+            std::cout << "\nInvalid choice. Try again.\n" << std::endl;
+    } while (strat < 1 || strat > 4);
+    switch (strat) {
+        case 1: players.at(i)->SetPlayerStrategy(new AggressivePlayerStrategy()); break;
+        case 2: players.at(i)->SetPlayerStrategy(new BenevolentPlayerStrategy()); break;
+        case 3: players.at(i)->SetPlayerStrategy(new HumanPlayerStrategy()); break;
+        case 4: players.at(i)->SetPlayerStrategy(new NeutralPlayerStrategy()); break;
+    }
+   
+    std::cout << "\nPlayer " << i + 1
               << " has been created with an empty hand of cards. " << std::endl;
   }
 
