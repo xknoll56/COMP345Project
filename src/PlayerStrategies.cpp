@@ -88,7 +88,7 @@ bool HumanPlayerStrategy::issueOrder() {
             }
             if (counter == 0) {
                 std::cout << "\tAll available troops have been moved." 
-                    << "--- No Advance order was created.\n" << std::endl;
+                    << "\n--- No Advance order was created.\n" << std::endl;
                 return true;
             }
 
@@ -150,8 +150,33 @@ bool HumanPlayerStrategy::issueOrder() {
             return true;
         }
         // Commit (finish)
-        else
-            return false;
+        else {
+            std::cout << "\nBefore committing, would you like to change to a computer strategy?\n\t1 - Yes\n\t2 - No" << std::endl;
+            int commitChoice = HumanPlayerStrategy::promptForValueInRange(1, 2);
+            if (commitChoice == 2) {
+                std::cout << "\n--- No changes in strategy. Committing.\n" << std::endl; 
+                return false;
+            }
+            else {
+                std::cout << "\nSelect a Strategy:\n1 - Aggressive\n2 - Benevolent\n3 - Neutral" << std::endl;
+                int strategyChoice = HumanPlayerStrategy::promptForValueInRange(1, 3);
+                switch (strategyChoice) {
+                case 1: player->SetPlayerStrategy(new AggressivePlayerStrategy()); 
+                    std::cout << "\n--- Changing Player Strategy to Aggressive." <<std::endl;
+                    break;
+                case 2: player->SetPlayerStrategy(new BenevolentPlayerStrategy()); 
+                    std::cout << "\n--- Changing Player Strategy to Benevolent." << std::endl;
+                    break;
+                case 3: player->SetPlayerStrategy(new NeutralPlayerStrategy());
+                    std::cout << "\n--- Changing Player Strategy to Neutral." << std::endl;
+                    break;
+                }
+                std::cout << "--- Committing.\n" << std::endl;
+                return false;
+            }
+           
+        }
+           
     }
 }
 std::vector<Territory*> HumanPlayerStrategy::toDefend() {
