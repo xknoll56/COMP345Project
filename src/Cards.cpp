@@ -158,6 +158,9 @@ void Deck::addCard(Card* c) { cards.push_back(c); }
 
 Card* Deck::draw() {
   // get a random int
+    if (cards.size() < 1) {
+        return nullptr;
+  }
   int randomNumber = getRandomInt(0, cards.size() - 1);
   std::cout << "random numbers chosen from the deck = " << randomNumber << '\n';
 
@@ -182,7 +185,11 @@ Deck::~Deck() {
   cards.clear();
 }
 
-void Hand::addCard(Card* c) { cards.push_back(c); }
+void Hand::addCard(Card* c) { 
+    if (c != nullptr) {
+        cards.push_back(c);
+    }
+}
 
 Card* Hand::playFirstCard() {
   Card* cardFound = nullptr;

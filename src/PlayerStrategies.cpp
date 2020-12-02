@@ -276,6 +276,9 @@ bool AggressivePlayerStrategy::issueOrder() {
       }
     }
   }
+  if (rand() % 2) {
+      player->SetPlayerStrategy(new BenevolentPlayerStrategy());
+  }
   return false;
 }
 std::vector<Territory*> AggressivePlayerStrategy::toDefend() {
@@ -349,6 +352,9 @@ bool BenevolentPlayerStrategy::issueOrder() {
         return true;
       }
     }
+  }
+  if (rand() % 2) {
+      player->SetPlayerStrategy(new AggressivePlayerStrategy());
   }
   return false;
 }
